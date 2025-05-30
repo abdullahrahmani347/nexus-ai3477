@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Settings, Download, Plus } from 'lucide-react';
+import { Send, Settings, Download, Plus, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,12 +9,14 @@ import TypingIndicator from './TypingIndicator';
 import SettingsPanel from './SettingsPanel';
 import { useChatStore } from '../store/chatStore';
 import { generateResponse } from '../services/geminiService';
+import { useTheme } from './ThemeProvider';
 
 const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   const { 
     messages, 
@@ -22,8 +24,14 @@ const ChatInterface = () => {
     clearMessages, 
     apiKey,
     isConnected,
-    sessionId 
+    sessionId,
+    model,
+    maxTokens,
+    temperature,
+    systemPrompt
   } = useChatStore();
+
+  const { theme, toggleTheme } = useTheme();
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -38,12 +46,56 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Focus input on any key press (except when in settings or editing)
+      if (
+        !showSettings && 
+        !e.ctrlKey && 
+        !e.metaKey && 
+        !e.altKey &&
+        e.key.length === 1 &&
+        document.activeElement?.tagName !== 'INPUT' &&
+        document.activeElement?.tagName !== 'TEXTAREA'
+      ) {
+        inputRef.current?.focus();
+      }
+
+      // Keyboard shortcuts
+      if ((e.ctrlKey || e.metaKey)) {
+        switch (e.key) {
+          case 'k':
+            e.preventDefault();
+            clearMessages();
+            break;
+          case ',':
+            e.preventDefault();
+            setShowSettings(!showSettings);
+            break;
+          case 'd':
+            e.preventDefault();
+            toggleTheme();
+            break;
+        }
+      }
+
+      // Escape to close settings
+      if (e.key === 'Escape' && showSettings) {
+        setShowSettings(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [showSettings, clearMessages, toggleTheme]);
+
   const handleSend = async () => {
     if (!input.trim() || !apiKey) return;
 
     const userMessage = {
       id: Date.now().toString(),
-      text: input,
+      text: input.trim(),
       sender: 'user' as const,
       timestamp: new Date(),
     };
@@ -53,7 +105,17 @@ const ChatInterface = () => {
     setIsTyping(true);
 
     try {
-      const response = await generateResponse(input, messages, apiKey);
+      const response = await generateResponse(
+        userMessage.text, 
+        messages, 
+        apiKey,
+        {
+          model,
+          maxTokens,
+          temperature,
+          systemPrompt
+        }
+      );
       
       const botMessage = {
         id: (Date.now() + 1).toString(),
@@ -67,7 +129,7 @@ const ChatInterface = () => {
       console.error('Failed to generate response:', error);
       const errorMessage = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I'm having trouble connecting right now. Please check your API key in settings or try again later.",
+        text: error instanceof Error ? error.message : "I'm sorry, I'm having trouble connecting right now. Please check your API key in settings or try again later.",
         sender: 'bot' as const,
         timestamp: new Date(),
         isError: true,
@@ -87,7 +149,7 @@ const ChatInterface = () => {
 
   const exportTranscript = () => {
     const transcript = messages
-      .map(msg => `${msg.sender.toUpperCase()}: ${msg.text}`)
+      .map(msg => `${msg.sender.toUpperCase()} (${new Date(msg.timestamp).toLocaleString()}): ${msg.text}`)
       .join('\n\n');
     
     const blob = new Blob([transcript], { type: 'text/plain' });
@@ -102,18 +164,18 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className={`flex h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200/50 p-4 flex items-center justify-between">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">AI</span>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-800">Gemini Chat</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Gemini Chat</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {isConnected ? 'Connected' : 'Not connected'}
                 {messages.length > 0 && ` • ${messages.length} messages`}
               </p>
@@ -124,9 +186,17 @@ const ChatInterface = () => {
             <Button
               variant="ghost"
               size="sm"
+              onClick={toggleTheme}
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={exportTranscript}
               disabled={messages.length === 0}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
             >
               <Download className="w-4 h-4" />
             </Button>
@@ -135,7 +205,8 @@ const ChatInterface = () => {
               size="sm"
               onClick={() => clearMessages()}
               disabled={messages.length === 0}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              title="New Chat (Ctrl+K)"
             >
               <Plus className="w-4 h-4 rotate-45" />
             </Button>
@@ -143,7 +214,8 @@ const ChatInterface = () => {
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              className="text-gray-600 hover:text-gray-800"
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              title="Settings (Ctrl+,)"
             >
               <Settings className="w-4 h-4" />
             </Button>
@@ -158,10 +230,15 @@ const ChatInterface = () => {
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-white font-bold text-xl">AI</span>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">Welcome to Gemini Chat</h2>
-                <p className="text-gray-600 mb-4">Start a conversation with Google's Gemini AI</p>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Welcome to Gemini Chat</h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">Start a conversation with Google's Gemini AI</p>
+                <div className="text-sm text-gray-500 dark:text-gray-500 space-y-1">
+                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+K</kbd> New chat</p>
+                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+,</kbd> Settings</p>
+                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+D</kbd> Toggle theme</p>
+                </div>
                 {!apiKey && (
-                  <p className="text-orange-600 text-sm">
+                  <p className="text-orange-600 text-sm mt-4">
                     Please configure your API key in settings to begin
                   </p>
                 )}
@@ -177,16 +254,17 @@ const ChatInterface = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="bg-white/80 backdrop-blur-sm border-t border-gray-200/50 p-4">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50 p-4">
           <div className="max-w-4xl mx-auto flex items-end space-x-3">
             <div className="flex-1 relative">
               <Input
+                ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder={apiKey ? "Type your message..." : "Configure API key in settings first"}
-                disabled={!apiKey}
-                className="pr-12 min-h-[44px] resize-none bg-white/90 border-gray-300/50 focus:border-blue-500 focus:ring-blue-500/20"
+                placeholder={apiKey ? "Type your message... (Enter to send, Shift+Enter for new line)" : "Configure API key in settings first"}
+                disabled={!apiKey || isTyping}
+                className="pr-12 min-h-[44px] resize-none bg-white/90 dark:bg-gray-700/90 border-gray-300/50 dark:border-gray-600/50 focus:border-blue-500 focus:ring-blue-500/20 dark:text-gray-100"
                 style={{ minHeight: '44px' }}
               />
             </div>

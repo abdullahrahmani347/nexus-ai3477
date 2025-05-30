@@ -144,3 +144,33 @@ export async function generateResponse(
     }
   }
 }
+
+export async function generateStreamingResponse(
+  userInput: string,
+  conversationHistory: Message[],
+  apiKey: string,
+  onChunk: (chunk: string) => void,
+  options: {
+    model?: string;
+    maxTokens?: number;
+    temperature?: number;
+    systemPrompt?: string;
+  } = {}
+): Promise<string> {
+  // For now, simulate streaming by calling the regular API and chunking the response
+  const response = await generateResponse(userInput, conversationHistory, apiKey, options);
+  
+  // Simulate streaming by sending chunks
+  const words = response.split(' ');
+  let currentChunk = '';
+  
+  for (let i = 0; i < words.length; i++) {
+    currentChunk += (i > 0 ? ' ' : '') + words[i];
+    onChunk(currentChunk);
+    
+    // Add a small delay to simulate streaming
+    await new Promise(resolve => setTimeout(resolve, 50));
+  }
+  
+  return response;
+}

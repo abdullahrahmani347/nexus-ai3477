@@ -7,7 +7,16 @@ interface ChatState {
   // Messages
   messages: Message[];
   addMessage: (message: Message) => void;
+  updateMessage: (id: string, updates: Partial<Message>) => void;
+  deleteMessage: (id: string) => void;
   clearMessages: () => void;
+  regenerateResponse: (fromMessageId: string) => void;
+  
+  // Streaming
+  isStreaming: boolean;
+  setIsStreaming: (streaming: boolean) => void;
+  streamingMessageId: string | null;
+  setStreamingMessageId: (id: string | null) => void;
   
   // API Configuration
   apiKey: string;
@@ -22,6 +31,10 @@ interface ChatState {
   setTemperature: (temp: number) => void;
   systemPrompt: string;
   setSystemPrompt: (prompt: string) => void;
+  
+  // UI Settings
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
   
   // Session
   sessionId: string;
@@ -40,10 +53,33 @@ export const useChatStore = create<ChatState>()(
       addMessage: (message) => set((state) => ({ 
         messages: [...state.messages, message] 
       })),
+      updateMessage: (id, updates) => set((state) => ({
+        messages: state.messages.map(msg => 
+          msg.id === id ? { ...msg, ...updates } : msg
+        )
+      })),
+      deleteMessage: (id) => set((state) => ({
+        messages: state.messages.filter(msg => msg.id !== id)
+      })),
       clearMessages: () => set({ 
         messages: [],
         sessionId: generateSessionId()
       }),
+      regenerateResponse: (fromMessageId) => {
+        const state = get();
+        const messageIndex = state.messages.findIndex(msg => msg.id === fromMessageId);
+        if (messageIndex !== -1) {
+          // Remove all messages after the specified message
+          const newMessages = state.messages.slice(0, messageIndex + 1);
+          set({ messages: newMessages });
+        }
+      },
+      
+      // Streaming
+      isStreaming: false,
+      setIsStreaming: (streaming) => set({ isStreaming: streaming }),
+      streamingMessageId: null,
+      setStreamingMessageId: (id) => set({ streamingMessageId: id }),
       
       // API Configuration
       apiKey: 'AIzaSyChoxttA3sTyJ0uprxEug5cZnxSQcz054c',
@@ -61,6 +97,10 @@ export const useChatStore = create<ChatState>()(
       setTemperature: (temp) => set({ temperature: temp }),
       systemPrompt: 'You are a helpful AI assistant. Be concise, accurate, and friendly in your responses.',
       setSystemPrompt: (prompt) => set({ systemPrompt: prompt }),
+      
+      // UI Settings
+      theme: 'light',
+      setTheme: (theme) => set({ theme }),
       
       // Session
       sessionId: generateSessionId(),
@@ -81,6 +121,7 @@ export const useChatStore = create<ChatState>()(
         maxTokens: state.maxTokens,
         temperature: state.temperature,
         systemPrompt: state.systemPrompt,
+        theme: state.theme,
       }),
     }
   )
