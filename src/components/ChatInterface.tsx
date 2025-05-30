@@ -1,20 +1,26 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Settings, Download, Plus, Moon, Sun } from 'lucide-react';
+import { Send, Settings, Download, Plus, Moon, Sun, Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import SettingsPanel from './SettingsPanel';
+import VoiceControl from './VoiceControl';
+import FileAttachment from './FileAttachment';
+import SessionSidebar from './SessionSidebar';
 import { useChatStore } from '../store/chatStore';
-import { generateResponse } from '../services/geminiService';
+import { generateStreamingResponse } from '../services/streamingService';
 import { useTheme } from './ThemeProvider';
+import { voiceService } from '../services/voiceService';
 
 const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
@@ -24,11 +30,22 @@ const ChatInterface = () => {
     clearMessages, 
     apiKey,
     isConnected,
-    sessionId,
+    currentSessionId,
     model,
     maxTokens,
     temperature,
-    systemPrompt
+    systemPrompt,
+    attachedFiles,
+    addFiles,
+    removeFile,
+    clearFiles,
+    isStreaming,
+    setIsStreaming,
+    streamingMessageId,
+    setStreamingMessageId,
+    voiceEnabled,
+    autoSpeak,
+    getCurrentSession
   } = useChatStore();
 
   const { theme, toggleTheme } = useTheme();
@@ -98,17 +115,37 @@ const ChatInterface = () => {
       text: input.trim(),
       sender: 'user' as const,
       timestamp: new Date(),
+      attachments: attachedFiles.length > 0 ? [...attachedFiles] : undefined,
     };
 
     addMessage(userMessage);
     setInput('');
-    setIsTyping(true);
+    clearFiles();
+    setIsTyping(false);
+    setIsStreaming(true);
+
+    // Create bot message for streaming
+    const botMessageId = (Date.now() + 1).toString();
+    setStreamingMessageId(botMessageId);
+    
+    const botMessage = {
+      id: botMessageId,
+      text: '',
+      sender: 'bot' as const,
+      timestamp: new Date(),
+    };
+    addMessage(botMessage);
 
     try {
-      const response = await generateResponse(
+      const response = await generateStreamingResponse(
         userMessage.text, 
         messages, 
         apiKey,
+        (chunk) => {
+          // Update the streaming message
+          const state = useChatStore.getState();
+          state.updateMessage(botMessageId, { text: chunk });
+        },
         {
           model,
           maxTokens,
@@ -117,27 +154,37 @@ const ChatInterface = () => {
         }
       );
       
-      const botMessage = {
-        id: (Date.now() + 1).toString(),
-        text: response,
-        sender: 'bot' as const,
-        timestamp: new Date(),
-      };
+      // Final update
+      const state = useChatStore.getState();
+      state.updateMessage(botMessageId, { text: response });
 
-      addMessage(botMessage);
+      // Auto-speak if enabled
+      if (autoSpeak && voiceEnabled) {
+        voiceService.speak(response);
+      }
+
     } catch (error) {
       console.error('Failed to generate response:', error);
-      const errorMessage = {
-        id: (Date.now() + 1).toString(),
-        text: error instanceof Error ? error.message : "I'm sorry, I'm having trouble connecting right now. Please check your API key in settings or try again later.",
-        sender: 'bot' as const,
-        timestamp: new Date(),
-        isError: true,
-      };
-      addMessage(errorMessage);
+      const errorMessage = error instanceof Error ? error.message : "I'm sorry, I'm having trouble connecting right now. Please check your API key in settings or try again later.";
+      
+      const state = useChatStore.getState();
+      state.updateMessage(botMessageId, { 
+        text: errorMessage,
+        isError: true
+      });
     } finally {
-      setIsTyping(false);
+      setIsStreaming(false);
+      setStreamingMessageId(null);
     }
+  };
+
+  const handleVoiceInput = (text: string) => {
+    setInput(text);
+    inputRef.current?.focus();
+  };
+
+  const handleSpeakResponse = (speakFn: (text: string) => void) => {
+    // This will be used by VoiceControl component
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -148,7 +195,8 @@ const ChatInterface = () => {
   };
 
   const exportTranscript = () => {
-    const transcript = messages
+    const session = getCurrentSession();
+    const transcript = (session?.messages || messages)
       .map(msg => `${msg.sender.toUpperCase()} (${new Date(msg.timestamp).toLocaleString()}): ${msg.text}`)
       .join('\n\n');
     
@@ -156,25 +204,45 @@ const ChatInterface = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `chat-transcript-${sessionId}.txt`;
+    a.download = `chat-transcript-${currentSessionId}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
+  // Filter messages based on search
+  const filteredMessages = searchQuery 
+    ? messages.filter(msg => 
+        msg.text.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : messages;
+
   return (
     <div className={`flex h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
+      {/* Session Sidebar */}
+      <SessionSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
+
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 p-4 flex items-center justify-between">
           <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
               <span className="text-white font-semibold text-sm">AI</span>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Gemini Chat</h1>
+              <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+                {getCurrentSession()?.title || 'Gemini Chat'}
+              </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 {isConnected ? 'Connected' : 'Not connected'}
                 {messages.length > 0 && ` • ${messages.length} messages`}
@@ -183,6 +251,26 @@ const ChatInterface = () => {
           </div>
           
           <div className="flex items-center space-x-2">
+            {/* Search */}
+            <div className="relative hidden md:block">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                placeholder="Search messages..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 w-48 h-8 text-sm"
+              />
+            </div>
+
+            {/* Voice Controls */}
+            {voiceEnabled && (
+              <VoiceControl
+                onVoiceInput={handleVoiceInput}
+                onSpeakResponse={handleSpeakResponse}
+                disabled={isStreaming}
+              />
+            )}
+
             <Button
               variant="ghost"
               size="sm"
@@ -225,7 +313,7 @@ const ChatInterface = () => {
         {/* Messages Area */}
         <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
           <div className="space-y-4 max-w-4xl mx-auto">
-            {messages.length === 0 && (
+            {filteredMessages.length === 0 && !searchQuery && (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-white font-bold text-xl">AI</span>
@@ -244,37 +332,55 @@ const ChatInterface = () => {
                 )}
               </div>
             )}
+
+            {searchQuery && filteredMessages.length === 0 && (
+              <div className="text-center py-12">
+                <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 dark:text-gray-400">No messages found for "{searchQuery}"</p>
+              </div>
+            )}
             
-            {messages.map((message) => (
+            {filteredMessages.map((message) => (
               <MessageBubble key={message.id} message={message} />
             ))}
             
-            {isTyping && <TypingIndicator />}
+            {isStreaming && <TypingIndicator />}
           </div>
         </ScrollArea>
 
         {/* Input Area */}
         <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50 p-4">
-          <div className="max-w-4xl mx-auto flex items-end space-x-3">
-            <div className="flex-1 relative">
-              <Input
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={apiKey ? "Type your message... (Enter to send, Shift+Enter for new line)" : "Configure API key in settings first"}
-                disabled={!apiKey || isTyping}
-                className="pr-12 min-h-[44px] resize-none bg-white/90 dark:bg-gray-700/90 border-gray-300/50 dark:border-gray-600/50 focus:border-blue-500 focus:ring-blue-500/20 dark:text-gray-100"
-                style={{ minHeight: '44px' }}
-              />
+          <div className="max-w-4xl mx-auto space-y-2">
+            {/* File Attachments */}
+            <FileAttachment
+              files={attachedFiles}
+              onFilesAdd={addFiles}
+              onFileRemove={removeFile}
+              disabled={!apiKey || isStreaming}
+            />
+
+            {/* Input */}
+            <div className="flex items-end space-x-3">
+              <div className="flex-1 relative">
+                <Input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  placeholder={apiKey ? "Type your message... (Enter to send, Shift+Enter for new line)" : "Configure API key in settings first"}
+                  disabled={!apiKey || isStreaming}
+                  className="pr-12 min-h-[44px] resize-none bg-white/90 dark:bg-gray-700/90 border-gray-300/50 dark:border-gray-600/50 focus:border-blue-500 focus:ring-blue-500/20 dark:text-gray-100"
+                  style={{ minHeight: '44px' }}
+                />
+              </div>
+              <Button
+                onClick={handleSend}
+                disabled={!input.trim() || !apiKey || isStreaming}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 h-11 px-6"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || !apiKey || isTyping}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 h-11 px-6"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </div>

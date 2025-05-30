@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Key, Settings, Info } from 'lucide-react';
+import { X, Key, Settings, Info, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { useChatStore } from '../store/chatStore';
+import { voiceService } from '../services/voiceService';
 
 interface SettingsPanelProps {
   onClose: () => void;
@@ -24,7 +25,11 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
     temperature,
     setTemperature,
     systemPrompt,
-    setSystemPrompt
+    setSystemPrompt,
+    voiceEnabled,
+    setVoiceEnabled,
+    autoSpeak,
+    setAutoSpeak
   } = useChatStore();
 
   const [tempApiKey, setTempApiKey] = useState(apiKey);
@@ -40,13 +45,15 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
     { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
   ];
 
+  const isVoiceSupported = voiceService.isSupported();
+
   return (
-    <div className="w-96 bg-white border-l border-gray-200 flex flex-col h-full">
+    <div className="w-96 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col h-full">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Settings className="w-5 h-5 text-gray-600" />
-          <h2 className="text-lg font-semibold text-gray-800">Settings</h2>
+          <Settings className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Settings</h2>
         </div>
         <Button variant="ghost" size="sm" onClick={onClose}>
           <X className="w-4 h-4" />
@@ -59,12 +66,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
             <Key className="w-4 h-4 text-blue-600" />
-            <h3 className="font-medium text-gray-800">API Configuration</h3>
+            <h3 className="font-medium text-gray-800 dark:text-gray-200">API Configuration</h3>
           </div>
           
           <div className="space-y-3">
             <div>
-              <Label htmlFor="apiKey" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="apiKey" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Gemini API Key
               </Label>
               <div className="mt-1 flex space-x-2">
@@ -102,7 +109,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
             </div>
 
             <div>
-              <Label htmlFor="model" className="text-sm font-medium text-gray-700">
+              <Label htmlFor="model" className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 Model
               </Label>
               <Select value={model} onValueChange={setModel}>
@@ -121,14 +128,58 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
           </div>
         </div>
 
+        {/* Voice Settings */}
+        {isVoiceSupported && (
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <Mic className="w-4 h-4 text-purple-600" />
+              <h3 className="font-medium text-gray-800 dark:text-gray-200">Voice Settings</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Enable Voice Features
+                  </Label>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Voice input and text-to-speech
+                  </p>
+                </div>
+                <Switch
+                  checked={voiceEnabled}
+                  onCheckedChange={setVoiceEnabled}
+                />
+              </div>
+
+              {voiceEnabled && (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Auto-speak Responses
+                    </Label>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Automatically read AI responses aloud
+                    </p>
+                  </div>
+                  <Switch
+                    checked={autoSpeak}
+                    onCheckedChange={setAutoSpeak}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Model Parameters */}
         <div className="space-y-4">
-          <h3 className="font-medium text-gray-800">Model Parameters</h3>
+          <h3 className="font-medium text-gray-800 dark:text-gray-200">Model Parameters</h3>
           
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Max Tokens
                 </Label>
                 <span className="text-sm text-gray-500">{maxTokens}</span>
@@ -148,7 +199,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <Label className="text-sm font-medium text-gray-700">
+                <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Temperature
                 </Label>
                 <span className="text-sm text-gray-500">{temperature}</span>
@@ -170,9 +221,9 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
 
         {/* System Prompt */}
         <div className="space-y-4">
-          <h3 className="font-medium text-gray-800">System Prompt</h3>
+          <h3 className="font-medium text-gray-800 dark:text-gray-200">System Prompt</h3>
           <div>
-            <Label htmlFor="systemPrompt" className="text-sm font-medium text-gray-700">
+            <Label htmlFor="systemPrompt" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Custom Instructions
             </Label>
             <textarea
@@ -180,7 +231,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
               placeholder="Enter custom instructions for the AI..."
-              className="mt-1 w-full h-24 px-3 py-2 border border-gray-300 rounded-md resize-none text-sm"
+              className="mt-1 w-full h-24 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md resize-none text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             />
             <p className="text-xs text-gray-500 mt-1">
               These instructions will be included in every conversation
@@ -189,12 +240,12 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ onClose }) => {
         </div>
 
         {/* Info */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
           <div className="flex items-start space-x-2">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <p className="text-blue-800 font-medium mb-1">Getting Started</p>
-              <p className="text-blue-700">
+              <p className="text-blue-800 dark:text-blue-200 font-medium mb-1">Getting Started</p>
+              <p className="text-blue-700 dark:text-blue-300">
                 Get your free Gemini API key from Google AI Studio. 
                 The key is stored locally in your browser.
               </p>
