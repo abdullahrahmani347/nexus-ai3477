@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Settings, Download, Plus, Moon, Sun, Menu, Search } from 'lucide-react';
+import { Send, Settings, Plus, Moon, Sun, Menu, Search, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,6 +10,7 @@ import SettingsPanel from './SettingsPanel';
 import VoiceControl from './VoiceControl';
 import FileAttachment from './FileAttachment';
 import SessionSidebar from './SessionSidebar';
+import ExportDialog from './ExportDialog';
 import { useChatStore } from '../store/chatStore';
 import { generateStreamingResponse } from '../services/streamingService';
 import { useTheme } from './ThemeProvider';
@@ -93,18 +95,23 @@ const ChatInterface = () => {
             e.preventDefault();
             toggleTheme();
             break;
+          case 'b':
+            e.preventDefault();
+            setShowSidebar(!showSidebar);
+            break;
         }
       }
 
-      // Escape to close settings
-      if (e.key === 'Escape' && showSettings) {
-        setShowSettings(false);
+      // Escape to close settings/sidebar
+      if (e.key === 'Escape') {
+        if (showSettings) setShowSettings(false);
+        if (showSidebar) setShowSidebar(false);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showSettings, clearMessages, toggleTheme]);
+  }, [showSettings, showSidebar, clearMessages, toggleTheme]);
 
   const handleSend = async () => {
     if (!input.trim() || !apiKey) return;
@@ -194,23 +201,6 @@ const ChatInterface = () => {
     }
   };
 
-  const exportTranscript = () => {
-    const session = getCurrentSession();
-    const transcript = (session?.messages || messages)
-      .map(msg => `${msg.sender.toUpperCase()} (${new Date(msg.timestamp).toLocaleString()}): ${msg.text}`)
-      .join('\n\n');
-    
-    const blob = new Blob([transcript], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat-transcript-${currentSessionId}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
   // Filter messages based on search
   const filteredMessages = searchQuery 
     ? messages.filter(msg => 
@@ -233,6 +223,7 @@ const ChatInterface = () => {
               size="sm"
               onClick={() => setShowSidebar(!showSidebar)}
               className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              title="Toggle Sidebar (Ctrl+B)"
             >
               <Menu className="w-4 h-4" />
             </Button>
@@ -276,18 +267,23 @@ const ChatInterface = () => {
               size="sm"
               onClick={toggleTheme}
               className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              title="Toggle Theme (Ctrl+D)"
             >
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={exportTranscript}
-              disabled={messages.length === 0}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
-            >
-              <Download className="w-4 h-4" />
-            </Button>
+
+            <ExportDialog>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={messages.length === 0}
+                className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+                title="Export Chat"
+              >
+                <Download className="w-4 h-4" />
+              </Button>
+            </ExportDialog>
+
             <Button
               variant="ghost"
               size="sm"
@@ -324,6 +320,7 @@ const ChatInterface = () => {
                   <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+K</kbd> New chat</p>
                   <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+,</kbd> Settings</p>
                   <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+D</kbd> Toggle theme</p>
+                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+B</kbd> Toggle sidebar</p>
                 </div>
                 {!apiKey && (
                   <p className="text-orange-600 text-sm mt-4">
@@ -337,6 +334,13 @@ const ChatInterface = () => {
               <div className="text-center py-12">
                 <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <p className="text-gray-600 dark:text-gray-400">No messages found for "{searchQuery}"</p>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => setSearchQuery('')}
+                  className="mt-2 text-sm"
+                >
+                  Clear search
+                </Button>
               </div>
             )}
             

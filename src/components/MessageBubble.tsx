@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
-import { format } from 'date-fns';
-import { User, Bot, AlertCircle, Copy, Edit2, Trash2, Check } from 'lucide-react';
+import { Copy, Edit2, Trash2, Check, X, FileText, Image, File } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useChatStore } from '../store/chatStore';
+import { FileData } from '../services/fileService';
 
 export interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  attachments?: FileData[];
   isError?: boolean;
-  isEditing?: boolean;
 }
 
 interface MessageBubbleProps {
@@ -19,134 +20,166 @@ interface MessageBubbleProps {
 }
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({ message }) => {
-  const isUser = message.sender === 'user';
-  const isError = message.isError;
-  const [showActions, setShowActions] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(message.text);
   const [copied, setCopied] = useState(false);
-  
-  const { updateMessage, deleteMessage, regenerateResponse } = useChatStore();
+  const { updateMessage, deleteMessage } = useChatStore();
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(message.text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleEdit = () => {
-    updateMessage(message.id, { isEditing: true });
-    setEditText(message.text);
-  };
-
-  const handleSaveEdit = () => {
-    updateMessage(message.id, { text: editText, isEditing: false });
-    if (isUser) {
-      regenerateResponse(message.id);
+    try {
+      await navigator.clipboard.writeText(message.text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy text:', error);
     }
   };
 
-  const handleCancelEdit = () => {
-    updateMessage(message.id, { isEditing: false });
+  const handleSave = () => {
+    if (editText.trim() !== message.text) {
+      updateMessage(message.id, { text: editText.trim() });
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
     setEditText(message.text);
+    setIsEditing(false);
   };
 
   const handleDelete = () => {
     deleteMessage(message.id);
   };
 
+  const renderFileAttachment = (file: FileData) => {
+    const getFileIcon = () => {
+      if (file.type.startsWith('image/')) return <Image className="w-4 h-4" />;
+      if (file.type === 'text/plain' || file.type === 'text/markdown') return <FileText className="w-4 h-4" />;
+      return <File className="w-4 h-4" />;
+    };
+
+    const formatSize = (bytes: number) => {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    return (
+      <div key={file.id} className="flex items-center space-x-2 p-2 bg-gray-50 dark:bg-gray-700 rounded border">
+        {getFileIcon()}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+            {file.name}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formatSize(file.size)}
+          </p>
+        </div>
+        {file.preview && (
+          <img 
+            src={file.preview} 
+            alt={file.name}
+            className="w-12 h-12 object-cover rounded"
+          />
+        )}
+      </div>
+    );
+  };
+
   return (
-    <div 
-      className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in group`}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
-    >
-      <div className={`flex max-w-[80%] ${isUser ? 'flex-row-reverse' : 'flex-row'} items-end space-x-2 ${isUser ? 'space-x-reverse' : ''}`}>
-        {/* Avatar */}
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-          isUser 
-            ? 'bg-gradient-to-r from-blue-500 to-purple-600' 
-            : isError 
-              ? 'bg-red-500' 
-              : 'bg-gradient-to-r from-gray-600 to-gray-700'
-        }`}>
-          {isUser ? (
-            <User className="w-4 h-4 text-white" />
-          ) : isError ? (
-            <AlertCircle className="w-4 h-4 text-white" />
+    <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} group`}>
+      <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-2' : 'order-1'}`}>
+        <div
+          className={`p-4 rounded-2xl ${
+            message.sender === 'user'
+              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
+              : message.isError
+              ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+              : 'bg-white/90 dark:bg-gray-700/90 text-gray-800 dark:text-gray-200 border border-gray-200/50 dark:border-gray-600/50'
+          } shadow-sm backdrop-blur-sm break-words`}
+        >
+          {/* File Attachments */}
+          {message.attachments && message.attachments.length > 0 && (
+            <div className="mb-3 space-y-2">
+              {message.attachments.map(renderFileAttachment)}
+            </div>
+          )}
+
+          {/* Message Content */}
+          {isEditing ? (
+            <div className="space-y-2">
+              <Input
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="bg-white/50 dark:bg-gray-600/50"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSave();
+                  } else if (e.key === 'Escape') {
+                    handleCancel();
+                  }
+                }}
+                autoFocus
+              />
+              <div className="flex space-x-2">
+                <Button onClick={handleSave} size="sm" variant="ghost">
+                  <Check className="w-3 h-3" />
+                </Button>
+                <Button onClick={handleCancel} size="sm" variant="ghost">
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            </div>
           ) : (
-            <Bot className="w-4 h-4 text-white" />
+            <div className="whitespace-pre-wrap">{message.text}</div>
           )}
         </div>
 
-        {/* Message Content */}
-        <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} relative`}>
-          <div className={`relative px-4 py-3 rounded-2xl max-w-full ${
-            isUser
-              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-              : isError
-                ? 'bg-red-50 border border-red-200 text-red-800'
-                : 'bg-white border border-gray-200 text-gray-800 shadow-sm'
-          }`}>
-            {message.isEditing ? (
-              <div className="space-y-2">
-                <textarea
-                  value={editText}
-                  onChange={(e) => setEditText(e.target.value)}
-                  className="w-full min-h-[60px] p-2 border rounded text-gray-800 resize-none"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.ctrlKey) {
-                      handleSaveEdit();
-                    } else if (e.key === 'Escape') {
-                      handleCancelEdit();
-                    }
-                  }}
-                />
-                <div className="flex space-x-2">
-                  <Button size="sm" onClick={handleSaveEdit}>
-                    <Check className="w-3 h-3" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <p className="whitespace-pre-wrap text-sm leading-relaxed break-words">
-                {message.text}
-              </p>
-            )}
-            
-            {/* Message tail */}
-            <div className={`absolute w-3 h-3 transform rotate-45 ${
-              isUser 
-                ? 'bg-gradient-to-r from-blue-500 to-purple-600 -right-1 bottom-3' 
-                : isError
-                  ? 'bg-red-50 border-r border-b border-red-200 -left-1 bottom-3'
-                  : 'bg-white border-r border-b border-gray-200 -left-1 bottom-3'
-            }`} />
-          </div>
+        {/* Message Actions */}
+        <div className={`flex items-center space-x-1 mt-1 opacity-0 group-hover:opacity-100 transition-opacity ${
+          message.sender === 'user' ? 'justify-end' : 'justify-start'
+        }`}>
+          <Button
+            onClick={handleCopy}
+            size="sm"
+            variant="ghost"
+            className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+          >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+          </Button>
           
-          {/* Actions */}
-          {showActions && !message.isEditing && (
-            <div className={`absolute top-0 ${isUser ? 'left-0' : 'right-0'} flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg shadow-lg border p-1 z-10`}>
-              <Button size="sm" variant="ghost" onClick={handleCopy}>
-                {copied ? <Check className="w-3 h-3 text-green-600" /> : <Copy className="w-3 h-3" />}
-              </Button>
-              {isUser && (
-                <Button size="sm" variant="ghost" onClick={handleEdit}>
-                  <Edit2 className="w-3 h-3" />
-                </Button>
-              )}
-              <Button size="sm" variant="ghost" onClick={handleDelete} className="text-red-600 hover:text-red-800">
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            </div>
+          {message.sender === 'user' && !isEditing && (
+            <Button
+              onClick={() => setIsEditing(true)}
+              size="sm"
+              variant="ghost"
+              className="h-6 px-2 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            >
+              <Edit2 className="w-3 h-3" />
+            </Button>
           )}
           
-          {/* Timestamp */}
-          <span className="text-xs text-gray-500 mt-1 px-1">
-            {format(message.timestamp, 'HH:mm')}
-          </span>
+          <Button
+            onClick={handleDelete}
+            size="sm"
+            variant="ghost"
+            className="h-6 px-2 text-xs text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+
+        {/* Timestamp */}
+        <div className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${
+          message.sender === 'user' ? 'text-right' : 'text-left'
+        }`}>
+          {new Date(message.timestamp).toLocaleTimeString([], { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })}
         </div>
       </div>
     </div>

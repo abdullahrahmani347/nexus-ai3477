@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message } from '../components/MessageBubble';
@@ -159,9 +160,14 @@ export const useChatStore = create<ChatState>()(
           
           // If no session exists, create one
           if (!updatedSessions.find(s => s.id === state.currentSessionId)) {
+            const firstUserMessage = newMessages.find(m => m.sender === 'user');
+            const title = firstUserMessage ? 
+              firstUserMessage.text.slice(0, 50) + (firstUserMessage.text.length > 50 ? '...' : '') :
+              'New Chat';
+              
             const newSession: ChatSession = {
               id: state.currentSessionId,
-              title: message.text.slice(0, 50) + (message.text.length > 50 ? '...' : ''),
+              title,
               createdAt: new Date(),
               updatedAt: new Date(),
               messages: newMessages
