@@ -6,7 +6,7 @@ import { voiceService } from '../services/voiceService';
 
 interface VoiceControlProps {
   onVoiceInput: (text: string) => void;
-  onSpeakResponse: (text: string) => void;
+  onSpeakResponse: (speakFn: (text: string) => void) => void;
   disabled?: boolean;
 }
 

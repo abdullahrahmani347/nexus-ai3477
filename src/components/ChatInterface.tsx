@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Settings, Download, Plus, Moon, Sun, Menu, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -184,7 +183,8 @@ const ChatInterface = () => {
   };
 
   const handleSpeakResponse = (speakFn: (text: string) => void) => {
-    // This will be used by VoiceControl component
+    // This callback receives the speak function from VoiceControl
+    // It's used to set up the speaking capability
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
