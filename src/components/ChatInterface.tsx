@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Settings, Plus, Moon, Sun, Menu, Search, Download } from 'lucide-react';
+import { Send, Settings, Plus, Moon, Sun, Menu, Search, Download, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -209,33 +209,42 @@ const ChatInterface = () => {
     : messages;
 
   return (
-    <div className={`flex h-screen ${theme === 'dark' ? 'dark bg-gray-900' : 'bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50'}`}>
+    <div className={`flex h-screen ${theme === 'dark' ? 'dark' : ''}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-orange-500/5 pointer-events-none" />
+      
       {/* Session Sidebar */}
       <SessionSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col relative">
         {/* Header */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-700/50 p-4 flex items-center justify-between">
+        <div className="glass-effect border-b border-white/10 dark:border-white/5 p-4 flex items-center justify-between relative z-10">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowSidebar(!showSidebar)}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
               title="Toggle Sidebar (Ctrl+B)"
             >
               <Menu className="w-4 h-4" />
             </Button>
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">AI</span>
+            <div className="relative">
+              <div className="w-10 h-10 nexus-gradient rounded-full flex items-center justify-center nexus-glow">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                {getCurrentSession()?.title || 'Gemini Chat'}
+              <h1 className="text-xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+                {getCurrentSession()?.title || 'Nexus AI'}
               </h1>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                {isConnected ? 'Connected' : 'Not connected'}
+                {isConnected ? (
+                  <span className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                    Connected
+                  </span>
+                ) : 'Not connected'}
                 {messages.length > 0 && ` • ${messages.length} messages`}
               </p>
             </div>
@@ -249,7 +258,7 @@ const ChatInterface = () => {
                 placeholder="Search messages..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 w-48 h-8 text-sm"
+                className="pl-9 w-48 h-8 text-sm glass-effect border-white/20 focus:border-purple-500"
               />
             </div>
 
@@ -266,7 +275,7 @@ const ChatInterface = () => {
               variant="ghost"
               size="sm"
               onClick={toggleTheme}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
               title="Toggle Theme (Ctrl+D)"
             >
               {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
@@ -277,7 +286,7 @@ const ChatInterface = () => {
                 variant="ghost"
                 size="sm"
                 disabled={messages.length === 0}
-                className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+                className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
                 title="Export Chat"
               >
                 <Download className="w-4 h-4" />
@@ -289,7 +298,7 @@ const ChatInterface = () => {
               size="sm"
               onClick={() => clearMessages()}
               disabled={messages.length === 0}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
               title="New Chat (Ctrl+K)"
             >
               <Plus className="w-4 h-4 rotate-45" />
@@ -298,7 +307,7 @@ const ChatInterface = () => {
               variant="ghost"
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+              className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
               title="Settings (Ctrl+,)"
             >
               <Settings className="w-4 h-4" />
@@ -311,19 +320,26 @@ const ChatInterface = () => {
           <div className="space-y-4 max-w-4xl mx-auto">
             {filteredMessages.length === 0 && !searchQuery && (
               <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-white font-bold text-xl">AI</span>
+                <div className="relative mb-6">
+                  <div className="w-20 h-20 nexus-gradient rounded-full flex items-center justify-center mx-auto nexus-glow">
+                    <Sparkles className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 animate-pulse" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">Welcome to Gemini Chat</h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">Start a conversation with Google's Gemini AI</p>
-                <div className="text-sm text-gray-500 dark:text-gray-500 space-y-1">
-                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+K</kbd> New chat</p>
-                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+,</kbd> Settings</p>
-                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+D</kbd> Toggle theme</p>
-                  <p><kbd className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-xs">Ctrl+B</kbd> Toggle sidebar</p>
+                <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent mb-2">
+                  Welcome to Nexus AI
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">Your intelligent AI companion powered by advanced machine learning</p>
+                <div className="glass-effect rounded-lg p-4 max-w-md mx-auto">
+                  <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+                    <p><kbd className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs font-medium">Ctrl+K</kbd> New chat</p>
+                    <p><kbd className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs font-medium">Ctrl+,</kbd> Settings</p>
+                    <p><kbd className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs font-medium">Ctrl+D</kbd> Toggle theme</p>
+                    <p><kbd className="px-2 py-1 bg-purple-100 dark:bg-purple-900/30 rounded text-xs font-medium">Ctrl+B</kbd> Toggle sidebar</p>
+                  </div>
                 </div>
                 {!apiKey && (
-                  <p className="text-orange-600 text-sm mt-4">
+                  <p className="text-orange-600 text-sm mt-4 glass-effect rounded-lg p-3 inline-block">
                     Please configure your API key in settings to begin
                   </p>
                 )}
@@ -337,7 +353,7 @@ const ChatInterface = () => {
                 <Button 
                   variant="ghost" 
                   onClick={() => setSearchQuery('')}
-                  className="mt-2 text-sm"
+                  className="mt-2 text-sm hover:text-purple-600"
                 >
                   Clear search
                 </Button>
@@ -353,7 +369,7 @@ const ChatInterface = () => {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-200/50 dark:border-gray-700/50 p-4">
+        <div className="glass-effect border-t border-white/10 dark:border-white/5 p-4 relative z-10">
           <div className="max-w-4xl mx-auto space-y-2">
             {/* File Attachments */}
             <FileAttachment
@@ -373,14 +389,14 @@ const ChatInterface = () => {
                   onKeyPress={handleKeyPress}
                   placeholder={apiKey ? "Type your message... (Enter to send, Shift+Enter for new line)" : "Configure API key in settings first"}
                   disabled={!apiKey || isStreaming}
-                  className="pr-12 min-h-[44px] resize-none bg-white/90 dark:bg-gray-700/90 border-gray-300/50 dark:border-gray-600/50 focus:border-blue-500 focus:ring-blue-500/20 dark:text-gray-100"
+                  className="pr-12 min-h-[44px] resize-none glass-effect border-white/20 focus:border-purple-500 focus:ring-purple-500/20 dark:text-gray-100"
                   style={{ minHeight: '44px' }}
                 />
               </div>
               <Button
                 onClick={handleSend}
                 disabled={!input.trim() || !apiKey || isStreaming}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white border-0 h-11 px-6"
+                className="nexus-gradient hover:opacity-90 text-white border-0 h-11 px-6 font-medium transition-all nexus-glow"
               >
                 <Send className="w-4 h-4" />
               </Button>

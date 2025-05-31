@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Download, FileText, FileJson } from 'lucide-react';
+import { Download, FileText, FileJson, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -82,11 +82,15 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ children }) => {
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md glass-effect border-white/20">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Download className="w-5 h-5" />
-            <span>Export Chat</span>
+            <div className="w-6 h-6 nexus-gradient rounded-full flex items-center justify-center">
+              <Download className="w-3 h-3 text-white" />
+            </div>
+            <span className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 bg-clip-text text-transparent">
+              Export Nexus AI Chat
+            </span>
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
@@ -95,25 +99,25 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ children }) => {
               Export Format
             </label>
             <Select value={format} onValueChange={(value) => setFormat(value as 'txt' | 'json' | 'md')}>
-              <SelectTrigger>
+              <SelectTrigger className="glass-effect border-white/20 focus:border-purple-500">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="glass-effect border-white/20">
                 <SelectItem value="txt">
                   <div className="flex items-center space-x-2">
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-4 h-4 text-purple-600" />
                     <span>Plain Text (.txt)</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="md">
                   <div className="flex items-center space-x-2">
-                    <FileText className="w-4 h-4" />
+                    <FileText className="w-4 h-4 text-pink-600" />
                     <span>Markdown (.md)</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="json">
                   <div className="flex items-center space-x-2">
-                    <FileJson className="w-4 h-4" />
+                    <FileJson className="w-4 h-4 text-orange-600" />
                     <span>JSON (.json)</span>
                   </div>
                 </SelectItem>
@@ -121,7 +125,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ children }) => {
             </Select>
           </div>
           
-          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+          <div className="glass-effect p-3 rounded-lg border border-white/10">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {format === 'txt' && 'Export as a simple text file with timestamps'}
               {format === 'md' && 'Export as a formatted Markdown document'}
@@ -131,7 +135,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ children }) => {
           
           <Button 
             onClick={exportTranscript}
-            className="w-full"
+            className="w-full nexus-gradient hover:opacity-90 text-white font-medium transition-all nexus-glow"
             disabled={messages.length === 0}
           >
             <Download className="w-4 h-4 mr-2" />
