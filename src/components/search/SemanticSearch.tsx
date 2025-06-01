@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -40,7 +39,7 @@ export const SemanticSearch: React.FC = () => {
 
     setIsSearching(true);
 
-    // Mock semantic search results
+    // Mock semantic search results with properly typed sender values
     const mockResults: SearchResult[] = [
       {
         id: '1',
@@ -48,7 +47,7 @@ export const SemanticSearch: React.FC = () => {
         sessionId: 'session-1',
         sessionTitle: 'Productivity Discussion',
         timestamp: new Date('2024-01-05'),
-        sender: 'user',
+        sender: 'user' as const,
         relevanceScore: 0.95,
         tags: ['productivity', 'ai-tools', 'workflow']
       },
@@ -58,7 +57,7 @@ export const SemanticSearch: React.FC = () => {
         sessionId: 'session-1',
         sessionTitle: 'Productivity Discussion',
         timestamp: new Date('2024-01-05'),
-        sender: 'bot',
+        sender: 'bot' as const,
         relevanceScore: 0.92,
         tags: ['productivity', 'automation', 'insights']
       },
@@ -68,7 +67,7 @@ export const SemanticSearch: React.FC = () => {
         sessionId: 'session-2',
         sessionTitle: 'Project Management',
         timestamp: new Date('2024-01-04'),
-        sender: 'user',
+        sender: 'user' as const,
         relevanceScore: 0.88,
         tags: ['project-management', 'best-practices']
       },
@@ -78,7 +77,7 @@ export const SemanticSearch: React.FC = () => {
         sessionId: 'session-2',
         sessionTitle: 'Project Management',
         timestamp: new Date('2024-01-04'),
-        sender: 'bot',
+        sender: 'bot' as const,
         relevanceScore: 0.85,
         tags: ['project-management', 'communication', 'resources']
       }
