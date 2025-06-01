@@ -1,5 +1,7 @@
 
 import { useState } from "react";
+import { Settings } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import ChatInterface from "@/components/ChatInterface";
 import SessionSidebar from "@/components/SessionSidebar";
 import SettingsPanel from "@/components/SettingsPanel";
@@ -33,13 +35,27 @@ const Index = () => {
                   Your AI Assistant Platform
                 </span>
               </div>
-              <UserMenu />
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                  className="flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </Button>
+                <UserMenu />
+              </div>
             </div>
           </header>
           
           {/* Main Content */}
           <div className="flex-1 flex">
-            <ChatInterface />
+            <ChatInterface 
+              onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+              onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
+            />
             {isSettingsOpen && (
               <SettingsPanel onClose={() => setIsSettingsOpen(false)} />
             )}
