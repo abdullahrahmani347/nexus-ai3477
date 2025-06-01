@@ -1,13 +1,14 @@
 
-import React, { useState } from 'react';
-import { SemanticSearch } from '@/components/search/SemanticSearch';
+import React from 'react';
+import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
 import { Sparkles, Crown, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import SessionSidebar from '@/components/SessionSidebar';
 import { UserMenu } from '@/components/navigation/UserMenu';
+import { useState } from 'react';
 
-const SemanticSearchPage: React.FC = () => {
+const AnalyticsPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
@@ -46,14 +47,14 @@ const SemanticSearchPage: React.FC = () => {
                   </div>
                   <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
-                      Nexus AI Search
+                      Nexus AI Analytics
                     </h1>
                     <div className="flex items-center gap-2">
                       <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
                         <Crown className="w-3 h-3 mr-1" />
                         Premium
                       </Badge>
-                      <span className="text-xs text-white/60">Semantic Intelligence</span>
+                      <span className="text-xs text-white/60">Performance Insights</span>
                     </div>
                   </div>
                 </div>
@@ -71,7 +72,7 @@ const SemanticSearchPage: React.FC = () => {
           
           {/* Main Content */}
           <div className="flex-1 p-6">
-            <SemanticSearch />
+            <AnalyticsDashboard />
           </div>
         </div>
       </div>
@@ -79,4 +80,4 @@ const SemanticSearchPage: React.FC = () => {
   );
 };
 
-export default SemanticSearchPage;
+export default AnalyticsPage;

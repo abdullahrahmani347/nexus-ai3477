@@ -3,13 +3,9 @@ import { useState } from "react";
 import { Settings, Sparkles, Crown, Zap, BarChart3, Users, MessageSquare, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChatManager } from "@/components/ChatManager";
 import SessionSidebar from "@/components/SessionSidebar";
 import { UserMenu } from "@/components/navigation/UserMenu";
-import { ProfileManagement } from "@/components/profile/ProfileManagement";
-import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
 import { useDatabase } from "@/hooks/useDatabase";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -17,7 +13,6 @@ const Dashboard = () => {
   useDatabase();
   const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("chat");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -79,65 +74,11 @@ const Dashboard = () => {
             </div>
           </header>
           
-          {/* Main Content with Tabs */}
+          {/* Main Content */}
           <div className="flex-1 p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-              <TabsList className="grid w-full grid-cols-4 mb-6 bg-black/20 backdrop-blur-xl border border-white/10">
-                <TabsTrigger value="chat" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Chat
-                </TabsTrigger>
-                <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger value="profile" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
-                  <Users className="w-4 h-4 mr-2" />
-                  Profile
-                </TabsTrigger>
-                <TabsTrigger value="insights" className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Insights
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="chat" className="h-full">
-                <div className="h-full nexus-card">
-                  <ChatManager className="h-full" />
-                </div>
-              </TabsContent>
-
-              <TabsContent value="analytics" className="h-full">
-                <AnalyticsDashboard />
-              </TabsContent>
-
-              <TabsContent value="profile" className="h-full">
-                <ProfileManagement />
-              </TabsContent>
-
-              <TabsContent value="insights" className="h-full">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
-                  <Card className="nexus-card">
-                    <CardHeader>
-                      <CardTitle className="text-white">AI Insights</CardTitle>
-                      <CardDescription className="text-white/60">Personalized recommendations and insights</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-white/80">Coming soon - AI-powered insights based on your conversations and usage patterns.</p>
-                    </CardContent>
-                  </Card>
-                  <Card className="nexus-card">
-                    <CardHeader>
-                      <CardTitle className="text-white">Performance Metrics</CardTitle>
-                      <CardDescription className="text-white/60">Track your AI interaction efficiency</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-white/80">Advanced metrics and performance tracking coming soon.</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="h-full nexus-card">
+              <ChatManager className="h-full" />
+            </div>
           </div>
         </div>
       </div>

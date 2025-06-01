@@ -1,18 +1,32 @@
 
 import React, { useState } from 'react';
-import { Plus, Trash2, Edit2, Check, X, MessageSquare } from 'lucide-react';
+import { Plus, Trash2, Edit2, Check, X, MessageSquare, BarChart3, Users, Code, Search, Brain, Settings, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 import { useChatStore } from '../store/chatStore';
 import { format } from 'date-fns';
+import { Link, useLocation } from 'react-router-dom';
 
 interface SessionSidebarProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const navigationItems = [
+  { name: 'Chat', path: '/', icon: MessageSquare },
+  { name: 'Analytics', path: '/analytics', icon: BarChart3 },
+  { name: 'Team Spaces', path: '/teams', icon: Users },
+  { name: 'Developer API', path: '/api', icon: Code },
+  { name: 'Semantic Search', path: '/search', icon: Search },
+  { name: 'Memory', path: '/memory', icon: Brain },
+  { name: 'Admin', path: '/admin', icon: Settings },
+];
+
 const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
+  const location = useLocation();
   const { 
     sessions, 
     currentSessionId, 
@@ -56,36 +70,82 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col h-full">
+    <div className="w-80 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col h-full relative">
+      {/* Background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-blue-500/5 to-pink-500/10" />
+      
       {/* Header */}
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-200">Chat Sessions</h2>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCreateSession}
-            className="text-blue-600 hover:text-blue-800"
-            title="New Chat"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+      <div className="relative z-10 p-4 border-b border-white/10">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <MessageSquare className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-pink-400 bg-clip-text text-transparent">
+                Nexus AI
+              </h2>
+              <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+                <Crown className="w-3 h-3 mr-1" />
+                Premium
+              </Badge>
+            </div>
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
+            className="text-white/60 hover:text-white hover:bg-white/10"
           >
             <X className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <div className="space-y-1">
+          {navigationItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            
+            return (
+              <Link
+                key={item.name}
+                to={item.path}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                  isActive
+                    ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 text-purple-300'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span className="text-sm font-medium">{item.name}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        <Separator className="my-4 bg-white/10" />
+
+        {/* Chat Sessions Header */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium text-white/80">Chat Sessions</h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleCreateSession}
+            className="h-8 w-8 p-0 text-purple-400 hover:text-purple-300 hover:bg-purple-500/20"
+            title="New Chat"
+          >
+            <Plus className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
       {/* Sessions List */}
-      <ScrollArea className="flex-1 p-2">
+      <ScrollArea className="flex-1 relative z-10 p-2 custom-scrollbar">
         <div className="space-y-1">
           {sortedSessions.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-8 text-white/50">
               <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No chat sessions yet</p>
               <p className="text-xs">Create your first chat to get started</p>
@@ -94,10 +154,10 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
             sortedSessions.map((session) => (
               <div
                 key={session.id}
-                className={`group p-3 rounded-lg border cursor-pointer transition-colors ${
+                className={`group p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
                   session.id === currentSessionId
-                    ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-700'
-                    : 'hover:bg-gray-50 border-transparent dark:hover:bg-gray-700'
+                    ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 border-purple-500/30'
+                    : 'hover:bg-white/5 border-transparent hover:border-white/20'
                 }`}
                 onClick={() => !editingId && switchSession(session.id)}
               >
@@ -110,14 +170,14 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
                         if (e.key === 'Enter') handleEditSave();
                         if (e.key === 'Escape') handleEditCancel();
                       }}
-                      className="text-sm"
+                      className="text-sm bg-white/5 border-white/20 text-white"
                       autoFocus
                     />
                     <div className="flex space-x-1">
-                      <Button size="sm" onClick={handleEditSave}>
+                      <Button size="sm" onClick={handleEditSave} className="nexus-button h-7">
                         <Check className="w-3 h-3" />
                       </Button>
-                      <Button size="sm" variant="outline" onClick={handleEditCancel}>
+                      <Button size="sm" variant="outline" onClick={handleEditCancel} className="h-7 border-white/20 text-white hover:bg-white/10">
                         <X className="w-3 h-3" />
                       </Button>
                     </div>
@@ -126,13 +186,13 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
                   <>
                     <div className="flex items-start justify-between">
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">
+                        <h3 className="text-sm font-medium text-white truncate">
                           {session.title}
                         </h3>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs text-white/50 mt-1">
                           {session.messages.length} messages
                         </p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
+                        <p className="text-xs text-white/40">
                           {format(new Date(session.updatedAt), 'MMM d, HH:mm')}
                         </p>
                       </div>
@@ -145,7 +205,7 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
                             e.stopPropagation();
                             handleEditStart(session.id, session.title);
                           }}
-                          className="w-6 h-6 p-0"
+                          className="w-6 h-6 p-0 text-white/60 hover:text-white hover:bg-white/20"
                         >
                           <Edit2 className="w-3 h-3" />
                         </Button>
@@ -158,7 +218,7 @@ const SessionSidebar: React.FC<SessionSidebarProps> = ({ isOpen, onClose }) => {
                               deleteSession(session.id);
                             }
                           }}
-                          className="w-6 h-6 p-0 text-red-600 hover:text-red-800"
+                          className="w-6 h-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20"
                         >
                           <Trash2 className="w-3 h-3" />
                         </Button>
