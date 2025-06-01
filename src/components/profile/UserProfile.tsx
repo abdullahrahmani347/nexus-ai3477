@@ -120,74 +120,75 @@ export function UserProfile() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="nexus-card">
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
+          <CardTitle className="text-white">Profile</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label>Email</Label>
-            <Input value={profile.email} disabled />
+            <Label className="text-white/80">Email</Label>
+            <Input value={profile.email} disabled className="bg-white/5 border-white/10 text-white" />
           </div>
           
           <div className="space-y-2">
-            <Label>Full Name</Label>
+            <Label className="text-white/80">Full Name</Label>
             {editing ? (
               <div className="flex gap-2">
                 <Input
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  className="bg-white/5 border-white/10 text-white"
                 />
-                <Button onClick={updateProfile} disabled={loading}>
+                <Button onClick={updateProfile} disabled={loading} className="nexus-button">
                   Save
                 </Button>
-                <Button variant="outline" onClick={() => setEditing(false)}>
+                <Button variant="outline" onClick={() => setEditing(false)} className="border-white/20 text-white hover:bg-white/10">
                   Cancel
                 </Button>
               </div>
             ) : (
               <div className="flex justify-between items-center">
-                <Input value={profile.full_name || 'Not set'} disabled />
-                <Button onClick={() => setEditing(true)}>Edit</Button>
+                <Input value={profile.full_name || 'Not set'} disabled className="bg-white/5 border-white/10 text-white" />
+                <Button onClick={() => setEditing(true)} className="ml-2 nexus-button">Edit</Button>
               </div>
             )}
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="nexus-card">
         <CardHeader>
-          <CardTitle>Subscription</CardTitle>
+          <CardTitle className="text-white">Subscription</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-2">
             <Badge className={getTierColor(subscription?.tier || 'free')}>
               {subscription?.tier?.toUpperCase() || 'FREE'}
             </Badge>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-white/60">
               Status: {subscription?.status || 'Active'}
             </span>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="nexus-card">
         <CardHeader>
-          <CardTitle>Today's Usage</CardTitle>
+          <CardTitle className="text-white">Today's Usage</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-3 gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold">{usage?.messages_sent || 0}</div>
-              <div className="text-sm text-muted-foreground">Messages</div>
+              <div className="text-2xl font-bold text-white">{usage?.messages_sent || 0}</div>
+              <div className="text-sm text-white/60">Messages</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{usage?.tokens_used || 0}</div>
-              <div className="text-sm text-muted-foreground">Tokens</div>
+              <div className="text-2xl font-bold text-white">{usage?.tokens_used || 0}</div>
+              <div className="text-sm text-white/60">Tokens</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold">{usage?.api_calls || 0}</div>
-              <div className="text-sm text-muted-foreground">API Calls</div>
+              <div className="text-2xl font-bold text-white">{usage?.api_calls || 0}</div>
+              <div className="text-sm text-white/60">API Calls</div>
             </div>
           </div>
         </CardContent>

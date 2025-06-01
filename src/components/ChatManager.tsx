@@ -1,3 +1,4 @@
+
 import React, { useCallback, useEffect, useRef } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -54,7 +55,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
   const handleSendMessage = useCallback(async (text: string, files?: FileData[]) => {
     if (!text.trim() && (!files || files.length === 0)) return;
     if (!apiKey.trim()) {
-      toast.error('Please configure your API key in settings');
+      toast.error('Please configure your API key to start chatting');
       return;
     }
 
@@ -151,7 +152,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">Connect to Get Started</h3>
             <p className="text-white/70 mb-4">
-              Configure your API key in the settings panel to unlock the full power of Nexus AI.
+              You'll need to configure your API key to unlock the full power of Nexus AI. Visit the Profile tab to get started.
             </p>
             <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
               <Crown className="w-3 h-3 mr-1" />
@@ -213,7 +214,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
                 {!apiKey && (
                   <div className="nexus-card p-4 border-orange-500/30 bg-orange-500/10 mt-6">
                     <p className="text-orange-300 text-sm font-medium">
-                      🔑 Configure your API key in settings to begin your AI journey
+                      🔑 Configure your API key in the Profile tab to begin your AI journey
                     </p>
                   </div>
                 )}
