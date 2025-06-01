@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import ChatInterface from "@/components/ChatInterface";
 import SessionSidebar from "@/components/SessionSidebar";
 import SettingsPanel from "@/components/SettingsPanel";
@@ -9,10 +10,17 @@ const Index = () => {
   // Initialize database sync
   useDatabase();
 
+  // State for controlling sidebar and settings panel visibility
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5">
       <div className="flex h-screen">
-        <SessionSidebar />
+        <SessionSidebar 
+          isOpen={isSidebarOpen} 
+          onClose={() => setIsSidebarOpen(false)} 
+        />
         <div className="flex-1 flex flex-col">
           {/* Header */}
           <header className="border-b bg-background/80 backdrop-blur-sm px-6 py-4">
@@ -32,7 +40,9 @@ const Index = () => {
           {/* Main Content */}
           <div className="flex-1 flex">
             <ChatInterface />
-            <SettingsPanel />
+            {isSettingsOpen && (
+              <SettingsPanel onClose={() => setIsSettingsOpen(false)} />
+            )}
           </div>
         </div>
       </div>
