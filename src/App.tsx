@@ -9,6 +9,12 @@ import ThemeProvider from "./components/ThemeProvider";
 import { SettingsIntegration } from "./components/SettingsIntegration";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import AdminPage from "./pages/AdminPage";
+import TeamSpacesPage from "./pages/TeamSpacesPage";
+import DeveloperAPIPage from "./pages/DeveloperAPIPage";
+import WhiteLabelPage from "./pages/WhiteLabelPage";
+import SemanticSearchPage from "./pages/SemanticSearchPage";
+import PersistentMemoryPage from "./pages/PersistentMemoryPage";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +29,12 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/admin" element={<AdminPage />} />
+                <Route path="/teams" element={<TeamSpacesPage />} />
+                <Route path="/api" element={<DeveloperAPIPage />} />
+                <Route path="/whitelabel" element={<WhiteLabelPage />} />
+                <Route path="/search" element={<SemanticSearchPage />} />
+                <Route path="/memory" element={<PersistentMemoryPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
