@@ -44,8 +44,9 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 280 100% 70%;
 
-    --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #f97316 100%);
-    --nexus-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+    --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+    --nexus-glow: 0 0 30px rgba(139, 92, 246, 0.4);
+    --nexus-subtle-glow: 0 0 20px rgba(139, 92, 246, 0.2);
   }
 
   .dark {
@@ -86,8 +87,9 @@
     --sidebar-border: 215 27.9% 16.9%;
     --sidebar-ring: 280 100% 70%;
 
-    --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #d946ef 50%, #f97316 100%);
-    --nexus-glow: 0 0 20px rgba(139, 92, 246, 0.5);
+    --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+    --nexus-glow: 0 0 30px rgba(139, 92, 246, 0.6);
+    --nexus-subtle-glow: 0 0 20px rgba(139, 92, 246, 0.3);
   }
 }
 
@@ -98,6 +100,7 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background)) 40%, rgba(139, 92, 246, 0.05) 100%);
     min-height: 100vh;
   }
@@ -112,6 +115,10 @@
     box-shadow: var(--nexus-glow);
   }
   
+  .nexus-subtle-glow {
+    box-shadow: var(--nexus-subtle-glow);
+  }
+  
   .glass-effect {
     backdrop-filter: blur(20px);
     background: rgba(255, 255, 255, 0.1);
@@ -122,4 +129,70 @@
     background: rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
+  
+  .nexus-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+  }
+  
+  .nexus-button {
+    background: var(--nexus-gradient);
+    border: none;
+    color: white;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--nexus-subtle-glow);
+  }
+  
+  .nexus-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--nexus-glow);
+  }
+  
+  .nexus-text-gradient {
+    background: var(--nexus-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.5);
+    border-radius: 3px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.7);
+  }
+}
+
+/* Animation keyframes */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
 }
