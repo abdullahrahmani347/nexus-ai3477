@@ -32,14 +32,12 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
 
   const handleSpeak = () => {
     if (speaking) {
-      voiceService.stop();
+      voiceService.stopSpeaking();
       setSpeaking(false);
     } else {
       setSpeaking(true);
-      voiceService.speak(message.text, {
-        onStart: () => setSpeaking(true),
-        onEnd: () => setSpeaking(false),
-        onError: () => setSpeaking(false)
+      voiceService.speak(message.text, () => {
+        setSpeaking(false);
       });
     }
   };
@@ -70,16 +68,6 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
         <div className="flex items-center justify-between mt-2 text-xs opacity-70">
           <div className="flex items-center gap-2">
             <span>{formatTimestamp(message.timestamp)}</span>
-            {message.model && (
-              <Badge variant="outline" className="text-xs">
-                {message.model}
-              </Badge>
-            )}
-            {message.tokens && (
-              <Badge variant="outline" className="text-xs">
-                {message.tokens} tokens
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -97,7 +85,7 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           </Button>
 
-          {voiceEnabled && message.sender === 'assistant' && (
+          {voiceEnabled && message.sender === 'bot' && (
             <Button
               variant="ghost"
               size="sm"
@@ -108,7 +96,7 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
             </Button>
           )}
 
-          {message.sender === 'assistant' && isLast && onRegenerate && (
+          {message.sender === 'bot' && isLast && onRegenerate && (
             <Button
               variant="ghost"
               size="sm"

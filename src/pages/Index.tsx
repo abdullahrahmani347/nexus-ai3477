@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ChatInterface from "@/components/ChatInterface";
+import { ChatManager } from "@/components/ChatManager";
 import SessionSidebar from "@/components/SessionSidebar";
 import SettingsPanel from "@/components/SettingsPanel";
 import { UserMenu } from "@/components/navigation/UserMenu";
@@ -28,6 +28,14 @@ const Index = () => {
           <header className="border-b bg-background/80 backdrop-blur-sm px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="text-gray-600 hover:text-purple-600 dark:text-gray-300 dark:hover:text-purple-400 transition-colors"
+                >
+                  ☰
+                </Button>
                 <h1 className="text-2xl font-bold nexus-gradient bg-clip-text text-transparent">
                   Nexus AI
                 </h1>
@@ -52,10 +60,7 @@ const Index = () => {
           
           {/* Main Content */}
           <div className="flex-1 flex">
-            <ChatInterface 
-              onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
-              onToggleSettings={() => setIsSettingsOpen(!isSettingsOpen)}
-            />
+            <ChatManager />
             {isSettingsOpen && (
               <SettingsPanel onClose={() => setIsSettingsOpen(false)} />
             )}

@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useChatStore } from '@/store/chatStore';
 import { voiceService } from '@/services/voiceService';
-import { fileService, FileData } from '@/services/fileService';
+import { FileService, FileData } from '@/services/fileService';
 
 interface InputAreaProps {
   onSend: (message: string, files?: FileData[]) => void;
@@ -53,7 +53,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
 
     try {
       const processedFiles = await Promise.all(
-        files.map(file => fileService.processFile(file))
+        files.map(file => FileService.processFile(file))
       );
       addFiles(processedFiles);
     } catch (error) {
@@ -72,13 +72,12 @@ export const InputArea: React.FC<InputAreaProps> = ({
       setIsListening(false);
     } else {
       setIsListening(true);
-      voiceService.startListening({
-        onResult: (text) => {
+      voiceService.startListening(
+        (text) => {
           setInput(prev => prev + (prev ? ' ' : '') + text);
         },
-        onEnd: () => setIsListening(false),
-        onError: () => setIsListening(false)
-      });
+        () => setIsListening(false)
+      ).catch(() => setIsListening(false));
     }
   };
 

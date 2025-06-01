@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { MessageDisplay } from './MessageDisplay';
 import { InputArea } from './InputArea';
-import { TypingIndicator } from './TypingIndicator';
+import TypingIndicator from './TypingIndicator';
 import { useChatStore } from '@/store/chatStore';
 import { useAuth } from '@/hooks/useAuth';
 import { generateStreamingResponse } from '@/services/streamingService';
@@ -63,17 +63,15 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
       text: text || '',
       sender: 'user' as const,
       timestamp: new Date(),
-      files
+      attachments: files
     };
 
     const assistantMessageId = (Date.now() + 1).toString();
     const assistantMessage = {
       id: assistantMessageId,
       text: '',
-      sender: 'assistant' as const,
-      timestamp: new Date(),
-      model,
-      tokens: 0
+      sender: 'bot' as const,
+      timestamp: new Date()
     };
 
     // Add messages to store
@@ -102,11 +100,9 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
         }
       );
 
-      // Update final message with token count estimate
-      const tokenCount = Math.ceil(fullResponse.length / 4);
+      // Update final message
       updateMessage(assistantMessageId, { 
-        text: fullResponse,
-        tokens: tokenCount 
+        text: fullResponse
       });
 
       // Auto-speak if enabled
@@ -119,8 +115,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
     } catch (error) {
       console.error('Error generating response:', error);
       updateMessage(assistantMessageId, {
-        text: 'Sorry, I encountered an error while generating a response. Please check your API key and try again.',
-        isError: true
+        text: 'Sorry, I encountered an error while generating a response. Please check your API key and try again.'
       });
       toast.error('Failed to generate response');
     } finally {
@@ -139,7 +134,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
       const previousUserMessage = messages[messageIndex - 1];
       regenerateResponse(messageId);
       if (previousUserMessage && previousUserMessage.sender === 'user') {
-        handleSendMessage(previousUserMessage.text, previousUserMessage.files);
+        handleSendMessage(previousUserMessage.text, previousUserMessage.attachments);
       }
     }
   }, [messages, regenerateResponse, handleSendMessage]);
@@ -184,7 +179,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
                 key={message.id}
                 message={message}
                 isLast={index === messages.length - 1}
-                onRegenerate={message.sender === 'assistant' ? () => handleRegenerate(message.id) : undefined}
+                onRegenerate={message.sender === 'bot' ? () => handleRegenerate(message.id) : undefined}
                 onDelete={() => handleDeleteMessage(message.id)}
               />
             ))
