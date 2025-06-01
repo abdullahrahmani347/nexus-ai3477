@@ -1,7 +1,7 @@
 
-import { ChatInterface } from "@/components/ChatInterface";
-import { SessionSidebar } from "@/components/SessionSidebar";
-import { SettingsPanel } from "@/components/SettingsPanel";
+import ChatInterface from "@/components/ChatInterface";
+import SessionSidebar from "@/components/SessionSidebar";
+import SettingsPanel from "@/components/SettingsPanel";
 import { UserMenu } from "@/components/navigation/UserMenu";
 import { useDatabase } from "@/hooks/useDatabase";
 
