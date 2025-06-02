@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Download, FileText, FileJson, File, Printer, Share } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -198,7 +197,7 @@ export const ExportOptions: React.FC<ExportOptionsProps> = ({ children }) => {
               <Checkbox 
                 id="metadata"
                 checked={includeMetadata}
-                onCheckedChange={setIncludeMetadata}
+                onCheckedChange={(checked) => setIncludeMetadata(checked === true)}
               />
               <label htmlFor="metadata" className="text-sm text-white/70">
                 Include metadata and statistics
@@ -209,7 +208,7 @@ export const ExportOptions: React.FC<ExportOptionsProps> = ({ children }) => {
               <Checkbox 
                 id="attachments"
                 checked={includeAttachments}
-                onCheckedChange={setIncludeAttachments}
+                onCheckedChange={(checked) => setIncludeAttachments(checked === true)}
               />
               <label htmlFor="attachments" className="text-sm text-white/70">
                 Include attachment information
