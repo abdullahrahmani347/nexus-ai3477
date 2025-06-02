@@ -146,15 +146,15 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
     return (
       <div className={`flex flex-col h-full ${className}`}>
         <div className="flex-1 flex items-center justify-center p-6">
-          <div className="nexus-card p-8 max-w-md mx-auto text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-glow-pulse">
-              <AlertCircle className="h-8 w-8 text-white" />
+          <div className="nexus-card p-8 max-w-md mx-auto text-center nexus-hover-lift">
+            <div className="nexus-brand-logo w-20 h-20 mx-auto mb-6 animate-glow-pulse">
+              <AlertCircle className="h-10 w-10 text-white" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">Connect to Get Started</h3>
-            <p className="text-white/70 mb-4">
+            <p className="text-white/70 mb-6 leading-relaxed">
               You'll need to configure your API key to unlock the full power of Nexus AI. Visit the Profile tab to get started.
             </p>
-            <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+            <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30 nexus-transition">
               <Crown className="w-3 h-3 mr-1" />
               Premium Features Available
             </Badge>
@@ -166,56 +166,66 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
-      {/* Enhanced Messages Area */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 custom-scrollbar">
+      {/* Enhanced Messages Area with custom scrolling */}
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 nexus-scrollbar">
         <div className="space-y-6 max-w-4xl mx-auto">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-center py-12">
-              <div className="max-w-lg space-y-6">
-                {/* Enhanced Welcome Section */}
-                <div className="relative mb-8">
-                  <div className="w-24 h-24 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto animate-float nexus-glow">
-                    <Sparkles className="w-12 h-12 text-white" />
+              <div className="max-w-lg space-y-8">
+                {/* Enhanced Welcome Section with better branding */}
+                <div className="relative mb-12">
+                  <div className="nexus-brand-logo w-28 h-28 mx-auto animate-float">
+                    <Sparkles className="w-14 h-14 text-white" />
                   </div>
-                  <div className="absolute -inset-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse" />
+                  <div className="absolute -inset-8 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-pink-500/20 rounded-full blur-2xl animate-gradient-shift" />
                 </div>
                 
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-bold nexus-text-gradient">
+                <div className="space-y-4">
+                  <h2 className="text-4xl font-bold nexus-text-gradient">
                     Welcome to Nexus AI
                   </h2>
-                  <p className="text-xl text-white/80 font-medium">
+                  <p className="text-xl text-white/90 font-semibold">
                     Your Premium AI Assistant
                   </p>
-                  <p className="text-white/60 leading-relaxed">
+                  <p className="text-white/70 leading-relaxed text-lg">
                     Experience the power of advanced artificial intelligence with personalized responses, 
                     multimodal capabilities, and seamless conversation flow.
                   </p>
                 </div>
 
-                {/* Feature highlights */}
-                <div className="grid grid-cols-2 gap-4 mt-8">
-                  <div className="nexus-card p-4 text-left">
-                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mb-2">
-                      <Sparkles className="w-4 h-4 text-purple-400" />
+                {/* Enhanced feature highlights */}
+                <div className="grid grid-cols-2 gap-6 mt-12">
+                  <div className="nexus-card p-6 text-left nexus-interactive">
+                    <div className="w-12 h-12 bg-purple-500/20 rounded-xl flex items-center justify-center mb-4 nexus-shadow">
+                      <Sparkles className="w-6 h-6 text-purple-400" />
                     </div>
-                    <h4 className="font-medium text-white text-sm">AI Powered</h4>
-                    <p className="text-xs text-white/60">Advanced language understanding</p>
+                    <h4 className="font-semibold text-white text-base mb-2">AI Powered</h4>
+                    <p className="text-sm text-white/70">Advanced language understanding with cutting-edge models</p>
                   </div>
-                  <div className="nexus-card p-4 text-left">
-                    <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mb-2">
-                      <Crown className="w-4 h-4 text-blue-400" />
+                  <div className="nexus-card p-6 text-left nexus-interactive">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 nexus-shadow">
+                      <Crown className="w-6 h-6 text-blue-400" />
                     </div>
-                    <h4 className="font-medium text-white text-sm">Premium</h4>
-                    <p className="text-xs text-white/60">Exclusive features & priority</p>
+                    <h4 className="font-semibold text-white text-base mb-2">Premium Experience</h4>
+                    <p className="text-sm text-white/70">Exclusive features, priority support & enhanced capabilities</p>
                   </div>
                 </div>
 
                 {!apiKey && (
-                  <div className="nexus-card p-4 border-orange-500/30 bg-orange-500/10 mt-6">
-                    <p className="text-orange-300 text-sm font-medium">
-                      🔑 Configure your API key in the Profile tab to begin your AI journey
-                    </p>
+                  <div className="nexus-card p-6 border-orange-500/30 bg-orange-500/10 mt-8 nexus-transition">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-orange-500/20 rounded-lg flex items-center justify-center">
+                        🔑
+                      </div>
+                      <div>
+                        <p className="text-orange-300 font-semibold text-sm">
+                          Configure API Key Required
+                        </p>
+                        <p className="text-orange-300/80 text-xs">
+                          Visit the Profile tab to begin your AI journey
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
@@ -234,7 +244,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
           
           {isStreaming && streamingMessageId && (
             <div className="flex justify-start">
-              <div className="nexus-card p-4 max-w-xs">
+              <div className="nexus-card p-4 max-w-xs nexus-transition">
                 <TypingIndicator />
               </div>
             </div>
@@ -243,7 +253,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
       </ScrollArea>
 
       {/* Enhanced Input Area */}
-      <div className="p-6 bg-black/20 backdrop-blur-xl border-t border-white/10">
+      <div className="p-6 bg-black/20 backdrop-blur-xl border-t border-white/10 nexus-shadow">
         <InputArea
           onSend={handleSendMessage}
           disabled={isStreaming}

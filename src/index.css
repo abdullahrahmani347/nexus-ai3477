@@ -47,6 +47,7 @@
     --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
     --nexus-glow: 0 0 30px rgba(139, 92, 246, 0.4);
     --nexus-subtle-glow: 0 0 20px rgba(139, 92, 246, 0.2);
+    --nexus-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1), 0 2px 4px -1px rgba(139, 92, 246, 0.06);
   }
 
   .dark {
@@ -90,6 +91,7 @@
     --nexus-gradient: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
     --nexus-glow: 0 0 30px rgba(139, 92, 246, 0.6);
     --nexus-subtle-glow: 0 0 20px rgba(139, 92, 246, 0.3);
+    --nexus-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.2), 0 2px 4px -1px rgba(139, 92, 246, 0.12);
   }
 }
 
@@ -104,6 +106,66 @@
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background)) 40%, rgba(139, 92, 246, 0.05) 100%);
     min-height: 100vh;
   }
+
+  /* Enhanced Global Scrollbar Styles */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.1);
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #9d6cf7 0%, #4c90f8 50%, #f056aa 100%);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Enhanced ScrollArea specific styles */
+  [data-radix-scroll-area-viewport] {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.1);
+  }
+
+  [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  [data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+  }
+
+  [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+    border-radius: 4px;
+    transition: all 0.3s ease;
+  }
+
+  [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #9d6cf7 0%, #4c90f8 50%, #f056aa 100%);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+  }
 }
 
 @layer utilities {
@@ -117,6 +179,10 @@
   
   .nexus-subtle-glow {
     box-shadow: var(--nexus-subtle-glow);
+  }
+
+  .nexus-shadow {
+    box-shadow: var(--nexus-shadow);
   }
   
   .glass-effect {
@@ -135,6 +201,13 @@
     backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 16px;
+    box-shadow: var(--nexus-shadow);
+    transition: all 0.3s ease;
+  }
+
+  .nexus-card:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: var(--nexus-subtle-glow);
   }
   
   .nexus-button {
@@ -144,6 +217,7 @@
     font-weight: 600;
     transition: all 0.3s ease;
     box-shadow: var(--nexus-subtle-glow);
+    border-radius: 12px;
   }
   
   .nexus-button:hover {
@@ -156,29 +230,97 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    font-weight: 700;
+  }
+
+  .nexus-brand-logo {
+    background: var(--nexus-gradient);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--nexus-glow);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .nexus-brand-logo::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: shine 3s infinite;
+  }
+
+  .nexus-status-indicator {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 16px;
+    height: 16px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.8);
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
   }
   
-  /* Custom scrollbar */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+  /* Enhanced scrollbar utilities */
+  .nexus-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.1);
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+
+  .nexus-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.5);
-    border-radius: 3px;
+
+  .nexus-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(139, 92, 246, 0.7);
+
+  .nexus-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .nexus-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #9d6cf7 0%, #4c90f8 50%, #f056aa 100%);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+  }
+
+  /* Remove legacy scrollbar class */
+  .custom-scrollbar {
+    @apply nexus-scrollbar;
+  }
+
+  /* Enhanced transitions and animations */
+  .nexus-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nexus-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--nexus-glow);
+  }
+
+  .nexus-focus-ring:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: rgba(139, 92, 246, 0.5);
+    ring-offset: 2px;
+    ring-offset-color: rgba(0, 0, 0, 0.8);
   }
 }
 
-/* Animation keyframes */
+/* Enhanced Animation keyframes */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-10px); }
@@ -189,10 +331,57 @@
   50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.6); }
 }
 
+@keyframes shine {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Enhanced focus and accessibility */
+.nexus-interactive {
+  @apply nexus-transition nexus-focus-ring;
+}
+
+.nexus-interactive:hover {
+  @apply nexus-hover-lift;
+}
+
+/* Enhanced branding consistency */
+.nexus-brand-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nexus-brand-text {
+  background: var(--nexus-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.nexus-subtitle {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  font-weight: 500;
 }
