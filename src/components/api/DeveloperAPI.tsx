@@ -1,386 +1,399 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Code, Copy, Key, Activity, Book, Zap, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Code, Key, BookOpen, Settings, Download, Search, 
+  MessageSquare, Puzzle, TestTube, AlertTriangle, Zap,
+  PlayCircle, Database, Webhook, Shield, BarChart3, FileText
+} from 'lucide-react';
+import { ConversationSearch } from './ConversationSearch';
+import { MessageReactions } from './MessageReactions';
+import { ExportOptions } from './ExportOptions';
+import { PluginSystem } from './PluginSystem';
+import { TestingSuite } from './TestingSuite';
+import { ErrorMonitoring } from './ErrorMonitoring';
+import { PerformanceOptimization } from './PerformanceOptimization';
 
-interface APIKey {
-  id: string;
-  name: string;
-  key: string;
-  created: Date;
-  lastUsed?: Date;
-  requests: number;
-  status: 'active' | 'revoked';
+interface APIEndpoint {
+  method: string;
+  path: string;
+  description: string;
+  params?: string[];
 }
 
-export const DeveloperAPI: React.FC = () => {
-  const { user } = useAuth();
-  const [apiKeys, setApiKeys] = useState<APIKey[]>([]);
-  const [newKeyName, setNewKeyName] = useState('');
-  const [showKeys, setShowKeys] = useState<{ [key: string]: boolean }>({});
-
-  useEffect(() => {
-    loadAPIKeys();
-  }, []);
-
-  const loadAPIKeys = () => {
-    // Mock API keys
-    const mockKeys: APIKey[] = [
-      {
-        id: '1',
-        name: 'Production API',
-        key: 'nx_1234567890abcdef',
-        created: new Date(),
-        lastUsed: new Date(),
-        requests: 1250,
-        status: 'active'
-      },
-      {
-        id: '2',
-        name: 'Development API',
-        key: 'nx_abcdef1234567890',
-        created: new Date(),
-        requests: 485,
-        status: 'active'
-      }
-    ];
-    setApiKeys(mockKeys);
-  };
-
-  const generateAPIKey = () => {
-    if (!newKeyName.trim()) {
-      toast.error('Please enter a name for the API key');
-      return;
-    }
-
-    const newKey: APIKey = {
-      id: Date.now().toString(),
-      name: newKeyName,
-      key: `nx_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`,
-      created: new Date(),
-      requests: 0,
-      status: 'active'
-    };
-
-    setApiKeys(prev => [...prev, newKey]);
-    setNewKeyName('');
-    toast.success('API key generated successfully');
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    toast.success('Copied to clipboard');
-  };
-
-  const toggleKeyVisibility = (keyId: string) => {
-    setShowKeys(prev => ({ ...prev, [keyId]: !prev[keyId] }));
-  };
-
-  const revokeKey = (keyId: string) => {
-    setApiKeys(prev => prev.map(key => 
-      key.id === keyId ? { ...key, status: 'revoked' } : key
-    ));
-    toast.success('API key revoked');
-  };
-
-  const codeExamples = {
-    curl: `curl -X POST https://api.nexusai.com/v1/chat/completions \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "model": "nexus-gpt-4",
-    "messages": [
-      {"role": "user", "content": "Hello, world!"}
-    ]
-  }'`,
-    javascript: `const response = await fetch('https://api.nexusai.com/v1/chat/completions', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_API_KEY',
-    'Content-Type': 'application/json'
+const API_ENDPOINTS: APIEndpoint[] = [
+  {
+    method: 'POST',
+    path: '/api/v1/conversations',
+    description: 'Create a new conversation',
+    params: ['title', 'model', 'system_prompt']
   },
-  body: JSON.stringify({
-    model: 'nexus-gpt-4',
-    messages: [
-      { role: 'user', content: 'Hello, world!' }
-    ]
-  })
-});
+  {
+    method: 'GET',
+    path: '/api/v1/conversations',
+    description: 'List all conversations',
+    params: ['limit', 'offset', 'filter']
+  },
+  {
+    method: 'POST',
+    path: '/api/v1/conversations/{id}/messages',
+    description: 'Send a message to a conversation',
+    params: ['message', 'attachments', 'stream']
+  },
+  {
+    method: 'GET',
+    path: '/api/v1/conversations/{id}/messages',
+    description: 'Get conversation messages',
+    params: ['limit', 'before', 'after']
+  },
+  {
+    method: 'DELETE',
+    path: '/api/v1/conversations/{id}',
+    description: 'Delete a conversation',
+    params: []
+  }
+];
 
-const data = await response.json();
-console.log(data);`,
-    python: `import requests
+export const DeveloperAPI: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [messageReactions, setMessageReactions] = useState<Record<string, any>>({});
 
-response = requests.post(
-    'https://api.nexusai.com/v1/chat/completions',
-    headers={
-        'Authorization': 'Bearer YOUR_API_KEY',
-        'Content-Type': 'application/json'
-    },
-    json={
-        'model': 'nexus-gpt-4',
-        'messages': [
-            {'role': 'user', 'content': 'Hello, world!'}
-        ]
-    }
-)
-
-print(response.json())`
+  const handleReaction = (messageId: string, emoji: string) => {
+    setMessageReactions(prev => {
+      const existing = prev[messageId] || {};
+      const reaction = existing[emoji] || { count: 0, users: [], hasReacted: false };
+      
+      return {
+        ...prev,
+        [messageId]: {
+          ...existing,
+          [emoji]: {
+            ...reaction,
+            count: reaction.hasReacted ? reaction.count - 1 : reaction.count + 1,
+            hasReacted: !reaction.hasReacted
+          }
+        }
+      };
+    });
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Developer API</h1>
-          <p className="text-muted-foreground">Integrate Nexus AI into your applications</p>
+    <div className="h-full space-y-6">
+      {/* API Overview Header */}
+      <div className="nexus-card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center">
+              <Code className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-white">Nexus AI Developer API</h2>
+              <p className="text-white/60">Build powerful AI applications with our comprehensive API</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary" className="bg-green-500/20 text-green-300 border-green-500/30">
+              v2.1.0
+            </Badge>
+            <Badge variant="secondary" className="bg-blue-500/20 text-blue-300 border-blue-500/30">
+              RESTful
+            </Badge>
+          </div>
         </div>
-        <Badge variant="secondary">
-          <Code className="mr-1 h-3 w-3" />
-          API v1.0
-        </Badge>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="nexus-card p-4 text-center">
+            <div className="text-2xl font-bold text-purple-400">15+</div>
+            <div className="text-sm text-white/60">Endpoints</div>
+          </div>
+          <div className="nexus-card p-4 text-center">
+            <div className="text-2xl font-bold text-blue-400">99.9%</div>
+            <div className="text-sm text-white/60">Uptime</div>
+          </div>
+          <div className="nexus-card p-4 text-center">
+            <div className="text-2xl font-bold text-green-400">~200ms</div>
+            <div className="text-sm text-white/60">Avg Response</div>
+          </div>
+          <div className="nexus-card p-4 text-center">
+            <div className="text-2xl font-bold text-orange-400">10K+</div>
+            <div className="text-sm text-white/60">Requests/Day</div>
+          </div>
+        </div>
       </div>
 
-      <Tabs defaultValue="keys" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="keys">API Keys</TabsTrigger>
-          <TabsTrigger value="docs">Documentation</TabsTrigger>
-          <TabsTrigger value="examples">Code Examples</TabsTrigger>
-          <TabsTrigger value="usage">Usage</TabsTrigger>
+      {/* Main API Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1 bg-white/5 p-1 rounded-lg">
+          <TabsTrigger value="overview" className="flex items-center gap-2 text-xs">
+            <BookOpen className="w-4 h-4" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="search" className="flex items-center gap-2 text-xs">
+            <Search className="w-4 h-4" />
+            Search
+          </TabsTrigger>
+          <TabsTrigger value="reactions" className="flex items-center gap-2 text-xs">
+            <MessageSquare className="w-4 h-4" />
+            Reactions
+          </TabsTrigger>
+          <TabsTrigger value="export" className="flex items-center gap-2 text-xs">
+            <Download className="w-4 h-4" />
+            Export
+          </TabsTrigger>
+          <TabsTrigger value="plugins" className="flex items-center gap-2 text-xs">
+            <Puzzle className="w-4 h-4" />
+            Plugins
+          </TabsTrigger>
+          <TabsTrigger value="testing" className="flex items-center gap-2 text-xs">
+            <TestTube className="w-4 h-4" />
+            Testing
+          </TabsTrigger>
+          <TabsTrigger value="monitoring" className="flex items-center gap-2 text-xs">
+            <AlertTriangle className="w-4 h-4" />
+            Monitoring
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center gap-2 text-xs">
+            <Zap className="w-4 h-4" />
+            Performance
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="keys" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Generate New API Key</CardTitle>
-              <CardDescription>Create a new API key for your application</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Label htmlFor="key-name">Key Name</Label>
-                  <Input
-                    id="key-name"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    placeholder="e.g., Production API, Development API"
-                  />
+        <TabsContent value="overview" className="space-y-6">
+          {/* API Endpoints */}
+          <Card className="nexus-card p-6">
+            <h3 className="text-xl font-semibold text-white mb-4">API Endpoints</h3>
+            <div className="space-y-3">
+              {API_ENDPOINTS.map((endpoint, index) => (
+                <div key={index} className="p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Badge 
+                      variant="outline" 
+                      className={`
+                        ${endpoint.method === 'GET' ? 'border-green-500/30 text-green-300' : ''}
+                        ${endpoint.method === 'POST' ? 'border-blue-500/30 text-blue-300' : ''}
+                        ${endpoint.method === 'DELETE' ? 'border-red-500/30 text-red-300' : ''}
+                      `}
+                    >
+                      {endpoint.method}
+                    </Badge>
+                    <code className="text-purple-300 bg-purple-500/20 px-2 py-1 rounded text-sm">
+                      {endpoint.path}
+                    </code>
+                  </div>
+                  <p className="text-white/70 text-sm mb-2">{endpoint.description}</p>
+                  {endpoint.params && endpoint.params.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {endpoint.params.map(param => (
+                        <Badge key={param} variant="secondary" className="text-xs bg-white/10 text-white/60">
+                          {param}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex items-end">
-                  <Button onClick={generateAPIKey}>
-                    <Key className="mr-2 h-4 w-4" />
-                    Generate Key
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
+              ))}
+            </div>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Your API Keys</CardTitle>
-              <CardDescription>Manage your existing API keys</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {apiKeys.map((apiKey) => (
-                  <div key={apiKey.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h3 className="font-medium">{apiKey.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Created {apiKey.created.toLocaleDateString()}
-                          {apiKey.lastUsed && ` • Last used ${apiKey.lastUsed.toLocaleDateString()}`}
-                        </p>
-                      </div>
-                      <Badge variant={apiKey.status === 'active' ? 'default' : 'destructive'}>
-                        {apiKey.status}
-                      </Badge>
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 font-mono text-sm bg-muted p-2 rounded">
-                        {showKeys[apiKey.id] ? apiKey.key : apiKey.key.replace(/./g, '•')}
-                      </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleKeyVisibility(apiKey.id)}
-                      >
-                        {showKeys[apiKey.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(apiKey.key)}
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      {apiKey.status === 'active' && (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => revokeKey(apiKey.id)}
-                        >
-                          Revoke
-                        </Button>
-                      )}
-                    </div>
+          {/* Authentication */}
+          <Card className="nexus-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="w-5 h-5 text-green-400" />
+              <h3 className="text-xl font-semibold text-white">Authentication</h3>
+            </div>
+            <div className="space-y-4">
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <div className="font-medium text-green-300 mb-2">API Key Authentication</div>
+                <p className="text-white/70 text-sm mb-3">
+                  Include your API key in the Authorization header for all requests.
+                </p>
+                <code className="block bg-black/20 p-3 rounded text-sm text-purple-300">
+                  Authorization: Bearer your_api_key_here
+                </code>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">
+                  <Key className="w-4 h-4 mr-2" />
+                  Generate API Key
+                </Button>
+                <Button variant="ghost" className="text-white/70 hover:text-white">
+                  View Documentation
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
 
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Activity className="h-4 w-4" />
-                        {apiKey.requests} requests
-                      </span>
+        <TabsContent value="search" className="space-y-6">
+          <ConversationSearch onFilteredResults={setSearchResults} />
+          
+          {/* Search Results */}
+          {searchResults.length > 0 && (
+            <Card className="nexus-card p-6">
+              <h3 className="text-xl font-semibold text-white mb-4">Search Results</h3>
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {searchResults.slice(0, 10).map(result => (
+                  <div key={result.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-white text-sm mb-1">
+                          {result.sender === 'user' ? '👤 User' : '🤖 AI'}
+                        </div>
+                        <div className="text-white/70 text-sm line-clamp-2">{result.text}</div>
+                        <div className="text-xs text-white/50 mt-1">
+                          {new Date(result.timestamp).toLocaleString()}
+                        </div>
+                      </div>
+                      <MessageReactions
+                        messageId={result.id}
+                        reactions={messageReactions[result.id]}
+                        onReact={handleReaction}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            </Card>
+          )}
         </TabsContent>
 
-        <TabsContent value="docs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>API Documentation</CardTitle>
-              <CardDescription>Complete guide to the Nexus AI API</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Base URL</h3>
-                  <code className="bg-muted p-2 rounded block">https://api.nexusai.com/v1</code>
-                </div>
-
-                <div>
-                  <h3 className="font-medium mb-2">Authentication</h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Include your API key in the Authorization header:
-                  </p>
-                  <code className="bg-muted p-2 rounded block">Authorization: Bearer YOUR_API_KEY</code>
-                </div>
-
-                <div>
-                  <h3 className="font-medium mb-2">Endpoints</h3>
-                  <div className="space-y-2">
-                    <div className="border rounded p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">POST</Badge>
-                        <code>/chat/completions</code>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Generate chat completions using various AI models
-                      </p>
-                    </div>
-                    <div className="border rounded p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">GET</Badge>
-                        <code>/models</code>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        List available AI models
-                      </p>
-                    </div>
-                    <div className="border rounded p-3">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">POST</Badge>
-                        <code>/embeddings</code>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Generate text embeddings for semantic search
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="examples" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Code Examples</CardTitle>
-              <CardDescription>Sample code in different programming languages</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Tabs defaultValue="curl" className="space-y-4">
-                <TabsList>
-                  <TabsTrigger value="curl">cURL</TabsTrigger>
-                  <TabsTrigger value="javascript">JavaScript</TabsTrigger>
-                  <TabsTrigger value="python">Python</TabsTrigger>
-                </TabsList>
-
-                {Object.entries(codeExamples).map(([lang, code]) => (
-                  <TabsContent key={lang} value={lang}>
-                    <div className="relative">
-                      <pre className="bg-muted p-4 rounded text-sm overflow-x-auto">
-                        <code>{code}</code>
-                      </pre>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="absolute top-2 right-2"
-                        onClick={() => copyToClipboard(code)}
-                      >
-                        <Copy className="h-4 w-4" />
+        <TabsContent value="reactions" className="space-y-6">
+          <Card className="nexus-card p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="w-5 h-5 text-purple-400" />
+              <h3 className="text-xl font-semibold text-white">Message Reactions & Formatting</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                <h4 className="font-medium text-purple-300 mb-2">Interactive Reactions</h4>
+                <p className="text-white/70 text-sm mb-3">
+                  Users can react to messages with emojis, providing feedback and engagement metrics.
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-white/60">Available reactions:</span>
+                  <div className="flex gap-1">
+                    {['👍', '👎', '❤️', '😊', '⭐'].map(emoji => (
+                      <Button key={emoji} variant="ghost" size="sm" className="h-8 w-8 p-0 text-lg">
+                        {emoji}
                       </Button>
-                    </div>
-                  </TabsContent>
-                ))}
-              </Tabs>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="usage" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>API Usage</CardTitle>
-              <CardDescription>Monitor your API usage and limits</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="border rounded p-4 text-center">
-                    <div className="text-2xl font-bold">1,735</div>
-                    <p className="text-sm text-muted-foreground">Requests this month</p>
-                  </div>
-                  <div className="border rounded p-4 text-center">
-                    <div className="text-2xl font-bold">125ms</div>
-                    <p className="text-sm text-muted-foreground">Avg response time</p>
-                  </div>
-                  <div className="border rounded p-4 text-center">
-                    <div className="text-2xl font-bold">99.9%</div>
-                    <p className="text-sm text-muted-foreground">Uptime</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-medium mb-2">Rate Limits</h3>
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">Requests per minute</span>
-                      <Badge variant="outline">100</Badge>
-                    </div>
-                    <div className="flex justify-between items-center p-2 bg-muted rounded">
-                      <span className="text-sm">Requests per day</span>
-                      <Badge variant="outline">10,000</Badge>
-                    </div>
+                    ))}
                   </div>
                 </div>
               </div>
-            </CardContent>
+
+              <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <h4 className="font-medium text-blue-300 mb-2">Rich Text Formatting</h4>
+                <p className="text-white/70 text-sm mb-3">
+                  Support for markdown formatting, code syntax highlighting, and media embeds.
+                </p>
+                <div className="space-y-2 text-sm">
+                  <div>• **Bold** and *italic* text formatting</div>
+                  <div>• `Code blocks` with syntax highlighting</div>
+                  <div>• [Links](https://example.com) and media embeds</div>
+                  <div>• Tables, lists, and blockquotes</div>
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <h4 className="font-medium text-green-300 mb-2">Analytics Integration</h4>
+                <p className="text-white/70 text-sm">
+                  Track reaction patterns, sentiment analysis, and user engagement metrics through the API.
+                </p>
+              </div>
+            </div>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="export" className="space-y-6">
+          <Card className="nexus-card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Download className="w-5 h-5 text-blue-400" />
+                <h3 className="text-xl font-semibold text-white">Export Options</h3>
+              </div>
+              
+              <ExportOptions>
+                <Button className="nexus-gradient">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export Data
+                </Button>
+              </ExportOptions>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Database className="w-4 h-4 text-blue-400" />
+                  <h4 className="font-medium text-blue-300">Structured Exports</h4>
+                </div>
+                <ul className="text-sm text-white/70 space-y-1">
+                  <li>• JSON format with full metadata</li>
+                  <li>• CSV for spreadsheet analysis</li>
+                  <li>• XML for system integration</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-green-400" />
+                  <h4 className="font-medium text-green-300">Document Formats</h4>
+                </div>
+                <ul className="text-sm text-white/70 space-y-1">
+                  <li>• PDF with formatting preserved</li>
+                  <li>• Markdown for documentation</li>
+                  <li>• Plain text for simple archiving</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <Webhook className="w-4 h-4 text-purple-400" />
+                  <h4 className="font-medium text-purple-300">API Integration</h4>
+                </div>
+                <ul className="text-sm text-white/70 space-y-1">
+                  <li>• Webhook notifications on export</li>
+                  <li>• Scheduled automated exports</li>
+                  <li>• Custom format transformations</li>
+                </ul>
+              </div>
+
+              <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                <div className="flex items-center gap-2 mb-2">
+                  <BarChart3 className="w-4 h-4 text-orange-400" />
+                  <h4 className="font-medium text-orange-300">Analytics Export</h4>
+                </div>
+                <ul className="text-sm text-white/70 space-y-1">
+                  <li>• Conversation analytics data</li>
+                  <li>• Usage statistics and metrics</li>
+                  <li>• Performance benchmarks</li>
+                </ul>
+              </div>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="plugins" className="space-y-6">
+          <PluginSystem />
+        </TabsContent>
+
+        <TabsContent value="testing" className="space-y-6">
+          <TestingSuite />
+        </TabsContent>
+
+        <TabsContent value="monitoring" className="space-y-6">
+          <ErrorMonitoring />
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
+          <PerformanceOptimization />
         </TabsContent>
       </Tabs>
     </div>
