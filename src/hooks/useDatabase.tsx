@@ -38,7 +38,7 @@ export function useDatabase() {
     if (user && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       // Only save if it has an ID (not a temporary message)
-      if (lastMessage.id && !lastMessage.isTemp) {
+      if (lastMessage.id) {
         saveMessage(lastMessage);
         updateUsageTracking(lastMessage);
       }
@@ -123,7 +123,7 @@ export function useDatabase() {
         const loadedMessages = data.map(msg => ({
           id: msg.id,
           text: msg.content,
-          sender: msg.sender as 'user' | 'assistant',
+          sender: msg.sender === 'assistant' ? 'bot' : msg.sender as 'user' | 'bot',
           timestamp: new Date(msg.created_at),
           model: msg.model_used || undefined,
           tokens: msg.tokens_used || undefined
@@ -173,7 +173,7 @@ export function useDatabase() {
           session_id: currentSessionId,
           user_id: user.id,
           content: message.text,
-          sender: message.sender,
+          sender: message.sender === 'bot' ? 'assistant' : message.sender,
           model_used: message.model || null,
           tokens_used: message.tokens || 0
         });
@@ -199,7 +199,7 @@ export function useDatabase() {
         p_user_id: user.id,
         p_messages_sent: message.sender === 'user' ? 1 : 0,
         p_tokens_used: message.tokens || 0,
-        p_api_calls: message.sender === 'assistant' ? 1 : 0
+        p_api_calls: message.sender === 'bot' ? 1 : 0
       });
 
       if (error) {
