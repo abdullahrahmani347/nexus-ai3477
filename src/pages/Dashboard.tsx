@@ -6,13 +6,27 @@ import { ChatManager } from "@/components/ChatManager";
 import SessionSidebar from "@/components/SessionSidebar";
 import { UserMenu } from "@/components/navigation/UserMenu";
 import { NexusBranding, NexusStatusBadge } from "@/components/ui/nexus-branding";
+import { UserAnalytics } from "@/components/UserAnalytics";
 import { useDatabase } from "@/hooks/useDatabase";
 import { useAuth } from "@/hooks/useAuth";
 
 const Dashboard = () => {
   useDatabase();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+
+  // Show loading screen while auth is initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-white/60">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -51,6 +65,16 @@ const Dashboard = () => {
               </div>
               
               <div className="flex items-center gap-3">
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAnalytics(!showAnalytics)}
+                    className="text-white/70 hover:text-white hover:bg-white/10 nexus-transition"
+                  >
+                    {showAnalytics ? 'Chat' : 'Analytics'}
+                  </Button>
+                )}
                 <NexusStatusBadge />
                 <UserMenu />
               </div>
@@ -60,7 +84,11 @@ const Dashboard = () => {
           {/* Main Content with enhanced scrolling */}
           <div className="flex-1 p-6 nexus-scrollbar">
             <div className="h-full nexus-card">
-              <ChatManager className="h-full" />
+              {showAnalytics && user ? (
+                <UserAnalytics className="h-full p-6" />
+              ) : (
+                <ChatManager className="h-full" />
+              )}
             </div>
           </div>
         </div>

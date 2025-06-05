@@ -21,6 +21,7 @@ interface ChatState {
   switchSession: (sessionId: string) => void;
   updateSessionTitle: (sessionId: string, title: string) => void;
   getCurrentSession: () => ChatSession | undefined;
+  setSessions: (sessions: ChatSession[]) => void;
   
   // Messages
   messages: Message[];
@@ -29,6 +30,7 @@ interface ChatState {
   deleteMessage: (id: string) => void;
   clearMessages: () => void;
   regenerateResponse: (fromMessageId: string) => void;
+  setMessages: (messages: Message[]) => void;
   
   // File attachments
   attachedFiles: FileData[];
@@ -144,6 +146,7 @@ export const useChatStore = create<ChatState>()(
         const state = get();
         return state.sessions.find(s => s.id === state.currentSessionId);
       },
+      setSessions: (sessions) => set({ sessions }),
       
       // Messages
       messages: [],
@@ -227,6 +230,7 @@ export const useChatStore = create<ChatState>()(
           set({ messages: newMessages });
         }
       },
+      setMessages: (messages) => set({ messages }),
       
       // File attachments
       attachedFiles: [],
@@ -278,7 +282,7 @@ export const useChatStore = create<ChatState>()(
     {
       name: 'gemini-chat-storage',
       partialize: (state) => ({
-        sessions: state.sessions,
+        // Don't persist sessions and messages as they're now in the database
         currentSessionId: state.currentSessionId,
         apiKey: state.apiKey,
         model: state.model,
