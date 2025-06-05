@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { Search, Settings, BarChart3, Download, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,9 +23,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
 
   // Memoized chat interface to prevent unnecessary re-renders
   const chatInterface = useMemo(() => (
-    <ChatInterface 
-      className="h-full"
-    />
+    <ChatInterface />
   ), []);
 
   // Handle search results
