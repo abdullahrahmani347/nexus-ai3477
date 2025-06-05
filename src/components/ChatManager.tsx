@@ -1,18 +1,24 @@
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, AlertCircle, Sparkles, Crown } from 'lucide-react';
+import { Loader2, AlertCircle, Sparkles, Crown, Search, Filter } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { MessageDisplay } from './MessageDisplay';
 import { InputArea } from './InputArea';
 import TypingIndicator from './TypingIndicator';
+import { ConversationSearch } from './advanced/ConversationSearch';
+import { ConversationExport } from './advanced/ConversationExport';
+import { AdvancedVoiceControl } from './advanced/AdvancedVoiceControl';
+import { ConversationTemplates } from './advanced/ConversationTemplates';
 import { useChatStore } from '@/store/chatStore';
 import { useAuth } from '@/hooks/useAuth';
 import { generateStreamingResponse } from '@/services/streamingService';
 import { FileData } from '@/services/fileService';
 import { voiceService } from '@/services/voiceService';
 import { toast } from 'sonner';
+import { Message } from './MessageBubble';
 
 interface ChatManagerProps {
   className?: string;
@@ -21,6 +27,9 @@ interface ChatManagerProps {
 export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
+  const [showSearch, setShowSearch] = useState(false);
+  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   
   const {
     messages,
@@ -42,6 +51,9 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
     voiceEnabled
   } = useChatStore();
 
+  // Use filtered messages when search is active, otherwise use all messages
+  const displayMessages = isSearchActive ? filteredMessages : messages;
+
   // Scroll to bottom when messages change
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -50,7 +62,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [messages, isStreaming]);
+  }, [displayMessages, isStreaming]);
 
   const handleSendMessage = useCallback(async (text: string, files?: FileData[]) => {
     if (!text.trim() && (!files || files.length === 0)) return;
@@ -142,6 +154,19 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
     toast.success('Message deleted');
   }, [deleteMessage]);
 
+  const handleVoiceInput = useCallback((text: string) => {
+    handleSendMessage(text);
+  }, [handleSendMessage]);
+
+  const handleTemplateSelect = useCallback((prompt: string) => {
+    handleSendMessage(prompt);
+  }, [handleSendMessage]);
+
+  const handleSearchResults = useCallback((results: Message[]) => {
+    setFilteredMessages(results);
+    setIsSearchActive(results.length !== messages.length || results.length === 0);
+  }, [messages.length]);
+
   if (!isConnected) {
     return (
       <div className={`flex flex-col h-full ${className}`}>
@@ -166,10 +191,51 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
+      {/* Enhanced Header with Advanced Controls */}
+      <div className="border-b border-white/10 p-4 bg-black/20 backdrop-blur-xl">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSearch(!showSearch)}
+              className={`${
+                showSearch 
+                  ? 'text-blue-400 bg-blue-400/10' 
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Search
+            </Button>
+            
+            <ConversationTemplates onSelectTemplate={handleTemplateSelect} />
+            <ConversationExport />
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <AdvancedVoiceControl onVoiceInput={handleVoiceInput} disabled={isStreaming} />
+            
+            {isSearchActive && (
+              <Badge variant="secondary" className="bg-blue-500/20 text-blue-300">
+                {filteredMessages.length} results
+              </Badge>
+            )}
+          </div>
+        </div>
+        
+        {/* Search Panel */}
+        {showSearch && (
+          <div className="mt-4 pt-4 border-t border-white/10">
+            <ConversationSearch onResultsChange={handleSearchResults} />
+          </div>
+        )}
+      </div>
+
       {/* Enhanced Messages Area with custom scrolling */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 nexus-scrollbar">
         <div className="space-y-6 max-w-4xl mx-auto">
-          {messages.length === 0 ? (
+          {displayMessages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-center py-12">
               <div className="max-w-lg space-y-8">
                 {/* Enhanced Welcome Section with better branding */}
@@ -231,15 +297,39 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
               </div>
             </div>
           ) : (
-            messages.map((message, index) => (
-              <MessageDisplay
-                key={message.id}
-                message={message}
-                isLast={index === messages.length - 1}
-                onRegenerate={message.sender === 'bot' ? () => handleRegenerate(message.id) : undefined}
-                onDelete={() => handleDeleteMessage(message.id)}
-              />
-            ))
+            <>
+              {isSearchActive && (
+                <div className="nexus-card p-4 mb-6 border-blue-500/30 bg-blue-500/10">
+                  <div className="flex items-center gap-2 text-blue-300">
+                    <Filter className="h-4 w-4" />
+                    <span className="text-sm">
+                      Showing {filteredMessages.length} of {messages.length} messages
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setIsSearchActive(false);
+                        setShowSearch(false);
+                      }}
+                      className="ml-auto text-blue-300 hover:text-blue-200 hover:bg-blue-400/10"
+                    >
+                      Clear filters
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
+              {displayMessages.map((message, index) => (
+                <MessageDisplay
+                  key={message.id}
+                  message={message}
+                  isLast={index === displayMessages.length - 1}
+                  onRegenerate={message.sender === 'bot' ? () => handleRegenerate(message.id) : undefined}
+                  onDelete={() => handleDeleteMessage(message.id)}
+                />
+              ))}
+            </>
           )}
           
           {isStreaming && streamingMessageId && (

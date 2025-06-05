@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Settings } from "lucide-react";
+import { Settings, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatManager } from "@/components/ChatManager";
 import SessionSidebar from "@/components/SessionSidebar";
@@ -9,6 +9,7 @@ import { NexusBranding, NexusStatusBadge } from "@/components/ui/nexus-branding"
 import { UserAnalytics } from "@/components/UserAnalytics";
 import { useDatabase } from "@/hooks/useDatabase";
 import { useAuth } from "@/hooks/useAuth";
+import { Badge } from "@/components/ui/badge";
 
 const Dashboard = () => {
   useDatabase();
@@ -62,6 +63,12 @@ const Dashboard = () => {
                   showStatus={true}
                   showBadge={true}
                 />
+                
+                {/* Phase 2 Badge */}
+                <Badge variant="secondary" className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border-purple-500/30 nexus-transition">
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  Phase 2 Advanced
+                </Badge>
               </div>
               
               <div className="flex items-center gap-3">
