@@ -25,10 +25,9 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
   // Memoized chat interface to prevent unnecessary re-renders
   const chatInterface = useMemo(() => (
     <ChatInterface 
-      filteredMessages={isSearchActive ? searchResults : undefined}
       className="h-full"
     />
-  ), [isSearchActive, searchResults]);
+  ), []);
 
   // Handle search results
   const handleSearchResults = useCallback((results: Message[]) => {
