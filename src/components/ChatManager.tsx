@@ -3,7 +3,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 import { Search, Settings, BarChart3, Download, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChatInterface } from './ChatInterface';
+import ChatInterface from './ChatInterface';
 import { ConversationSearch } from './advanced/ConversationSearch';
 import { EnhancedConversationExport } from './advanced/EnhancedConversationExport';
 import { AdvancedVoiceControl } from './advanced/AdvancedVoiceControl';
@@ -17,7 +17,7 @@ interface ChatManagerProps {
 }
 
 export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
-  const { messages } = useChatStore();
+  const { messages, addMessage } = useChatStore();
   const [activeTab, setActiveTab] = useState('chat');
   const [searchResults, setSearchResults] = useState<Message[]>([]);
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -41,6 +41,18 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
     setSearchResults([]);
     setIsSearchActive(false);
   }, []);
+
+  // Handle template selection
+  const handleSelectTemplate = useCallback((template: any) => {
+    const templateMessage = {
+      id: Date.now().toString(),
+      text: template.content,
+      sender: 'user' as const,
+      timestamp: new Date(),
+    };
+    addMessage(templateMessage);
+    setActiveTab('chat');
+  }, [addMessage]);
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
@@ -179,7 +191,7 @@ export const ChatManager: React.FC<ChatManagerProps> = ({ className = '' }) => {
 
         <TabsContent value="templates" className="flex-1 mt-0">
           <div className="h-full p-6">
-            <ConversationTemplates />
+            <ConversationTemplates onSelectTemplate={handleSelectTemplate} />
           </div>
         </TabsContent>
 

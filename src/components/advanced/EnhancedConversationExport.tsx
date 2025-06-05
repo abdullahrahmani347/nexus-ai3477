@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Download, FileText, Image, Mail, Share2, Printer, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -107,8 +106,8 @@ export const EnhancedConversationExport: React.FC = () => {
 
     // Branding footer
     if (exportOptions.includeBranding) {
-      const finalPage = pdf.internal.getCurrentPageInfo().pageNumber;
-      for (let i = 1; i <= finalPage; i++) {
+      const totalPages = pdf.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.setFont(undefined, 'italic');
