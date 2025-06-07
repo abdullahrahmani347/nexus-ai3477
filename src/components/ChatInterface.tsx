@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Settings, Plus, Moon, Sun, Menu, Search, Download, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -218,9 +219,9 @@ const ChatInterface = () => {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative z-10">
-        {/* Improved Header with better branding */}
-        <div className="bg-black/30 backdrop-blur-xl border-b border-white/20 p-4 flex items-center justify-between relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10" />
+        {/* Enhanced Header with Professional Branding */}
+        <div className="bg-black/40 backdrop-blur-xl border-b border-white/10 p-4 flex items-center justify-between relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
           <div className="flex items-center space-x-4 relative z-10">
             <Button
               variant="ghost"
@@ -232,7 +233,7 @@ const ChatInterface = () => {
               <Menu className="w-5 h-5" />
             </Button>
             
-            {/* Enhanced Nexus AI Branding */}
+            {/* Professional Nexus AI Branding */}
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
@@ -331,7 +332,6 @@ const ChatInterface = () => {
           <div className="space-y-6 max-w-4xl mx-auto">
             {filteredMessages.length === 0 && !searchQuery && (
               <div className="text-center py-20">
-                {/* Simple welcome without excessive branding */}
                 <div className="w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-purple-500/20">
                   <Bot className="w-10 h-10 text-white" />
                 </div>
@@ -380,7 +380,7 @@ const ChatInterface = () => {
         </ScrollArea>
 
         {/* Enhanced Input Area */}
-        <div className="bg-black/30 backdrop-blur-xl border-t border-white/20 p-6 relative z-10">
+        <div className="bg-black/40 backdrop-blur-xl border-t border-white/10 p-6 relative z-10">
           <div className="max-w-4xl mx-auto space-y-4">
             {/* File Attachments */}
             <FileAttachment
