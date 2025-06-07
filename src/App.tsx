@@ -16,6 +16,7 @@ import SemanticSearchPage from "./pages/SemanticSearchPage";
 import PersistentMemoryPage from "./pages/PersistentMemoryPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import ProfilePage from "./pages/ProfilePage";
+import AdvancedFeaturesPage from "./pages/AdvancedFeaturesPage";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/whitelabel" element={<WhiteLabelPage />} />
               <Route path="/search" element={<SemanticSearchPage />} />
               <Route path="/memory" element={<PersistentMemoryPage />} />
+              <Route path="/advanced" element={<AdvancedFeaturesPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
