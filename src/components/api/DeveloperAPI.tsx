@@ -9,9 +9,7 @@ import {
   MessageSquare, Puzzle, TestTube, AlertTriangle, Zap,
   PlayCircle, Database, Webhook, Shield, BarChart3, FileText
 } from 'lucide-react';
-import { ConversationSearch } from './ConversationSearch';
 import { MessageReactions } from './MessageReactions';
-import { ExportOptions } from './ExportOptions';
 import { PluginSystem } from './PluginSystem';
 import { TestingSuite } from './TestingSuite';
 import { ErrorMonitoring } from './ErrorMonitoring';
@@ -59,7 +57,6 @@ const API_ENDPOINTS: APIEndpoint[] = [
 
 export const DeveloperAPI: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [messageReactions, setMessageReactions] = useState<Record<string, any>>({});
 
   const handleReaction = (messageId: string, emoji: string) => {
@@ -129,22 +126,14 @@ export const DeveloperAPI: React.FC = () => {
 
       {/* Main API Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid grid-cols-4 lg:grid-cols-8 gap-1 bg-white/5 p-1 rounded-lg">
+        <TabsList className="grid grid-cols-2 lg:grid-cols-6 gap-1 bg-white/5 p-1 rounded-lg">
           <TabsTrigger value="overview" className="flex items-center gap-2 text-xs">
             <BookOpen className="w-4 h-4" />
             Overview
           </TabsTrigger>
-          <TabsTrigger value="search" className="flex items-center gap-2 text-xs">
-            <Search className="w-4 h-4" />
-            Search
-          </TabsTrigger>
           <TabsTrigger value="reactions" className="flex items-center gap-2 text-xs">
             <MessageSquare className="w-4 h-4" />
             Reactions
-          </TabsTrigger>
-          <TabsTrigger value="export" className="flex items-center gap-2 text-xs">
-            <Download className="w-4 h-4" />
-            Export
           </TabsTrigger>
           <TabsTrigger value="plugins" className="flex items-center gap-2 text-xs">
             <Puzzle className="w-4 h-4" />
@@ -231,39 +220,6 @@ export const DeveloperAPI: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="search" className="space-y-6">
-          <ConversationSearch onFilteredResults={setSearchResults} />
-          
-          {/* Search Results */}
-          {searchResults.length > 0 && (
-            <Card className="nexus-card p-6">
-              <h3 className="text-xl font-semibold text-white mb-4">Search Results</h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {searchResults.slice(0, 10).map(result => (
-                  <div key={result.id} className="p-3 bg-white/5 rounded-lg border border-white/10">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="font-medium text-white text-sm mb-1">
-                          {result.sender === 'user' ? '👤 User' : '🤖 AI'}
-                        </div>
-                        <div className="text-white/70 text-sm line-clamp-2">{result.text}</div>
-                        <div className="text-xs text-white/50 mt-1">
-                          {new Date(result.timestamp).toLocaleString()}
-                        </div>
-                      </div>
-                      <MessageReactions
-                        messageId={result.id}
-                        reactions={messageReactions[result.id]}
-                        onReact={handleReaction}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </TabsContent>
-
         <TabsContent value="reactions" className="space-y-6">
           <Card className="nexus-card p-6">
             <div className="flex items-center gap-2 mb-4">
@@ -307,74 +263,6 @@ export const DeveloperAPI: React.FC = () => {
                 <p className="text-white/70 text-sm">
                   Track reaction patterns, sentiment analysis, and user engagement metrics through the API.
                 </p>
-              </div>
-            </div>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="export" className="space-y-6">
-          <Card className="nexus-card p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Download className="w-5 h-5 text-blue-400" />
-                <h3 className="text-xl font-semibold text-white">Export Options</h3>
-              </div>
-              
-              <ExportOptions>
-                <Button className="nexus-gradient">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Data
-                </Button>
-              </ExportOptions>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Database className="w-4 h-4 text-blue-400" />
-                  <h4 className="font-medium text-blue-300">Structured Exports</h4>
-                </div>
-                <ul className="text-sm text-white/70 space-y-1">
-                  <li>• JSON format with full metadata</li>
-                  <li>• CSV for spreadsheet analysis</li>
-                  <li>• XML for system integration</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-4 h-4 text-green-400" />
-                  <h4 className="font-medium text-green-300">Document Formats</h4>
-                </div>
-                <ul className="text-sm text-white/70 space-y-1">
-                  <li>• PDF with formatting preserved</li>
-                  <li>• Markdown for documentation</li>
-                  <li>• Plain text for simple archiving</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Webhook className="w-4 h-4 text-purple-400" />
-                  <h4 className="font-medium text-purple-300">API Integration</h4>
-                </div>
-                <ul className="text-sm text-white/70 space-y-1">
-                  <li>• Webhook notifications on export</li>
-                  <li>• Scheduled automated exports</li>
-                  <li>• Custom format transformations</li>
-                </ul>
-              </div>
-
-              <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <BarChart3 className="w-4 h-4 text-orange-400" />
-                  <h4 className="font-medium text-orange-300">Analytics Export</h4>
-                </div>
-                <ul className="text-sm text-white/70 space-y-1">
-                  <li>• Conversation analytics data</li>
-                  <li>• Usage statistics and metrics</li>
-                  <li>• Performance benchmarks</li>
-                </ul>
               </div>
             </div>
           </Card>

@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
-import { SemanticSearch } from '@/components/search/SemanticSearch';
-import { Sparkles, Crown, Zap } from 'lucide-react';
+import { Sparkles, Crown, Zap, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import SessionSidebar from '@/components/SessionSidebar';
 import { UserMenu } from '@/components/navigation/UserMenu';
 
 const SemanticSearchPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -71,7 +73,63 @@ const SemanticSearchPage: React.FC = () => {
           
           {/* Main Content */}
           <div className="flex-1 p-6">
-            <SemanticSearch />
+            <div className="max-w-4xl mx-auto space-y-6">
+              {/* Search Interface */}
+              <Card className="nexus-card p-8">
+                <div className="text-center mb-8">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-purple-500/20">
+                    <Search className="w-8 h-8 text-white" />
+                  </div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Semantic Search</h2>
+                  <p className="text-white/60">Search through your conversations with AI-powered understanding</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="w-5 h-5 absolute left-4 top-1/2 transform -translate-y-1/2 text-white/50" />
+                    <Input
+                      placeholder="Ask anything about your conversations..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-12 h-14 text-lg bg-white/10 border-white/20 focus:border-purple-400 text-white placeholder:text-white/50 rounded-xl"
+                    />
+                  </div>
+                  
+                  <Button 
+                    className="w-full h-12 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-medium rounded-xl"
+                    disabled={!searchQuery.trim()}
+                  >
+                    Search Conversations
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Coming Soon Message */}
+              <Card className="nexus-card p-6 text-center">
+                <div className="text-white/60 mb-4">
+                  <Sparkles className="w-12 h-12 mx-auto mb-3 text-purple-400" />
+                  <h3 className="text-lg font-semibold text-white mb-2">Advanced Search Coming Soon</h3>
+                  <p className="text-sm">
+                    We're working on bringing you powerful semantic search capabilities to find exactly what you're looking for in your conversations.
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                  <div className="p-3 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                    <h4 className="font-medium text-purple-300 text-sm">Natural Language</h4>
+                    <p className="text-xs text-white/60 mt-1">Ask questions in plain English</p>
+                  </div>
+                  <div className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                    <h4 className="font-medium text-blue-300 text-sm">Context Aware</h4>
+                    <p className="text-xs text-white/60 mt-1">Understands meaning and context</p>
+                  </div>
+                  <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                    <h4 className="font-medium text-green-300 text-sm">Instant Results</h4>
+                    <p className="text-xs text-white/60 mt-1">Fast and accurate search results</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
