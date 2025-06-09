@@ -11,6 +11,7 @@ import VoiceControl from './VoiceControl';
 import FileAttachment from './FileAttachment';
 import SessionSidebar from './SessionSidebar';
 import ExportDialog from './ExportDialog';
+import { SimplifiedBranding } from '@/components/ui/simplified-branding';
 import { useChatStore } from '../store/chatStore';
 import { generateStreamingResponse } from '../services/streamingService';
 import { useTheme } from './ThemeProvider';
