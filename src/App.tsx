@@ -7,6 +7,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import ThemeProvider from "./components/ThemeProvider";
 import Index from "./pages/Index";
+import ChatPage from "./pages/ChatPage";
+import FeaturesPage from "./pages/FeaturesPage";
 import NotFound from "./pages/NotFound";
 import AdminPage from "./pages/AdminPage";
 import TeamSpacesPage from "./pages/TeamSpacesPage";
@@ -30,6 +32,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/chat" element={<ChatPage />} />
+              <Route path="/features" element={<FeaturesPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin" element={<AdminPage />} />

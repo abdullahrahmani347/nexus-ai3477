@@ -105,6 +105,7 @@
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--background)) 40%, rgba(139, 92, 246, 0.05) 100%);
     min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile */
   }
 
   /* Enhanced Global Scrollbar Styles */
@@ -140,31 +141,31 @@
     background: rgba(255, 255, 255, 0.05);
   }
 
-  /* Enhanced ScrollArea specific styles */
-  [data-radix-scroll-area-viewport] {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(139, 92, 246, 0.6) rgba(255, 255, 255, 0.1);
+  /* Mobile-specific optimizations */
+  @media (max-width: 768px) {
+    body {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    /* Improve touch targets */
+    button, a {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Prevent zoom on input focus */
+    input, textarea, select {
+      font-size: 16px;
+    }
   }
 
-  [data-radix-scroll-area-viewport]::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  [data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
-  }
-
-  [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #ec4899 100%);
-    border-radius: 4px;
-    transition: all 0.3s ease;
-  }
-
-  [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, #9d6cf7 0%, #4c90f8 50%, #f056aa 100%);
-    box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+  /* Safe area support for mobile devices */
+  @supports (padding: env(safe-area-inset-top)) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   }
 }
 
@@ -296,9 +297,37 @@
     box-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
   }
 
-  /* Remove legacy scrollbar class */
-  .custom-scrollbar {
-    @apply nexus-scrollbar;
+  /* Mobile-optimized utilities */
+  .mobile-safe {
+    min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Line clamping for better mobile text handling */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
 
   /* Enhanced transitions and animations */
@@ -317,6 +346,21 @@
     ring-color: rgba(139, 92, 246, 0.5);
     ring-offset: 2px;
     ring-offset-color: rgba(0, 0, 0, 0.8);
+  }
+
+  /* Mobile-specific responsive utilities */
+  @media (max-width: 640px) {
+    .mobile-p-2 {
+      padding: 0.5rem;
+    }
+    
+    .mobile-text-sm {
+      font-size: 0.875rem;
+    }
+    
+    .mobile-gap-2 {
+      gap: 0.5rem;
+    }
   }
 }
 
@@ -384,4 +428,27 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.75rem;
   font-weight: 500;
+}
+
+/* Mobile keyboard and input optimizations */
+@media (max-width: 768px) {
+  /* Prevent viewport zoom when focusing inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  
+  /* Better touch interaction for mobile */
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"] {
+    -webkit-appearance: none;
+    appearance: none;
+    touch-action: manipulation;
+  }
 }
