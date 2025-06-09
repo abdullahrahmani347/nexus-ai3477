@@ -34,7 +34,16 @@ export function useMemoryEntries() {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      setEntries(data || []);
+      
+      // Type assertion to ensure importance field matches our interface
+      const typedEntries = (data || []).map(entry => ({
+        ...entry,
+        importance: entry.importance as 'low' | 'medium' | 'high',
+        tags: entry.tags || [],
+        related_sessions: entry.related_sessions || []
+      }));
+      
+      setEntries(typedEntries);
     } catch (error) {
       console.error('Error loading memory entries:', error);
       toast({
