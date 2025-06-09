@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProcessedFile {
   id: string;
@@ -21,10 +23,21 @@ interface ProcessedFile {
 }
 
 export const FileProcessor: React.FC = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [files, setFiles] = useState<ProcessedFile[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upload files",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsProcessing(true);
     
     const newFiles: ProcessedFile[] = acceptedFiles.map(file => ({
@@ -63,22 +76,24 @@ export const FileProcessor: React.FC = () => {
     }
 
     setIsProcessing(false);
-  }, []);
+  }, [user, toast]);
 
   const processFile = async (file: File): Promise<Partial<ProcessedFile>> => {
+    if (!user) throw new Error('User not authenticated');
+
     // Upload to Supabase storage
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
+    const fileName = `${user.id}/${Date.now()}.${fileExt}`;
     
     const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('processed-files')
+      .from('file-uploads')
       .upload(fileName, file);
 
     if (uploadError) throw uploadError;
 
     // Get public URL
     const { data: { publicUrl } } = supabase.storage
-      .from('processed-files')
+      .from('file-uploads')
       .getPublicUrl(fileName);
 
     // Extract text content based on file type
@@ -88,12 +103,10 @@ export const FileProcessor: React.FC = () => {
     if (file.type.startsWith('text/')) {
       extractedText = await file.text();
     } else if (file.type === 'application/pdf') {
-      // PDF processing would go here
-      extractedText = 'PDF text extraction not implemented yet';
+      extractedText = 'PDF text extraction requires additional processing';
     } else if (file.type.startsWith('image/')) {
-      // Image analysis would go here
       metadata = { 
-        dimensions: 'Unknown',
+        dimensions: 'Processing...',
         format: file.type.split('/')[1]
       };
     }
@@ -177,6 +190,11 @@ export const FileProcessor: React.FC = () => {
                   </div>
                   {file.processingStatus === 'processing' && (
                     <Progress value={50} className="w-full mt-2" />
+                  )}
+                  {file.extractedText && (
+                    <div className="text-xs text-white/60 mt-1">
+                      Extracted: {file.extractedText.substring(0, 100)}...
+                    </div>
                   )}
                 </div>
               </div>
