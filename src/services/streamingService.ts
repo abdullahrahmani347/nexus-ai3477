@@ -81,10 +81,73 @@ export async function generateStreamingResponse(
       ]
     };
 
-    console.log('Starting streaming request to Gemini API');
+    console.log('Starting streaming request to Gemini API with model:', model);
 
+    // Try streaming first
+    try {
+      const streamResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (streamResponse.ok) {
+        const reader = streamResponse.body?.getReader();
+        if (reader) {
+          const decoder = new TextDecoder();
+          let fullResponse = '';
+          let currentText = '';
+
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              
+              if (done) break;
+
+              const chunk = decoder.decode(value, { stream: true });
+              const lines = chunk.split('\n');
+
+              for (const line of lines) {
+                if (line.trim() === '' || !line.startsWith('data: ')) continue;
+                
+                try {
+                  const jsonStr = line.replace('data: ', '');
+                  const data = JSON.parse(jsonStr);
+                  
+                  if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    const newText = data.candidates[0].content.parts[0].text;
+                    currentText += newText;
+                    fullResponse = currentText;
+                    onChunk(currentText);
+                  }
+                } catch (e) {
+                  // Skip malformed JSON lines
+                  continue;
+                }
+              }
+            }
+          } finally {
+            reader.releaseLock();
+          }
+
+          if (fullResponse) {
+            return fullResponse;
+          }
+        }
+      }
+    } catch (streamError) {
+      console.log('Streaming failed, falling back to regular API:', streamError);
+    }
+
+    // Fallback to regular API
+    console.log('Using fallback to regular Gemini API');
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
@@ -97,51 +160,45 @@ export async function generateStreamingResponse(
     if (!response.ok) {
       const errorData = await response.text();
       console.error('Gemini API error:', response.status, errorData);
-      throw new Error(`Request failed: ${response.status}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error('No response body reader available');
-    }
-
-    const decoder = new TextDecoder();
-    let fullResponse = '';
-    let currentText = '';
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n');
-
-        for (const line of lines) {
-          if (line.trim() === '' || !line.startsWith('data: ')) continue;
-          
-          try {
-            const jsonStr = line.replace('data: ', '');
-            const data = JSON.parse(jsonStr);
-            
-            if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-              const newText = data.candidates[0].content.parts[0].text;
-              currentText += newText;
-              fullResponse = currentText;
-              onChunk(currentText);
-            }
-          } catch (e) {
-            // Skip malformed JSON lines
-            continue;
-          }
-        }
+      
+      if (response.status === 401) {
+        throw new Error('Invalid API key. Please check your Gemini API key in settings.');
+      } else if (response.status === 429) {
+        throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+      } else if (response.status >= 500) {
+        throw new Error('Gemini service is temporarily unavailable. Please try again later.');
+      } else {
+        throw new Error(`Request failed: ${response.status}`);
       }
-    } finally {
-      reader.releaseLock();
     }
 
-    return fullResponse || 'I apologize, but I was unable to generate a proper response. Please try again.';
+    const data = await response.json();
+    console.log('Received response from Gemini API');
+
+    if (!data.candidates || data.candidates.length === 0) {
+      throw new Error('No response generated. Please try rephrasing your message.');
+    }
+
+    const candidate = data.candidates[0];
+    if (!candidate.content || !candidate.content.parts || candidate.content.parts.length === 0) {
+      throw new Error('Empty response received. Please try again.');
+    }
+
+    const fullResponse = candidate.content.parts[0].text || 'I apologize, but I was unable to generate a proper response. Please try again.';
+    
+    // Simulate streaming for the fallback
+    const words = fullResponse.split(' ');
+    let currentChunk = '';
+    
+    for (let i = 0; i < words.length; i++) {
+      currentChunk += (i > 0 ? ' ' : '') + words[i];
+      onChunk(currentChunk);
+      
+      // Add a small delay to simulate streaming
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+
+    return fullResponse;
 
   } catch (error) {
     console.error('Error in streaming response:', error);

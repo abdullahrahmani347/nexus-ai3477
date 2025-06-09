@@ -47,6 +47,7 @@ interface ChatState {
   // API Configuration
   apiKey: string;
   setApiKey: (key: string) => void;
+  validateApiKey: () => boolean;
   
   // Model Settings
   model: string;
@@ -248,12 +249,22 @@ export const useChatStore = create<ChatState>()(
       streamingMessageId: null,
       setStreamingMessageId: (id) => set({ streamingMessageId: id }),
       
-      // API Configuration
-      apiKey: 'AIzaSyChoxttA3sTyJ0uprxEug5cZnxSQcz054c',
-      setApiKey: (key) => set({ 
-        apiKey: key,
-        isConnected: !!key.trim()
-      }),
+      // API Configuration with enhanced validation
+      apiKey: '',
+      setApiKey: (key) => {
+        const trimmedKey = key.trim();
+        const isValid = trimmedKey.length > 20 && trimmedKey.startsWith('AIza');
+        console.log('Setting API key:', trimmedKey.substring(0, 10) + '...', 'Valid:', isValid);
+        
+        set({ 
+          apiKey: trimmedKey,
+          isConnected: isValid
+        });
+      },
+      validateApiKey: () => {
+        const state = get();
+        return !!(state.apiKey && state.apiKey.trim().length > 20 && state.apiKey.startsWith('AIza'));
+      },
       
       // Model Settings
       model: 'gemini-2.0-flash',
@@ -276,7 +287,7 @@ export const useChatStore = create<ChatState>()(
       setAutoSpeak: (enabled) => set({ autoSpeak: enabled }),
       
       // Status
-      isConnected: true,
+      isConnected: false,
       setIsConnected: (connected) => set({ isConnected: connected }),
     }),
     {
