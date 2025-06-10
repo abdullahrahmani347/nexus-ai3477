@@ -1,14 +1,36 @@
 
 import React, { useState } from 'react';
 import { TeamWorkspace } from '@/components/advanced/TeamWorkspace';
-import { Sparkles, Crown, Zap } from 'lucide-react';
+import { Sparkles, Crown, Zap, Users, MessageSquare, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import SessionSidebar from '@/components/SessionSidebar';
 import { UserMenu } from '@/components/navigation/UserMenu';
 
 const TeamSpacesPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  const teamFeatures = [
+    {
+      title: "Collaborative Workspaces",
+      description: "Create shared spaces where team members can collaborate on AI projects",
+      icon: Users,
+      color: "from-blue-500 to-cyan-500"
+    },
+    {
+      title: "Shared Conversations",
+      description: "Share AI conversations and insights across your team in real-time",
+      icon: MessageSquare,
+      color: "from-purple-500 to-pink-500"
+    },
+    {
+      title: "Role Management",
+      description: "Manage team permissions with granular role-based access control",
+      icon: Shield,
+      color: "from-green-500 to-emerald-500"
+    }
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -40,7 +62,7 @@ const TeamSpacesPage: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
-                      <Sparkles className="w-6 h-6 text-white" />
+                      <Users className="w-6 h-6 text-white" />
                     </div>
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50" />
                   </div>
@@ -70,7 +92,85 @@ const TeamSpacesPage: React.FC = () => {
           </header>
           
           {/* Main Content */}
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-6 space-y-6">
+            {/* Welcome Section */}
+            <Card className="nexus-card p-6">
+              <div className="text-center space-y-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mx-auto">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-2">Welcome to Team Collaboration</h2>
+                  <p className="text-white/60 max-w-2xl mx-auto">
+                    Create collaborative workspaces where your team can share AI conversations, insights, and knowledge. 
+                    Build smarter together with Nexus AI's powerful team features.
+                  </p>
+                </div>
+              </div>
+            </Card>
+
+            {/* Team Features Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {teamFeatures.map((feature, index) => (
+                <Card key={index} className="nexus-card p-6 hover:bg-white/10 transition-all duration-200 cursor-pointer group">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 bg-gradient-to-br ${feature.color} rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                      <feature.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">{feature.title}</h3>
+                    </div>
+                  </div>
+                  <p className="text-white/60 text-sm">{feature.description}</p>
+                  <div className="mt-4 flex items-center gap-2">
+                    <Badge variant="outline" className="border-white/20 text-white/60 text-xs">
+                      Enterprise Ready
+                    </Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Getting Started Guide */}
+            <Card className="nexus-card p-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Getting Started with Team Workspaces</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">1</div>
+                    <div>
+                      <h4 className="font-medium text-white">Create a Workspace</h4>
+                      <p className="text-white/60 text-sm">Start by creating a new team workspace with a descriptive name and purpose.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">2</div>
+                    <div>
+                      <h4 className="font-medium text-white">Invite Team Members</h4>
+                      <p className="text-white/60 text-sm">Send invitations to colleagues and assign appropriate roles and permissions.</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-pink-500 rounded-full flex items-center justify-center text-white text-xs font-bold">3</div>
+                    <div>
+                      <h4 className="font-medium text-white">Share Conversations</h4>
+                      <p className="text-white/60 text-sm">Share AI conversations and insights with your team for collaborative analysis.</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">4</div>
+                    <div>
+                      <h4 className="font-medium text-white">Collaborate & Grow</h4>
+                      <p className="text-white/60 text-sm">Work together to build knowledge and achieve better results with AI.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+            {/* Team Workspace Interface */}
             <TeamWorkspace />
           </div>
         </div>
