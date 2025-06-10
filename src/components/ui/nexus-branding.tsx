@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Sparkles, Crown, Zap, Brain, Rocket, Shield } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -134,6 +133,7 @@ interface NexusCardProps {
   interactive?: boolean;
   variant?: 'default' | 'elevated' | 'subtle' | 'premium';
   hover?: boolean;
+  onClick?: () => void;
 }
 
 export const NexusCard: React.FC<NexusCardProps> = ({ 
@@ -141,7 +141,8 @@ export const NexusCard: React.FC<NexusCardProps> = ({
   className = '', 
   interactive = false,
   variant = 'default',
-  hover = true
+  hover = true,
+  onClick
 }) => {
   const variantClasses = {
     default: 'nexus-card',
@@ -155,7 +156,10 @@ export const NexusCard: React.FC<NexusCardProps> = ({
   const hoverClasses = hover ? 'hover:bg-white/10 transition-all duration-300' : '';
 
   return (
-    <div className={`${baseClasses} ${interactiveClasses} ${hoverClasses} ${className}`}>
+    <div 
+      className={`${baseClasses} ${interactiveClasses} ${hoverClasses} ${className}`}
+      onClick={onClick}
+    >
       {children}
     </div>
   );
