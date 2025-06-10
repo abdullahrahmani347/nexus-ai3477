@@ -74,6 +74,17 @@ interface ChatState {
   setIsConnected: (connected: boolean) => void;
 }
 
+// Input validation utilities
+const validateApiKey = (key: string): boolean => {
+  if (!key || typeof key !== 'string') return false;
+  const trimmed = key.trim();
+  return trimmed.length > 20 && trimmed.startsWith('AIza');
+};
+
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '');
+};
+
 export const useChatStore = create<ChatState>()(
   persist(
     (set, get) => ({
@@ -81,10 +92,11 @@ export const useChatStore = create<ChatState>()(
       sessions: [],
       currentSessionId: generateSessionId(),
       createSession: (title = 'New Chat') => {
+        const sanitizedTitle = sanitizeInput(title);
         const newSessionId = generateSessionId();
         const newSession: ChatSession = {
           id: newSessionId,
-          title,
+          title: sanitizedTitle,
           createdAt: new Date(),
           updatedAt: new Date(),
           messages: []
@@ -135,10 +147,11 @@ export const useChatStore = create<ChatState>()(
         }
       },
       updateSessionTitle: (sessionId, title) => {
+        const sanitizedTitle = sanitizeInput(title);
         set((state) => ({
           sessions: state.sessions.map(s => 
             s.id === sessionId 
-              ? { ...s, title, updatedAt: new Date() }
+              ? { ...s, title: sanitizedTitle, updatedAt: new Date() }
               : s
           )
         }));
@@ -155,18 +168,16 @@ export const useChatStore = create<ChatState>()(
         set((state) => {
           const newMessages = [...state.messages, message];
           
-          // Update current session
           const updatedSessions = state.sessions.map(s => 
             s.id === state.currentSessionId
               ? { ...s, messages: newMessages, updatedAt: new Date() }
               : s
           );
           
-          // If no session exists, create one
           if (!updatedSessions.find(s => s.id === state.currentSessionId)) {
             const firstUserMessage = newMessages.find(m => m.sender === 'user');
             const title = firstUserMessage ? 
-              firstUserMessage.text.slice(0, 50) + (firstUserMessage.text.length > 50 ? '...' : '') :
+              sanitizeInput(firstUserMessage.text.slice(0, 50) + (firstUserMessage.text.length > 50 ? '...' : '')) :
               'New Chat';
               
             const newSession: ChatSession = {
@@ -249,32 +260,43 @@ export const useChatStore = create<ChatState>()(
       streamingMessageId: null,
       setStreamingMessageId: (id) => set({ streamingMessageId: id }),
       
-      // API Configuration with enhanced validation
+      // API Configuration with proper validation
       apiKey: '',
       setApiKey: (key) => {
-        const trimmedKey = key.trim();
-        const isValid = trimmedKey.length > 20 && trimmedKey.startsWith('AIza');
-        console.log('Setting API key:', trimmedKey.substring(0, 10) + '...', 'Valid:', isValid);
+        const sanitizedKey = sanitizeInput(key);
+        const isValid = validateApiKey(sanitizedKey);
         
         set({ 
-          apiKey: trimmedKey,
+          apiKey: sanitizedKey,
           isConnected: isValid
         });
       },
       validateApiKey: () => {
         const state = get();
-        return !!(state.apiKey && state.apiKey.trim().length > 20 && state.apiKey.startsWith('AIza'));
+        return validateApiKey(state.apiKey);
       },
       
-      // Model Settings
+      // Model Settings with validation
       model: 'gemini-2.0-flash',
-      setModel: (model) => set({ model }),
+      setModel: (model) => {
+        const sanitizedModel = sanitizeInput(model);
+        set({ model: sanitizedModel });
+      },
       maxTokens: 2048,
-      setMaxTokens: (tokens) => set({ maxTokens: tokens }),
+      setMaxTokens: (tokens) => {
+        const validTokens = Math.max(1, Math.min(tokens, 8192));
+        set({ maxTokens: validTokens });
+      },
       temperature: 0.7,
-      setTemperature: (temp) => set({ temperature: temp }),
+      setTemperature: (temp) => {
+        const validTemp = Math.max(0, Math.min(temp, 2));
+        set({ temperature: validTemp });
+      },
       systemPrompt: 'You are a helpful AI assistant. Be concise, accurate, and friendly in your responses.',
-      setSystemPrompt: (prompt) => set({ systemPrompt: prompt }),
+      setSystemPrompt: (prompt) => {
+        const sanitizedPrompt = sanitizeInput(prompt);
+        set({ systemPrompt: sanitizedPrompt });
+      },
       
       // UI Settings
       theme: 'light',
@@ -291,9 +313,8 @@ export const useChatStore = create<ChatState>()(
       setIsConnected: (connected) => set({ isConnected: connected }),
     }),
     {
-      name: 'gemini-chat-storage',
+      name: 'nexus-chat-storage',
       partialize: (state) => ({
-        // Don't persist sessions and messages as they're now in the database
         currentSessionId: state.currentSessionId,
         apiKey: state.apiKey,
         model: state.model,

@@ -10,6 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useMemoryEntries } from '@/hooks/useMemoryEntries';
 
+// Input validation utility
+const validateInput = (input: string, maxLength = 1000): boolean => {
+  return input && input.trim().length > 0 && input.length <= maxLength;
+};
+
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '');
+};
+
 export const PersistentMemory: React.FC = () => {
   const { entries, loading, createEntry, updateEntry, deleteEntry } = useMemoryEntries();
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +31,7 @@ export const PersistentMemory: React.FC = () => {
     importance: 'medium' as 'low' | 'medium' | 'high',
     context: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const filteredEntries = entries.filter(entry =>
     entry.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -29,35 +39,54 @@ export const PersistentMemory: React.FC = () => {
     entry.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const validateForm = (data: typeof newEntry): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!validateInput(data.title, 100)) {
+      newErrors.title = 'Title is required (max 100 characters)';
+    }
+    
+    if (!validateInput(data.content, 2000)) {
+      newErrors.content = 'Content is required (max 2000 characters)';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleCreateEntry = async () => {
+    if (!validateForm(newEntry)) return;
+
     const success = await createEntry({
-      title: newEntry.title,
-      content: newEntry.content,
-      tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      title: sanitizeInput(newEntry.title),
+      content: sanitizeInput(newEntry.content),
+      tags: newEntry.tags.split(',').map(tag => sanitizeInput(tag)).filter(Boolean),
       importance: newEntry.importance,
-      context: newEntry.context,
+      context: sanitizeInput(newEntry.context),
       related_sessions: []
     });
 
     if (success) {
       setNewEntry({ title: '', content: '', tags: '', importance: 'medium', context: '' });
+      setErrors({});
       setIsCreateDialogOpen(false);
     }
   };
 
   const handleUpdateEntry = async () => {
-    if (!editingEntry) return;
+    if (!editingEntry || !validateForm(editingEntry)) return;
 
     const success = await updateEntry(editingEntry.id, {
-      title: editingEntry.title,
-      content: editingEntry.content,
-      tags: editingEntry.tags.split(',').map((tag: string) => tag.trim()).filter(Boolean),
+      title: sanitizeInput(editingEntry.title),
+      content: sanitizeInput(editingEntry.content),
+      tags: editingEntry.tags.split(',').map((tag: string) => sanitizeInput(tag)).filter(Boolean),
       importance: editingEntry.importance,
-      context: editingEntry.context
+      context: sanitizeInput(editingEntry.context)
     });
 
     if (success) {
       setEditingEntry(null);
+      setErrors({});
     }
   };
 
@@ -87,7 +116,7 @@ export const PersistentMemory: React.FC = () => {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">Persistent Memory</h3>
-            <p className="text-white/60 text-sm">Store and retrieve important information</p>
+            <div className="text-white/60 text-sm">Store and retrieve important information</div>
           </div>
         </div>
 
@@ -114,19 +143,25 @@ export const PersistentMemory: React.FC = () => {
                 <DialogTitle className="text-white">Create Memory Entry</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <Input
-                  placeholder="Title"
-                  value={newEntry.title}
-                  onChange={(e) => setNewEntry(prev => ({ ...prev, title: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white"
-                />
-                <Textarea
-                  placeholder="Content"
-                  value={newEntry.content}
-                  onChange={(e) => setNewEntry(prev => ({ ...prev, content: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white"
-                  rows={4}
-                />
+                <div>
+                  <Input
+                    placeholder="Title"
+                    value={newEntry.title}
+                    onChange={(e) => setNewEntry(prev => ({ ...prev, title: e.target.value }))}
+                    className="bg-white/10 border-white/20 text-white"
+                  />
+                  {errors.title && <div className="text-red-400 text-xs mt-1">{errors.title}</div>}
+                </div>
+                <div>
+                  <Textarea
+                    placeholder="Content"
+                    value={newEntry.content}
+                    onChange={(e) => setNewEntry(prev => ({ ...prev, content: e.target.value }))}
+                    className="bg-white/10 border-white/20 text-white"
+                    rows={4}
+                  />
+                  {errors.content && <div className="text-red-400 text-xs mt-1">{errors.content}</div>}
+                </div>
                 <Input
                   placeholder="Tags (comma separated)"
                   value={newEntry.tags}
@@ -161,8 +196,8 @@ export const PersistentMemory: React.FC = () => {
           {filteredEntries.length === 0 ? (
             <div className="text-center py-8 text-white/60">
               <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>No memory entries found</p>
-              <p className="text-sm">Create your first memory to get started</p>
+              <div>No memory entries found</div>
+              <div className="text-sm">Create your first memory to get started</div>
             </div>
           ) : (
             filteredEntries.map((entry) => (
@@ -176,7 +211,7 @@ export const PersistentMemory: React.FC = () => {
                         {entry.importance}
                       </Badge>
                     </div>
-                    <p className="text-white/80 text-sm mb-2">{entry.content}</p>
+                    <div className="text-white/80 text-sm mb-2">{entry.content}</div>
                     
                     {entry.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mb-2">
@@ -220,7 +255,6 @@ export const PersistentMemory: React.FC = () => {
         </div>
       </Card>
 
-      {/* Edit Dialog */}
       <Dialog open={!!editingEntry} onOpenChange={() => setEditingEntry(null)}>
         <DialogContent className="nexus-card border-white/20">
           <DialogHeader>
@@ -228,19 +262,25 @@ export const PersistentMemory: React.FC = () => {
           </DialogHeader>
           {editingEntry && (
             <div className="space-y-4">
-              <Input
-                placeholder="Title"
-                value={editingEntry.title}
-                onChange={(e) => setEditingEntry(prev => ({ ...prev, title: e.target.value }))}
-                className="bg-white/10 border-white/20 text-white"
-              />
-              <Textarea
-                placeholder="Content"
-                value={editingEntry.content}
-                onChange={(e) => setEditingEntry(prev => ({ ...prev, content: e.target.value }))}
-                className="bg-white/10 border-white/20 text-white"
-                rows={4}
-              />
+              <div>
+                <Input
+                  placeholder="Title"
+                  value={editingEntry.title}
+                  onChange={(e) => setEditingEntry(prev => ({ ...prev, title: e.target.value }))}
+                  className="bg-white/10 border-white/20 text-white"
+                />
+                {errors.title && <div className="text-red-400 text-xs mt-1">{errors.title}</div>}
+              </div>
+              <div>
+                <Textarea
+                  placeholder="Content"
+                  value={editingEntry.content}
+                  onChange={(e) => setEditingEntry(prev => ({ ...prev, content: e.target.value }))}
+                  className="bg-white/10 border-white/20 text-white"
+                  rows={4}
+                />
+                {errors.content && <div className="text-red-400 text-xs mt-1">{errors.content}</div>}
+              </div>
               <Input
                 placeholder="Tags (comma separated)"
                 value={editingEntry.tags}

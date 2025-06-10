@@ -24,10 +24,20 @@ interface SearchFilters {
   minRelevance: number;
 }
 
+// Input validation
+const validateSearchQuery = (query: string): boolean => {
+  return query && query.trim().length > 0 && query.length <= 500;
+};
+
+const sanitizeSearchQuery = (query: string): string => {
+  return query.trim().replace(/[<>]/g, '');
+};
+
 export const SemanticSearch: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState('');
   const [filters, setFilters] = useState<SearchFilters>({
     dateRange: 'all',
     messageType: 'all',
@@ -35,62 +45,106 @@ export const SemanticSearch: React.FC = () => {
   });
 
   const performSearch = async () => {
-    if (!query.trim()) return;
+    if (!validateSearchQuery(query)) {
+      setError('Please enter a valid search query (1-500 characters)');
+      return;
+    }
 
+    const sanitizedQuery = sanitizeSearchQuery(query);
     setIsSearching(true);
+    setError('');
+    
     try {
-      // Call semantic search edge function
-      const { data, error } = await supabase.functions.invoke('semantic-search', {
-        body: {
-          query: query.trim(),
-          filters: filters,
-          limit: 20
+      // Real implementation with database search
+      const { data: sessions } = await supabase
+        .from('chat_sessions')
+        .select(`
+          id,
+          title,
+          messages (
+            id,
+            content,
+            sender,
+            created_at
+          )
+        `)
+        .limit(100);
+
+      if (sessions) {
+        const searchResults: SearchResult[] = [];
+        
+        sessions.forEach(session => {
+          session.messages?.forEach((message: any) => {
+            if (message.content.toLowerCase().includes(sanitizedQuery.toLowerCase())) {
+              const relevanceScore = calculateRelevanceScore(message.content, sanitizedQuery);
+              
+              if (relevanceScore >= filters.minRelevance) {
+                searchResults.push({
+                  id: message.id,
+                  content: message.content,
+                  sessionTitle: session.title,
+                  timestamp: new Date(message.created_at),
+                  relevanceScore,
+                  context: `From session: ${session.title}`,
+                  messageType: message.sender === 'user' ? 'user' : 'assistant'
+                });
+              }
+            }
+          });
+        });
+
+        // Sort by relevance score
+        searchResults.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        
+        // Apply filters
+        let filteredResults = searchResults;
+        
+        if (filters.messageType !== 'all') {
+          filteredResults = filteredResults.filter(r => r.messageType === filters.messageType);
         }
-      });
-
-      if (error) throw error;
-
-      // Mock results for demo
-      const mockResults: SearchResult[] = [
-        {
-          id: '1',
-          content: 'How to implement machine learning models in production?',
-          sessionTitle: 'ML Discussion',
-          timestamp: new Date(Date.now() - 86400000),
-          relevanceScore: 0.95,
-          context: 'Discussion about deploying ML models',
-          messageType: 'user'
-        },
-        {
-          id: '2',
-          content: 'For production ML deployment, consider using containerization with Docker and orchestration with Kubernetes...',
-          sessionTitle: 'ML Discussion',
-          timestamp: new Date(Date.now() - 86400000),
-          relevanceScore: 0.92,
-          context: 'AI response about ML deployment',
-          messageType: 'assistant'
-        },
-        {
-          id: '3',
-          content: 'What are the best practices for data preprocessing?',
-          sessionTitle: 'Data Science Chat',
-          timestamp: new Date(Date.now() - 172800000),
-          relevanceScore: 0.87,
-          context: 'Question about data preprocessing',
-          messageType: 'user'
+        
+        if (filters.dateRange !== 'all') {
+          const now = new Date();
+          const threshold = new Date();
+          
+          switch (filters.dateRange) {
+            case 'week':
+              threshold.setDate(now.getDate() - 7);
+              break;
+            case 'month':
+              threshold.setMonth(now.getMonth() - 1);
+              break;
+            case 'year':
+              threshold.setFullYear(now.getFullYear() - 1);
+              break;
+          }
+          
+          filteredResults = filteredResults.filter(r => r.timestamp >= threshold);
         }
-      ];
-
-      setResults(mockResults.filter(r => 
-        r.relevanceScore >= filters.minRelevance &&
-        (filters.messageType === 'all' || r.messageType === filters.messageType)
-      ));
+        
+        setResults(filteredResults.slice(0, 20));
+      }
     } catch (error) {
       console.error('Search error:', error);
+      setError('Search failed. Please try again.');
       setResults([]);
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const calculateRelevanceScore = (content: string, query: string): number => {
+    const contentLower = content.toLowerCase();
+    const queryLower = query.toLowerCase();
+    
+    // Simple relevance calculation
+    const exactMatches = (contentLower.match(new RegExp(queryLower, 'g')) || []).length;
+    const wordMatches = query.split(' ').filter(word => 
+      contentLower.includes(word.toLowerCase())
+    ).length;
+    
+    const score = (exactMatches * 0.6 + wordMatches * 0.4) / query.split(' ').length;
+    return Math.min(score, 1);
   };
 
   const highlightQuery = (text: string, query: string) => {
@@ -109,7 +163,7 @@ export const SemanticSearch: React.FC = () => {
           </div>
           <div>
             <h3 className="text-lg font-semibold text-white">Semantic Search</h3>
-            <p className="text-white/60 text-sm">AI-powered search across all conversations</p>
+            <div className="text-white/60 text-sm">AI-powered search across all conversations</div>
           </div>
         </div>
 
@@ -120,7 +174,10 @@ export const SemanticSearch: React.FC = () => {
               <Input
                 placeholder="Search through your conversations..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setError('');
+                }}
                 className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
                 onKeyPress={(e) => e.key === 'Enter' && performSearch()}
               />
@@ -137,6 +194,10 @@ export const SemanticSearch: React.FC = () => {
               )}
             </Button>
           </div>
+
+          {error && (
+            <div className="text-red-400 text-sm">{error}</div>
+          )}
 
           <div className="flex flex-wrap gap-4 p-4 bg-white/5 rounded-lg">
             <div className="flex items-center gap-2">
@@ -237,11 +298,11 @@ export const SemanticSearch: React.FC = () => {
         </Card>
       )}
 
-      {query && results.length === 0 && !isSearching && (
+      {query && results.length === 0 && !isSearching && !error && (
         <Card className="nexus-card p-6 text-center">
           <Search className="w-12 h-12 mx-auto mb-4 text-white/60" />
           <h4 className="font-semibold text-white mb-2">No Results Found</h4>
-          <p className="text-white/60">Try adjusting your search query or filters</p>
+          <div className="text-white/60">Try adjusting your search query or filters</div>
         </Card>
       )}
     </div>

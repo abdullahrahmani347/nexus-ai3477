@@ -11,6 +11,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { useTeamWorkspaces } from '@/hooks/useTeamWorkspaces';
 import { useAuth } from '@/hooks/useAuth';
 
+// Input validation utilities
+const validateInput = (input: string, maxLength = 200): boolean => {
+  return input && input.trim().length > 0 && input.length <= maxLength;
+};
+
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '');
+};
+
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export const TeamWorkspace: React.FC = () => {
   const { user } = useAuth();
   const { workspaces, loading, createWorkspace, inviteMember } = useTeamWorkspaces();
@@ -22,11 +36,34 @@ export const TeamWorkspace: React.FC = () => {
     name: '',
     description: ''
   });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateWorkspaceForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+    
+    if (!validateInput(newWorkspace.name, 100)) {
+      newErrors.name = 'Workspace name is required (max 100 characters)';
+    }
+    
+    if (newWorkspace.description && newWorkspace.description.length > 500) {
+      newErrors.description = 'Description must be less than 500 characters';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleCreateWorkspace = async () => {
-    const workspace = await createWorkspace(newWorkspace.name, newWorkspace.description);
+    if (!validateWorkspaceForm()) return;
+
+    const workspace = await createWorkspace(
+      sanitizeInput(newWorkspace.name), 
+      sanitizeInput(newWorkspace.description)
+    );
+    
     if (workspace) {
       setNewWorkspace({ name: '', description: '' });
+      setErrors({});
       setIsCreateDialogOpen(false);
     }
   };
@@ -34,9 +71,21 @@ export const TeamWorkspace: React.FC = () => {
   const handleInviteMember = async () => {
     if (!selectedWorkspace || !inviteEmail) return;
     
-    const success = await inviteMember(selectedWorkspace, inviteEmail);
+    const newErrors: Record<string, string> = {};
+    
+    if (!validateEmail(inviteEmail)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    const success = await inviteMember(selectedWorkspace, sanitizeInput(inviteEmail));
     if (success) {
       setInviteEmail('');
+      setErrors({});
       setIsInviteDialogOpen(false);
     }
   };
@@ -79,7 +128,7 @@ export const TeamWorkspace: React.FC = () => {
         <div className="text-center">
           <Users className="w-12 h-12 mx-auto mb-4 text-white/60" />
           <h3 className="text-lg font-semibold text-white mb-2">No Team Workspaces</h3>
-          <p className="text-white/60 mb-4">Create your first team workspace to collaborate</p>
+          <div className="text-white/60 mb-4">Create your first team workspace to collaborate</div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-gradient-to-r from-purple-500 to-blue-500">
@@ -92,18 +141,24 @@ export const TeamWorkspace: React.FC = () => {
                 <DialogTitle className="text-white">Create Team Workspace</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <Input
-                  placeholder="Workspace name"
-                  value={newWorkspace.name}
-                  onChange={(e) => setNewWorkspace(prev => ({ ...prev, name: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white"
-                />
-                <Textarea
-                  placeholder="Description (optional)"
-                  value={newWorkspace.description}
-                  onChange={(e) => setNewWorkspace(prev => ({ ...prev, description: e.target.value }))}
-                  className="bg-white/10 border-white/20 text-white"
-                />
+                <div>
+                  <Input
+                    placeholder="Workspace name"
+                    value={newWorkspace.name}
+                    onChange={(e) => setNewWorkspace(prev => ({ ...prev, name: e.target.value }))}
+                    className="bg-white/10 border-white/20 text-white"
+                  />
+                  {errors.name && <div className="text-red-400 text-xs mt-1">{errors.name}</div>}
+                </div>
+                <div>
+                  <Textarea
+                    placeholder="Description (optional)"
+                    value={newWorkspace.description}
+                    onChange={(e) => setNewWorkspace(prev => ({ ...prev, description: e.target.value }))}
+                    className="bg-white/10 border-white/20 text-white"
+                  />
+                  {errors.description && <div className="text-red-400 text-xs mt-1">{errors.description}</div>}
+                </div>
                 <Button onClick={handleCreateWorkspace} className="w-full">
                   Create Workspace
                 </Button>
@@ -126,7 +181,7 @@ export const TeamWorkspace: React.FC = () => {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">{workspace.name}</h3>
-                <p className="text-white/60 text-sm">{workspace.description}</p>
+                <div className="text-white/60 text-sm">{workspace.description}</div>
               </div>
             </div>
             <Button variant="ghost" size="sm" className="text-white/70 hover:text-white">
@@ -169,12 +224,15 @@ export const TeamWorkspace: React.FC = () => {
                     <DialogTitle className="text-white">Invite Team Member</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <Input
-                      placeholder="Enter email address"
-                      value={inviteEmail}
-                      onChange={(e) => setInviteEmail(e.target.value)}
-                      className="bg-white/10 border-white/20 text-white"
-                    />
+                    <div>
+                      <Input
+                        placeholder="Enter email address"
+                        value={inviteEmail}
+                        onChange={(e) => setInviteEmail(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white"
+                      />
+                      {errors.email && <div className="text-red-400 text-xs mt-1">{errors.email}</div>}
+                    </div>
                     <Button onClick={handleInviteMember} className="w-full">
                       Send Invitation
                     </Button>
@@ -225,30 +283,35 @@ export const TeamWorkspace: React.FC = () => {
         </div>
         <div className="text-center py-8 text-white/60">
           <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>No shared conversations yet</p>
-          <p className="text-sm">Start collaborating to see shared chats here</p>
+          <div>No shared conversations yet</div>
+          <div className="text-sm">Start collaborating to see shared chats here</div>
         </div>
       </Card>
 
-      {/* Create Workspace Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="nexus-card border-white/20">
           <DialogHeader>
             <DialogTitle className="text-white">Create Team Workspace</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <Input
-              placeholder="Workspace name"
-              value={newWorkspace.name}
-              onChange={(e) => setNewWorkspace(prev => ({ ...prev, name: e.target.value }))}
-              className="bg-white/10 border-white/20 text-white"
-            />
-            <Textarea
-              placeholder="Description (optional)"
-              value={newWorkspace.description}
-              onChange={(e) => setNewWorkspace(prev => ({ ...prev, description: e.target.value }))}
-              className="bg-white/10 border-white/20 text-white"
-            />
+            <div>
+              <Input
+                placeholder="Workspace name"
+                value={newWorkspace.name}
+                onChange={(e) => setNewWorkspace(prev => ({ ...prev, name: e.target.value }))}
+                className="bg-white/10 border-white/20 text-white"
+              />
+              {errors.name && <div className="text-red-400 text-xs mt-1">{errors.name}</div>}
+            </div>
+            <div>
+              <Textarea
+                placeholder="Description (optional)"
+                value={newWorkspace.description}
+                onChange={(e) => setNewWorkspace(prev => ({ ...prev, description: e.target.value }))}
+                className="bg-white/10 border-white/20 text-white"
+              />
+              {errors.description && <div className="text-red-400 text-xs mt-1">{errors.description}</div>}
+            </div>
             <Button onClick={handleCreateWorkspace} className="w-full">
               Create Workspace
             </Button>

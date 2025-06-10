@@ -1,41 +1,40 @@
 
 import React from 'react';
-import { Bot } from 'lucide-react';
+import { Brain } from 'lucide-react';
 
 interface SimplifiedBrandingProps {
   size?: 'sm' | 'md' | 'lg';
-  showSubtitle?: boolean;
+  showText?: boolean;
   className?: string;
 }
 
-export const SimplifiedBranding: React.FC<SimplifiedBrandingProps> = ({
-  size = 'md',
-  showSubtitle = true,
-  className = ''
+export const SimplifiedBranding: React.FC<SimplifiedBrandingProps> = ({ 
+  size = 'md', 
+  showText = true,
+  className = '' 
 }) => {
   const sizeClasses = {
-    sm: { icon: 'w-6 h-6', title: 'text-lg', subtitle: 'text-xs' },
-    md: { icon: 'w-8 h-8', title: 'text-xl', subtitle: 'text-sm' },
-    lg: { icon: 'w-12 h-12', title: 'text-3xl', subtitle: 'text-base' }
+    sm: 'w-6 h-6',
+    md: 'w-8 h-8',
+    lg: 'w-10 h-10'
   };
 
-  const sizes = sizeClasses[size];
+  const textSizeClasses = {
+    sm: 'text-lg',
+    md: 'text-xl',
+    lg: 'text-2xl'
+  };
 
   return (
-    <div className={`flex items-center gap-3 ${className}`}>
-      <div className="bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg p-2 shadow-lg">
-        <Bot className={`${sizes.icon} text-white`} />
+    <div className={`flex items-center gap-2 ${className}`}>
+      <div className={`${sizeClasses[size]} bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center`}>
+        <Brain className={`${size === 'sm' ? 'w-3 h-3' : size === 'md' ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
       </div>
-      <div>
-        <h1 className={`${sizes.title} font-bold text-white`}>
+      {showText && (
+        <span className={`${textSizeClasses[size]} font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent`}>
           Nexus AI
-        </h1>
-        {showSubtitle && (
-          <p className={`${sizes.subtitle} text-white/60`}>
-            AI Chatbot Platform
-          </p>
-        )}
-      </div>
+        </span>
+      )}
     </div>
   );
 };
