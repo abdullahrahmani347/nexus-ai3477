@@ -5,7 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
-interface ErrorEvent {
+interface AppErrorEvent {
   id: string;
   message: string;
   stack?: string;
@@ -25,7 +25,7 @@ interface ErrorStats {
 }
 
 export const ErrorMonitoring: React.FC = () => {
-  const [errors, setErrors] = useState<ErrorEvent[]>([]);
+  const [errors, setErrors] = useState<AppErrorEvent[]>([]);
   const [stats, setStats] = useState<ErrorStats>({
     total: 0,
     lastHour: 0,
@@ -35,13 +35,13 @@ export const ErrorMonitoring: React.FC = () => {
 
   useEffect(() => {
     // Real error listener
-    const handleError = (event: ErrorEvent | any) => {
+    const handleError = (event: any) => {
       console.error('Captured error:', event);
       
-      const errorEvent: ErrorEvent = {
+      const errorEvent: AppErrorEvent = {
         id: Date.now().toString(),
         message: event.message || 'Unknown error',
-        stack: event.error?.stack,
+        stack: event.error?.stack || event.stack,
         timestamp: new Date(),
         severity: 'medium',
         component: 'Global',
@@ -58,13 +58,14 @@ export const ErrorMonitoring: React.FC = () => {
       }));
     };
 
-    const handleWindowError = (e: ErrorEvent) => {
+    const handleWindowError = (e: Event) => {
+      const errorEvent = e as ErrorEvent;
       handleError({
-        message: e.message,
-        stack: e.error?.stack,
-        filename: e.filename,
-        lineno: e.lineno,
-        colno: e.colno
+        message: errorEvent.message,
+        error: errorEvent.error,
+        filename: errorEvent.filename,
+        lineno: errorEvent.lineno,
+        colno: errorEvent.colno
       });
     };
 

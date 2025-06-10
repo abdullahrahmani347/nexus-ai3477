@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { TeamSpaces } from '@/components/collaboration/TeamSpaces';
+import { TeamWorkspace } from '@/components/advanced/TeamWorkspace';
 import { Sparkles, Crown, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -71,7 +71,7 @@ const TeamSpacesPage: React.FC = () => {
           
           {/* Main Content */}
           <div className="flex-1 p-6">
-            <TeamSpaces />
+            <TeamWorkspace />
           </div>
         </div>
       </div>
