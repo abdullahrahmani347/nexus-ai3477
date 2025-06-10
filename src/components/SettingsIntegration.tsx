@@ -15,22 +15,41 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
     maxTokens, 
     temperature, 
     systemPrompt,
-    setIsConnected 
+    setIsConnected,
+    setApiKey
   } = useChatStore();
 
-  // Update connection status based on API key availability
+  // Initialize with provided API key if not already set
   React.useEffect(() => {
-    setIsConnected(!!apiKey.trim());
+    const providedApiKey = 'AIzaSyCQng6ZRpsK7jM6FIU3aXtFheTOlvA44lg';
+    
+    if (!apiKey || apiKey.trim().length === 0) {
+      console.log('Initializing API key...');
+      setApiKey(providedApiKey);
+    }
+  }, [apiKey, setApiKey]);
+
+  // Update connection status based on API key availability and validity
+  React.useEffect(() => {
+    const isValidKey = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza');
+    setIsConnected(isValidKey);
+    
+    if (isValidKey) {
+      console.log('API key validated and connected');
+    } else {
+      console.log('API key validation failed or missing');
+    }
   }, [apiKey, setIsConnected]);
 
   // Log settings changes for debugging
   React.useEffect(() => {
-    console.log('Settings updated:', {
+    console.log('Current settings:', {
       model,
       maxTokens,
       temperature,
       systemPrompt: systemPrompt.slice(0, 50) + '...',
       hasApiKey: !!apiKey,
+      apiKeyValid: !!(apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza')),
       user: user?.email
     });
   }, [model, maxTokens, temperature, systemPrompt, apiKey, user]);

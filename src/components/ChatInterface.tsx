@@ -1,12 +1,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Settings, Plus, Moon, Sun, Menu, Search, Download, Bot, User } from 'lucide-react';
+import { Send, Plus, Moon, Sun, Menu, Search, Download, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
-import SettingsPanel from './SettingsPanel';
 import VoiceControl from './VoiceControl';
 import FileAttachment from './FileAttachment';
 import SessionSidebar from './SessionSidebar';
@@ -21,7 +20,6 @@ import { toast } from 'sonner';
 const ChatInterface = () => {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -54,14 +52,6 @@ const ChatInterface = () => {
 
   const { theme, toggleTheme } = useTheme();
 
-  // Validate API key whenever it changes
-  useEffect(() => {
-    const isValid = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza');
-    if (apiKey && !isValid) {
-      toast.error('Invalid API key format. Please check your Gemini API key in settings.');
-    }
-  }, [apiKey]);
-
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
       const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
@@ -78,9 +68,8 @@ const ChatInterface = () => {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Focus input on any key press (except when in settings or editing)
+      // Focus input on any key press (except when editing)
       if (
-        !showSettings && 
         !e.ctrlKey && 
         !e.metaKey && 
         !e.altKey &&
@@ -98,10 +87,6 @@ const ChatInterface = () => {
             e.preventDefault();
             clearMessages();
             break;
-          case ',':
-            e.preventDefault();
-            setShowSettings(!showSettings);
-            break;
           case 'd':
             e.preventDefault();
             toggleTheme();
@@ -113,16 +98,15 @@ const ChatInterface = () => {
         }
       }
 
-      // Escape to close settings/sidebar
+      // Escape to close sidebar
       if (e.key === 'Escape') {
-        if (showSettings) setShowSettings(false);
         if (showSidebar) setShowSidebar(false);
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showSettings, showSidebar, clearMessages, toggleTheme]);
+  }, [showSidebar, clearMessages, toggleTheme]);
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
@@ -131,20 +115,7 @@ const ChatInterface = () => {
       return;
     }
 
-    if (!apiKey || apiKey.trim().length === 0) {
-      toast.error('Please configure your API key in settings first');
-      setShowSettings(true);
-      return;
-    }
-
-    // Validate API key format
-    if (!apiKey.startsWith('AIza') || apiKey.length < 30) {
-      toast.error('Invalid API key format. Please check your Gemini API key in settings.');
-      setShowSettings(true);
-      return;
-    }
-
-    console.log('Sending message with API key:', apiKey.substring(0, 10) + '...');
+    console.log('Sending message with API key:', apiKey ? (apiKey.substring(0, 10) + '...') : 'No API key');
 
     const userMessage = {
       id: Date.now().toString(),
@@ -203,7 +174,7 @@ const ChatInterface = () => {
 
     } catch (error) {
       console.error('Failed to generate response:', error);
-      const errorMessage = error instanceof Error ? error.message : "I'm sorry, I'm having trouble connecting right now. Please check your API key in settings or try again later.";
+      const errorMessage = error instanceof Error ? error.message : "I'm sorry, I'm having trouble connecting right now. Please try again later.";
       
       updateMessage(botMessageId, { 
         text: errorMessage,
@@ -276,7 +247,7 @@ const ChatInterface = () => {
                   <Bot className="w-6 h-6 text-white" />
                 </div>
                 <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-900 ${
-                  isApiKeyValid ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+                  isApiKeyValid ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
                 }`} />
               </div>
               <div>
@@ -287,12 +258,12 @@ const ChatInterface = () => {
                   {isApiKeyValid ? (
                     <>
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                      Connected
+                      AI Ready
                     </>
                   ) : (
                     <>
-                      <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
-                      Configure API Key
+                      <div className="w-1.5 h-1.5 bg-yellow-500 rounded-full" />
+                      Initializing
                     </>
                   )}
                 </div>
@@ -353,15 +324,6 @@ const ChatInterface = () => {
             >
               <Plus className="w-4 h-4 rotate-45" />
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSettings(!showSettings)}
-              className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl"
-              title="Settings (Ctrl+,)"
-            >
-              <Settings className="w-4 h-4" />
-            </Button>
           </div>
         </div>
 
@@ -378,24 +340,8 @@ const ChatInterface = () => {
                   Welcome to Nexus AI
                 </h2>
                 <div className="text-white/70 mb-8 max-w-md mx-auto">
-                  Start a conversation with your AI assistant. Type a message below to begin.
+                  Your intelligent AI assistant is ready to help. Start a conversation by typing a message below.
                 </div>
-                
-                {!isApiKeyValid && (
-                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-4 max-w-sm mx-auto">
-                    <Settings className="w-5 h-5 text-orange-400 mx-auto mb-2" />
-                    <div className="text-orange-300 text-sm">
-                      Please configure your API key in settings to begin
-                    </div>
-                    <Button 
-                      onClick={() => setShowSettings(true)}
-                      className="mt-3 bg-orange-500 hover:bg-orange-600 text-white"
-                      size="sm"
-                    >
-                      Configure API Key
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
 
@@ -432,7 +378,7 @@ const ChatInterface = () => {
               files={attachedFiles}
               onFilesAdd={addFiles}
               onFileRemove={removeFile}
-              disabled={!isApiKeyValid || isStreaming}
+              disabled={isStreaming}
             />
 
             {/* Enhanced Input */}
@@ -443,14 +389,14 @@ const ChatInterface = () => {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={isApiKeyValid ? "Type your message... (Enter to send)" : "Configure API key in settings first"}
-                  disabled={!isApiKeyValid || isStreaming}
+                  placeholder="Type your message... (Enter to send)"
+                  disabled={isStreaming}
                   className="min-h-[50px] text-base bg-white/10 border-white/20 focus:border-purple-400 focus:ring-purple-400/20 text-white placeholder:text-white/50 rounded-xl px-4 py-3 backdrop-blur-sm"
                 />
               </div>
               <Button
                 onClick={handleSend}
-                disabled={!input.trim() || !isApiKeyValid || isStreaming}
+                disabled={!input.trim() || isStreaming}
                 className="bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white border-0 h-[50px] w-[50px] p-0 rounded-xl font-medium transition-all duration-200 shadow-lg shadow-purple-500/25"
               >
                 <Send className="w-5 h-5" />
@@ -471,11 +417,6 @@ const ChatInterface = () => {
           </div>
         </div>
       </div>
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <SettingsPanel onClose={() => setShowSettings(false)} />
-      )}
     </div>
   );
 };
