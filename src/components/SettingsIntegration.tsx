@@ -23,11 +23,9 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
   React.useEffect(() => {
     const togetherApiKey = 'tgp_v1_Sd31SxMcpt5_PYpRxWDOEU-r_ipmKpxoWTlgT1HmLI8';
     
-    if (!apiKey || apiKey.trim().length === 0) {
-      console.log('Initializing Together.ai API key...');
-      setApiKey(togetherApiKey);
-    }
-  }, [apiKey, setApiKey]);
+    console.log('Setting Together.ai API key...');
+    setApiKey(togetherApiKey);
+  }, [setApiKey]);
 
   // Update connection status - always connected with the hardcoded API key
   React.useEffect(() => {
@@ -50,7 +48,8 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
       systemPrompt: systemPrompt.slice(0, 50) + '...',
       hasApiKey: !!apiKey,
       apiKeyValid: !!(apiKey && apiKey.trim().length > 20 && apiKey.startsWith('tgp_v1_')),
-      user: user?.email
+      user: user?.email,
+      fullApiKey: apiKey
     });
   }, [model, maxTokens, temperature, systemPrompt, apiKey, user]);
 
