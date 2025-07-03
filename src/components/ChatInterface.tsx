@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Plus, Moon, Sun, Menu, Search, Download, Bot, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -248,7 +249,7 @@ const ChatInterface = () => {
                   <Bot className="w-6 h-6 text-white" />
                 </div>
                 <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full border-2 border-slate-900 ${
-                  isApiKeyValid ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                  isConnected ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
                 }`} />
               </div>
               <div>
@@ -256,10 +257,10 @@ const ChatInterface = () => {
                   Nexus AI
                 </h1>
                 <div className="text-xs text-white/60 flex items-center gap-2">
-                  {isApiKeyValid ? (
+                  {isConnected ? (
                     <>
                       <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                      AI Ready
+                      Connected
                     </>
                   ) : (
                     <>
@@ -283,28 +284,6 @@ const ChatInterface = () => {
                 className="pl-9 w-52 h-9 text-sm bg-white/10 border-white/20 focus:border-purple-400 text-white placeholder:text-white/50 rounded-xl backdrop-blur-sm"
               />
             </div>
-
-            {/* Model Selector */}
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl"
-                  title="Select AI Model"
-                >
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent className="bg-slate-900 border-white/10 w-96">
-                <SheetHeader>
-                  <SheetTitle className="text-white">AI Model Settings</SheetTitle>
-                </SheetHeader>
-                <div className="mt-6">
-                  <ModelSelector />
-                </div>
-              </SheetContent>
-            </Sheet>
 
             {voiceEnabled && (
               <VoiceControl
@@ -346,6 +325,13 @@ const ChatInterface = () => {
             >
               <Plus className="w-4 h-4 rotate-45" />
             </Button>
+          </div>
+        </div>
+
+        {/* Model Selection and Rate Limit Info */}
+        <div className="bg-black/20 backdrop-blur-sm border-b border-white/5 p-4">
+          <div className="max-w-4xl mx-auto">
+            <ModelSelector />
           </div>
         </div>
 

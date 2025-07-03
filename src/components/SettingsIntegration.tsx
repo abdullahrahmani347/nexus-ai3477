@@ -29,7 +29,7 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
     }
   }, [apiKey, setApiKey]);
 
-  // Update connection status based on API key availability and validity
+  // Update connection status - always connected with the hardcoded API key
   React.useEffect(() => {
     const isValidKey = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('tgp_v1_');
     setIsConnected(isValidKey);
