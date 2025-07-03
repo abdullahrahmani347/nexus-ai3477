@@ -1,15 +1,16 @@
-
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Plus, Moon, Sun, Menu, Search, Download, Bot, User } from 'lucide-react';
+import { Send, Plus, Moon, Sun, Menu, Search, Download, Bot, User, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import MessageBubble from './MessageBubble';
 import TypingIndicator from './TypingIndicator';
 import VoiceControl from './VoiceControl';
 import FileAttachment from './FileAttachment';
 import SessionSidebar from './SessionSidebar';
 import ExportDialog from './ExportDialog';
+import { ModelSelector } from './ModelSelector';
 import { SimplifiedBranding } from '@/components/ui/simplified-branding';
 import { useChatStore } from '../store/chatStore';
 import { generateStreamingResponse } from '../services/streamingService';
@@ -213,7 +214,7 @@ const ChatInterface = () => {
     : messages;
 
   // Check if API key is properly configured
-  const isApiKeyValid = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza');
+  const isApiKeyValid = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('tgp_v1_');
 
   return (
     <div className={`flex h-screen ${theme === 'dark' ? 'dark' : ''}`}>
@@ -226,7 +227,7 @@ const ChatInterface = () => {
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative z-10">
-        {/* Enhanced Header with Professional Branding */}
+        {/* Enhanced Header */}
         <div className="bg-black/40 backdrop-blur-xl border-b border-white/10 p-4 flex items-center justify-between relative">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5" />
           <div className="flex items-center space-x-4 relative z-10">
@@ -283,7 +284,28 @@ const ChatInterface = () => {
               />
             </div>
 
-            {/* Voice Controls */}
+            {/* Model Selector */}
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 rounded-xl"
+                  title="Select AI Model"
+                >
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="bg-slate-900 border-white/10 w-96">
+                <SheetHeader>
+                  <SheetTitle className="text-white">AI Model Settings</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <ModelSelector />
+                </div>
+              </SheetContent>
+            </Sheet>
+
             {voiceEnabled && (
               <VoiceControl
                 onVoiceInput={handleVoiceInput}

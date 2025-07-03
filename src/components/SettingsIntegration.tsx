@@ -19,23 +19,23 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
     setApiKey
   } = useChatStore();
 
-  // Initialize with provided API key if not already set
+  // Initialize with Together.ai API key
   React.useEffect(() => {
-    const providedApiKey = 'AIzaSyCQng6ZRpsK7jM6FIU3aXtFheTOlvA44lg';
+    const togetherApiKey = 'tgp_v1_Sd31SxMcpt5_PYpRxWDOEU-r_ipmKpxoWTlgT1HmLI8';
     
     if (!apiKey || apiKey.trim().length === 0) {
-      console.log('Initializing API key...');
-      setApiKey(providedApiKey);
+      console.log('Initializing Together.ai API key...');
+      setApiKey(togetherApiKey);
     }
   }, [apiKey, setApiKey]);
 
   // Update connection status based on API key availability and validity
   React.useEffect(() => {
-    const isValidKey = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza');
+    const isValidKey = apiKey && apiKey.trim().length > 20 && apiKey.startsWith('tgp_v1_');
     setIsConnected(isValidKey);
     
     if (isValidKey) {
-      console.log('API key validated and connected');
+      console.log('Together.ai API key validated and connected');
     } else {
       console.log('API key validation failed or missing');
     }
@@ -49,7 +49,7 @@ export const SettingsIntegration: React.FC<SettingsIntegrationProps> = ({ childr
       temperature,
       systemPrompt: systemPrompt.slice(0, 50) + '...',
       hasApiKey: !!apiKey,
-      apiKeyValid: !!(apiKey && apiKey.trim().length > 20 && apiKey.startsWith('AIza')),
+      apiKeyValid: !!(apiKey && apiKey.trim().length > 20 && apiKey.startsWith('tgp_v1_')),
       user: user?.email
     });
   }, [model, maxTokens, temperature, systemPrompt, apiKey, user]);

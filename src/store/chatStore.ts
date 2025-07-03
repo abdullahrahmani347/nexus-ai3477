@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message } from '../components/MessageBubble';
@@ -78,7 +77,7 @@ interface ChatState {
 const validateApiKey = (key: string): boolean => {
   if (!key || typeof key !== 'string') return false;
   const trimmed = key.trim();
-  return trimmed.length > 20 && trimmed.startsWith('AIza');
+  return trimmed.length > 20 && trimmed.startsWith('tgp_v1_');
 };
 
 const sanitizeInput = (input: string): string => {
@@ -260,7 +259,7 @@ export const useChatStore = create<ChatState>()(
       streamingMessageId: null,
       setStreamingMessageId: (id) => set({ streamingMessageId: id }),
       
-      // API Configuration with proper validation
+      // API Configuration with Together.ai validation
       apiKey: '',
       setApiKey: (key) => {
         const sanitizedKey = sanitizeInput(key);
@@ -276,8 +275,8 @@ export const useChatStore = create<ChatState>()(
         return validateApiKey(state.apiKey);
       },
       
-      // Model Settings with validation
-      model: 'gemini-2.0-flash',
+      // Model Settings - default to Together.ai model
+      model: 'meta-llama/Llama-3-8b-chat-hf',
       setModel: (model) => {
         const sanitizedModel = sanitizeInput(model);
         set({ model: sanitizedModel });
