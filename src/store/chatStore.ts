@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Message } from '../components/MessageBubble';
@@ -62,11 +63,19 @@ interface ChatState {
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
   
-  // Voice settings
+  // Voice settings - Enhanced for Phase 2
   voiceEnabled: boolean;
   setVoiceEnabled: (enabled: boolean) => void;
   autoSpeak: boolean;
   setAutoSpeak: (enabled: boolean) => void;
+  speechRate: number;
+  setSpeechRate: (rate: number) => void;
+  speechVolume: number;
+  setSpeechVolume: (volume: number) => void;
+  
+  // Performance settings
+  enableCaching: boolean;
+  setEnableCaching: (enabled: boolean) => void;
   
   // Status
   isConnected: boolean;
@@ -77,7 +86,7 @@ interface ChatState {
 const validateApiKey = (key: string): boolean => {
   if (!key || typeof key !== 'string') return false;
   const trimmed = key.trim();
-  return trimmed.length > 20 && trimmed.startsWith('tgp_v1_');
+  return trimmed.length > 20 && (trimmed.startsWith('tgp_v1_') || trimmed.startsWith('sk-'));
 };
 
 const sanitizeInput = (input: string): string => {
@@ -123,7 +132,6 @@ export const useChatStore = create<ChatState>()(
               newCurrentSessionId = newSessions[0].id;
               newMessages = newSessions[0].messages;
             } else {
-              // Create a new session if no sessions left
               const firstSessionId = generateSessionId();
               const firstSession: ChatSession = {
                 id: firstSessionId,
@@ -185,14 +193,12 @@ export const useChatStore = create<ChatState>()(
         set((state) => {
           const newMessages = [...state.messages, message];
           
-          // Update session with new messages
           const updatedSessions = state.sessions.map(s => 
             s.id === state.currentSessionId
               ? { ...s, messages: newMessages, updatedAt: new Date() }
               : s
           );
           
-          // Create session if it doesn't exist
           if (!updatedSessions.find(s => s.id === state.currentSessionId)) {
             const firstUserMessage = newMessages.find(m => m.sender === 'user');
             const title = firstUserMessage ? 
@@ -275,13 +281,11 @@ export const useChatStore = create<ChatState>()(
       })),
       clearFiles: () => set({ attachedFiles: [] }),
       
-      // Streaming
       isStreaming: false,
       setIsStreaming: (streaming) => set({ isStreaming: streaming }),
       streamingMessageId: null,
       setStreamingMessageId: (id) => set({ streamingMessageId: id }),
       
-      // API Configuration with Together.ai validation
       apiKey: '',
       setApiKey: (key) => {
         const sanitizedKey = sanitizeInput(key);
@@ -297,7 +301,6 @@ export const useChatStore = create<ChatState>()(
         return validateApiKey(state.apiKey);
       },
       
-      // Model Settings - default to Together.ai model
       model: 'meta-llama/Llama-3-8b-chat-hf',
       setModel: (model) => {
         const sanitizedModel = sanitizeInput(model);
@@ -320,17 +323,23 @@ export const useChatStore = create<ChatState>()(
         set({ systemPrompt: sanitizedPrompt });
       },
       
-      // UI Settings
       theme: 'light',
       setTheme: (theme) => set({ theme }),
       
-      // Voice settings
+      // Enhanced voice settings for Phase 2
       voiceEnabled: false,
       setVoiceEnabled: (enabled) => set({ voiceEnabled: enabled }),
       autoSpeak: false,
       setAutoSpeak: (enabled) => set({ autoSpeak: enabled }),
+      speechRate: 1,
+      setSpeechRate: (rate) => set({ speechRate: Math.max(0.5, Math.min(rate, 2)) }),
+      speechVolume: 1,
+      setSpeechVolume: (volume) => set({ speechVolume: Math.max(0, Math.min(volume, 1)) }),
       
-      // Status
+      // Performance settings
+      enableCaching: true,
+      setEnableCaching: (enabled) => set({ enableCaching: enabled }),
+      
       isConnected: false,
       setIsConnected: (connected) => set({ isConnected: connected }),
     }),
@@ -345,6 +354,9 @@ export const useChatStore = create<ChatState>()(
         theme: state.theme,
         voiceEnabled: state.voiceEnabled,
         autoSpeak: state.autoSpeak,
+        speechRate: state.speechRate,
+        speechVolume: state.speechVolume,
+        enableCaching: state.enableCaching
       }),
     }
   )

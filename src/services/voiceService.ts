@@ -1,62 +1,91 @@
 
-export class VoiceService {
+interface VoiceServiceCallbacks {
+  onResult: (text: string) => void;
+  onEnd: () => void;
+  onError: (error: string) => void;
+}
+
+class VoiceService {
   private recognition: SpeechRecognition | null = null;
-  private synthesis: SpeechSynthesis;
+  private synthesis: SpeechSynthesis | null = null;
   private isListening = false;
 
   constructor() {
-    this.synthesis = window.speechSynthesis;
-    
-    // Initialize speech recognition if available
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognitionConstructor = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      this.recognition = new SpeechRecognitionConstructor();
-      this.recognition.continuous = false;
-      this.recognition.interimResults = false;
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window) {
+      this.recognition = new (window as any).webkitSpeechRecognition();
+    } else if ('SpeechRecognition' in window) {
+      this.recognition = new SpeechRecognition();
+    }
+
+    if (this.recognition) {
+      this.recognition.continuous = true;
+      this.recognition.interimResults = true;
       this.recognition.lang = 'en-US';
+    }
+
+    // Initialize speech synthesis
+    if ('speechSynthesis' in window) {
+      this.synthesis = window.speechSynthesis;
     }
   }
 
   isSupported(): boolean {
-    return this.recognition !== null && 'speechSynthesis' in window;
+    return !!(this.recognition || this.synthesis);
   }
 
-  startListening(onResult: (text: string) => void, onError?: (error: string) => void): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (!this.recognition) {
-        const error = 'Speech recognition not supported';
-        onError?.(error);
-        reject(new Error(error));
-        return;
+  isSpeechRecognitionSupported(): boolean {
+    return !!this.recognition;
+  }
+
+  isSpeechSynthesisSupported(): boolean {
+    return !!this.synthesis;
+  }
+
+  async startListening(callbacks: VoiceServiceCallbacks): Promise<void> {
+    if (!this.recognition || this.isListening) {
+      callbacks.onError('Speech recognition not available or already listening');
+      return;
+    }
+
+    this.isListening = true;
+    let finalTranscript = '';
+
+    this.recognition.onresult = (event) => {
+      let interimTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
       }
 
-      if (this.isListening) {
-        resolve();
-        return;
+      if (finalTranscript) {
+        callbacks.onResult(finalTranscript);
+        finalTranscript = '';
       }
+    };
 
-      this.isListening = true;
+    this.recognition.onerror = (event) => {
+      this.isListening = false;
+      callbacks.onError(`Speech recognition error: ${event.error}`);
+    };
 
-      this.recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        onResult(transcript);
-        this.isListening = false;
-        resolve();
-      };
+    this.recognition.onend = () => {
+      this.isListening = false;
+      callbacks.onEnd();
+    };
 
-      this.recognition.onerror = (event) => {
-        const error = `Speech recognition error: ${event.error}`;
-        onError?.(error);
-        this.isListening = false;
-        reject(new Error(error));
-      };
-
-      this.recognition.onend = () => {
-        this.isListening = false;
-      };
-
+    try {
       this.recognition.start();
-    });
+    } catch (error) {
+      this.isListening = false;
+      callbacks.onError('Failed to start speech recognition');
+    }
   }
 
   stopListening(): void {
@@ -66,30 +95,36 @@ export class VoiceService {
     }
   }
 
-  speak(text: string, onEnd?: () => void): void {
-    if (!('speechSynthesis' in window)) return;
-
-    // Stop any ongoing speech
-    this.synthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    if (onEnd) {
-      utterance.onend = onEnd;
+  async speak(text: string, options: { rate?: number; pitch?: number; volume?: number } = {}): Promise<void> {
+    if (!this.synthesis) {
+      throw new Error('Speech synthesis not supported');
     }
 
-    this.synthesis.speak(utterance);
+    return new Promise((resolve, reject) => {
+      // Cancel any ongoing speech
+      this.synthesis!.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = options.rate || 1;
+      utterance.pitch = options.pitch || 1;
+      utterance.volume = options.volume || 1;
+
+      utterance.onend = () => resolve();
+      utterance.onerror = (event) => reject(new Error(`Speech synthesis error: ${event.error}`));
+
+      this.synthesis!.speak(utterance);
+    });
   }
 
-  stopSpeaking(): void {
-    this.synthesis.cancel();
+  cancelSpeech(): void {
+    if (this.synthesis) {
+      this.synthesis.cancel();
+    }
   }
 
-  getIsListening(): boolean {
-    return this.isListening;
+  getVoices(): SpeechSynthesisVoice[] {
+    if (!this.synthesis) return [];
+    return this.synthesis.getVoices();
   }
 }
 

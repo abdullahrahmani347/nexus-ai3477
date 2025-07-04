@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Send, Paperclip, Mic, MicOff, X } from 'lucide-react';
+import { Send, Paperclip, Mic, MicOff, X, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -12,12 +12,16 @@ interface InputAreaProps {
   onSend: (message: string, files?: FileData[]) => void;
   disabled?: boolean;
   placeholder?: string;
+  isGenerating?: boolean;
+  onStop?: () => void;
 }
 
 export const InputArea: React.FC<InputAreaProps> = ({
   onSend,
   disabled = false,
-  placeholder = "Type your message..."
+  placeholder = "Type your message...",
+  isGenerating = false,
+  onStop
 }) => {
   const [input, setInput] = useState('');
   const [isListening, setIsListening] = useState(false);
@@ -66,22 +70,31 @@ export const InputArea: React.FC<InputAreaProps> = ({
     }
   };
 
-  const handleVoiceToggle = () => {
+  const handleVoiceToggle = async () => {
     if (isListening) {
       voiceService.stopListening();
       setIsListening(false);
     } else {
       setIsListening(true);
-      voiceService.startListening(
-        (text) => {
-          setInput(prev => prev + (prev ? ' ' : '') + text);
-        },
-        () => setIsListening(false)
-      ).catch(() => setIsListening(false));
+      try {
+        await voiceService.startListening({
+          onResult: (text) => {
+            setInput(prev => prev + (prev ? ' ' : '') + text);
+          },
+          onEnd: () => setIsListening(false),
+          onError: (error) => {
+            console.error('Voice recognition error:', error);
+            setIsListening(false);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to start voice recognition:', error);
+        setIsListening(false);
+      }
     }
   };
 
-  const isVoiceSupported = voiceService.isSupported();
+  const isVoiceSupported = voiceService.isSpeechRecognitionSupported();
 
   return (
     <div className="border-t bg-background p-4">
@@ -116,7 +129,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
             rows={1}
           />
           
-          {/* File Upload and Voice Controls */}
+          {/* Controls in textarea */}
           <div className="absolute right-2 bottom-2 flex gap-1">
             <input
               ref={fileInputRef}
@@ -124,7 +137,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
               multiple
               onChange={handleFileUpload}
               className="hidden"
-              accept="image/*,.pdf,.txt,.doc,.docx"
+              accept="image/*,.pdf,.txt,.doc,.docx,.json,.md"
             />
             
             <Button
@@ -133,6 +146,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
               size="sm"
               onClick={() => fileInputRef.current?.click()}
               className="h-8 w-8 p-0"
+              disabled={disabled}
             >
               <Paperclip className="h-4 w-4" />
             </Button>
@@ -144,6 +158,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
                 size="sm"
                 onClick={handleVoiceToggle}
                 className={`h-8 w-8 p-0 ${isListening ? 'bg-red-100 text-red-600' : ''}`}
+                disabled={disabled}
               >
                 {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
               </Button>
@@ -151,13 +166,24 @@ export const InputArea: React.FC<InputAreaProps> = ({
           </div>
         </div>
 
-        <Button 
-          type="submit" 
-          disabled={disabled || (!input.trim() && attachedFiles.length === 0)}
-          className="h-[60px] px-6"
-        >
-          <Send className="h-4 w-4" />
-        </Button>
+        {isGenerating ? (
+          <Button 
+            type="button"
+            onClick={onStop}
+            variant="destructive"
+            className="h-[60px] px-6"
+          >
+            <Square className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button 
+            type="submit" 
+            disabled={disabled || (!input.trim() && attachedFiles.length === 0)}
+            className="h-[60px] px-6"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        )}
       </form>
     </div>
   );

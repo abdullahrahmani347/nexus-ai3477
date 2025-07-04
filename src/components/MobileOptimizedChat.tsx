@@ -10,20 +10,15 @@ import { UserMenu } from '@/components/navigation/UserMenu';
 import { SessionManagement } from '@/components/SessionManagement';
 import { MessageDisplay } from '@/components/MessageDisplay';
 import { ModelSelector } from '@/components/ModelSelector';
+import { InputArea } from '@/components/InputArea';
+import { TypingIndicator } from '@/components/TypingIndicator';
+import { ChatManager } from '@/components/ChatManager';
 
 export function MobileOptimizedChat() {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [settingsOpen, setSettingsOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState('');
   const { messages, isStreaming } = useChatStore();
   const { user } = useAuth();
-
-  const handleSendMessage = () => {
-    if (inputValue.trim() && !isStreaming) {
-      // Message sending logic would go here
-      setInputValue('');
-    }
-  };
 
   return (
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -61,64 +56,9 @@ export function MobileOptimizedChat() {
         </div>
       </div>
 
-      {/* Chat Messages Area */}
+      {/* Chat Manager handles all chat functionality */}
       <div className="flex-1 flex flex-col min-h-0">
-        <ScrollArea className="flex-1 p-4">
-          <div className="max-w-4xl mx-auto space-y-4">
-            {messages.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-4 border border-purple-500/30">
-                  <MessageSquare className="w-8 h-8 text-purple-400" />
-                </div>
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Welcome to Nexus AI
-                </h3>
-                <p className="text-white/60 mb-4">
-                  Start a conversation with your AI assistant
-                </p>
-              </div>
-            ) : (
-              messages.map((message, index) => (
-                <MessageDisplay 
-                  key={message.id}
-                  message={message}
-                  isLast={index === messages.length - 1}
-                />
-              ))
-            )}
-          </div>
-        </ScrollArea>
-
-        {/* Mobile Input Area */}
-        <div className="p-4 border-t border-white/10 bg-black/20 backdrop-blur-xl">
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/10 flex-shrink-0"
-            >
-              <Paperclip className="w-4 h-4" />
-            </Button>
-            <div className="flex-1 relative">
-              <Input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Ask me anything..."
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/50 pr-12"
-                disabled={isStreaming}
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!inputValue.trim() || isStreaming}
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 w-8 h-8 p-0"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ChatManager />
       </div>
 
       {/* Mobile Sidebar Overlay */}
