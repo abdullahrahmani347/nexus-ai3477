@@ -30,15 +30,19 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSpeak = () => {
+  const handleSpeak = async () => {
     if (speaking) {
-      voiceService.stopSpeaking();
+      voiceService.cancelSpeech();
       setSpeaking(false);
     } else {
-      setSpeaking(true);
-      voiceService.speak(message.text, () => {
+      try {
+        setSpeaking(true);
+        await voiceService.speak(message.text);
         setSpeaking(false);
-      });
+      } catch (error) {
+        console.error('Speech error:', error);
+        setSpeaking(false);
+      }
     }
   };
 

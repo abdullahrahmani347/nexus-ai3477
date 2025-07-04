@@ -10,7 +10,7 @@ import { voiceService } from '@/services/voiceService';
 import { MessageDisplay } from '@/components/MessageDisplay';
 import { TypingIndicator } from '@/components/TypingIndicator';
 import { VoiceControl } from '@/components/VoiceControl';
-import { FileAttachment } from '@/components/FileAttachment';
+import FileAttachment from '@/components/FileAttachment';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 export const ChatManager: React.FC = () => {
@@ -88,8 +88,7 @@ export const ChatManager: React.FC = () => {
           onComplete: (response: string) => {
             updateMessage(messageId, { 
               text: response,
-              timestamp: new Date(),
-              tokens: Math.ceil(response.length / 4) // Rough token estimate
+              timestamp: new Date()
             });
             
             // Auto-speak if enabled
@@ -143,8 +142,7 @@ export const ChatManager: React.FC = () => {
       id: userMessageId,
       text: messageContent,
       sender: 'user',
-      timestamp: new Date(),
-      sessionId: currentSessionId
+      timestamp: new Date()
     });
 
     // Add bot message placeholder
@@ -152,8 +150,7 @@ export const ChatManager: React.FC = () => {
       id: botMessageId,
       text: '',
       sender: 'bot',
-      timestamp: new Date(),
-      sessionId: currentSessionId
+      timestamp: new Date()
     });
 
     // Clear input and files
@@ -163,7 +160,7 @@ export const ChatManager: React.FC = () => {
 
     // Generate response
     await generateResponse(messageContent, botMessageId);
-  }, [input, attachedFiles, isGenerating, isConnected, addMessage, currentSessionId, clearFiles, generateResponse]);
+  }, [input, attachedFiles, isGenerating, isConnected, addMessage, clearFiles, generateResponse]);
 
   const handleStop = useCallback(() => {
     if (abortControllerRef.current) {

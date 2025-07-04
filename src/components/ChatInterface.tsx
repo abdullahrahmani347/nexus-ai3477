@@ -7,14 +7,14 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import MessageBubble from './MessageBubble';
-import TypingIndicator from './TypingIndicator';
-import VoiceControl from './VoiceControl';
+import { TypingIndicator } from './TypingIndicator';
+import { VoiceControl } from './VoiceControl';
 import FileAttachment from './FileAttachment';
 import SessionSidebar from './SessionSidebar';
 import ExportDialog from './ExportDialog';
 import { ModelSelector } from './ModelSelector';
 import { useChatStore } from '../store/chatStore';
-import { generateStreamingResponse } from '../services/streamingService';
+import { StreamingService } from '../services/streamingService';
 import { useTheme } from './ThemeProvider';
 import { voiceService } from '../services/voiceService';
 import { toast } from 'sonner';
@@ -152,32 +152,42 @@ const ChatInterface = () => {
 
     try {
       console.log('Starting response generation with API key:', apiKey);
-      const response = await generateStreamingResponse(
-        userMessage.text, 
-        messages, 
+      await StreamingService.streamChat(
+        [
+          { role: 'system', content: systemPrompt },
+          ...messages.map(msg => ({
+            role: msg.sender === 'user' ? 'user' : 'assistant',
+            content: msg.text
+          })),
+          { role: 'user', content: userMessage.text }
+        ],
         apiKey,
-        (chunk) => {
-          // Update the streaming message
-          updateMessage(botMessageId, { text: chunk });
-        },
+        model,
         {
-          model,
-          maxTokens,
-          temperature,
-          systemPrompt
+          onToken: (token: string) => {
+            updateMessage(botMessageId, { text: token });
+          },
+          onComplete: (fullResponse: string) => {
+            updateMessage(botMessageId, { text: fullResponse });
+            
+            // Auto-speak if enabled
+            if (autoSpeak && voiceEnabled) {
+              voiceService.speak(fullResponse);
+            }
+            
+            toast.success('Response generated successfully');
+          },
+          onError: (error: string) => {
+            updateMessage(botMessageId, { 
+              text: error,
+              isError: true
+            });
+            toast.error(error);
+          }
         }
       );
       
       console.log('Response generation completed');
-      // Final update
-      updateMessage(botMessageId, { text: response });
-
-      // Auto-speak if enabled
-      if (autoSpeak && voiceEnabled) {
-        voiceService.speak(response);
-      }
-
-      toast.success('Response generated successfully');
 
     } catch (error) {
       console.error('Failed to generate response:', error);

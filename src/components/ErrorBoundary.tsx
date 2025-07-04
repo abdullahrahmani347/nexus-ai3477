@@ -14,8 +14,6 @@ interface ErrorBoundaryProps {
 }
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private logError: ((error: Error, context?: string) => Promise<void>) | null = null;
-
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null };
@@ -27,11 +25,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught by boundary:', error, errorInfo);
-    
-    // Log error to Supabase if possible
-    if (this.logError) {
-      this.logError(error, `Component stack: ${errorInfo.componentStack}`);
-    }
   }
 
   render() {
@@ -89,12 +82,24 @@ export function ErrorBoundaryProvider({ children }: { children: React.ReactNode 
     // Set up global error handling
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error('Unhandled promise rejection:', event.reason);
-      logError(new Error(event.reason), 'Unhandled Promise Rejection');
+      logError({
+        errorType: 'Unhandled Promise Rejection',
+        errorMessage: event.reason?.message || String(event.reason),
+        stackTrace: event.reason?.stack,
+        url: window.location.href,
+        userAgent: navigator.userAgent
+      });
     };
 
     const handleError = (event: ErrorEvent) => {
       console.error('Global error:', event.error);
-      logError(event.error, 'Global Error Handler');
+      logError({
+        errorType: 'Global Error Handler',
+        errorMessage: event.message,
+        stackTrace: event.error?.stack,
+        url: event.filename,
+        userAgent: navigator.userAgent
+      });
     };
 
     window.addEventListener('unhandledrejection', handleUnhandledRejection);

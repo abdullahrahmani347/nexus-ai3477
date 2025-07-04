@@ -51,7 +51,7 @@ class VoiceService {
     this.isListening = true;
     let finalTranscript = '';
 
-    this.recognition.onresult = (event) => {
+    this.recognition.onresult = (event: any) => {
       let interimTranscript = '';
       
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -70,7 +70,7 @@ class VoiceService {
       }
     };
 
-    this.recognition.onerror = (event) => {
+    this.recognition.onerror = (event: any) => {
       this.isListening = false;
       callbacks.onError(`Speech recognition error: ${event.error}`);
     };
