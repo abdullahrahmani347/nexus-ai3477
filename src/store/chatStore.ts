@@ -89,7 +89,7 @@ export const useChatStore = create<ChatState>()(
     (set, get) => ({
       // Sessions
       sessions: [],
-      currentSessionId: generateSessionId(),
+      currentSessionId: '',
       createSession: (title = 'New Chat') => {
         const sanitizedTitle = sanitizeInput(title);
         const newSessionId = generateSessionId();
@@ -101,6 +101,7 @@ export const useChatStore = create<ChatState>()(
           messages: []
         };
         
+        console.log('Creating new session:', newSessionId, sanitizedTitle);
         set((state) => ({
           sessions: [...state.sessions, newSession],
           currentSessionId: newSessionId,
@@ -111,6 +112,7 @@ export const useChatStore = create<ChatState>()(
         return newSessionId;
       },
       deleteSession: (sessionId) => {
+        console.log('Deleting session:', sessionId);
         set((state) => {
           const newSessions = state.sessions.filter(s => s.id !== sessionId);
           let newCurrentSessionId = state.currentSessionId;
@@ -121,7 +123,17 @@ export const useChatStore = create<ChatState>()(
               newCurrentSessionId = newSessions[0].id;
               newMessages = newSessions[0].messages;
             } else {
-              newCurrentSessionId = generateSessionId();
+              // Create a new session if no sessions left
+              const firstSessionId = generateSessionId();
+              const firstSession: ChatSession = {
+                id: firstSessionId,
+                title: 'New Chat',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                messages: []
+              };
+              newSessions.push(firstSession);
+              newCurrentSessionId = firstSessionId;
               newMessages = [];
             }
           }
@@ -135,6 +147,7 @@ export const useChatStore = create<ChatState>()(
         });
       },
       switchSession: (sessionId) => {
+        console.log('Switching to session:', sessionId);
         const state = get();
         const session = state.sessions.find(s => s.id === sessionId);
         if (session) {
@@ -147,6 +160,7 @@ export const useChatStore = create<ChatState>()(
       },
       updateSessionTitle: (sessionId, title) => {
         const sanitizedTitle = sanitizeInput(title);
+        console.log('Updating session title:', sessionId, sanitizedTitle);
         set((state) => ({
           sessions: state.sessions.map(s => 
             s.id === sessionId 
@@ -159,20 +173,26 @@ export const useChatStore = create<ChatState>()(
         const state = get();
         return state.sessions.find(s => s.id === state.currentSessionId);
       },
-      setSessions: (sessions) => set({ sessions }),
+      setSessions: (sessions) => {
+        console.log('Setting sessions:', sessions.length);
+        set({ sessions });
+      },
       
       // Messages
       messages: [],
       addMessage: (message) => {
+        console.log('Adding message:', message.id, message.sender);
         set((state) => {
           const newMessages = [...state.messages, message];
           
+          // Update session with new messages
           const updatedSessions = state.sessions.map(s => 
             s.id === state.currentSessionId
               ? { ...s, messages: newMessages, updatedAt: new Date() }
               : s
           );
           
+          // Create session if it doesn't exist
           if (!updatedSessions.find(s => s.id === state.currentSessionId)) {
             const firstUserMessage = newMessages.find(m => m.sender === 'user');
             const title = firstUserMessage ? 
@@ -226,11 +246,10 @@ export const useChatStore = create<ChatState>()(
         };
       }),
       clearMessages: () => {
-        const newSessionId = generateSessionId();
+        console.log('Clearing messages');
         set({ 
           messages: [],
-          attachedFiles: [],
-          currentSessionId: newSessionId
+          attachedFiles: []
         });
       },
       regenerateResponse: (fromMessageId) => {
@@ -241,7 +260,10 @@ export const useChatStore = create<ChatState>()(
           set({ messages: newMessages });
         }
       },
-      setMessages: (messages) => set({ messages }),
+      setMessages: (messages) => {
+        console.log('Setting messages:', messages.length);
+        set({ messages });
+      },
       
       // File attachments
       attachedFiles: [],
@@ -264,7 +286,7 @@ export const useChatStore = create<ChatState>()(
       setApiKey: (key) => {
         const sanitizedKey = sanitizeInput(key);
         const isValid = validateApiKey(sanitizedKey);
-        
+        console.log('Setting API key, valid:', isValid);
         set({ 
           apiKey: sanitizedKey,
           isConnected: isValid
@@ -279,6 +301,7 @@ export const useChatStore = create<ChatState>()(
       model: 'meta-llama/Llama-3-8b-chat-hf',
       setModel: (model) => {
         const sanitizedModel = sanitizeInput(model);
+        console.log('Setting model:', sanitizedModel);
         set({ model: sanitizedModel });
       },
       maxTokens: 2048,
@@ -314,7 +337,6 @@ export const useChatStore = create<ChatState>()(
     {
       name: 'nexus-chat-storage',
       partialize: (state) => ({
-        currentSessionId: state.currentSessionId,
         apiKey: state.apiKey,
         model: state.model,
         maxTokens: state.maxTokens,

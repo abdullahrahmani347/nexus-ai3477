@@ -24,41 +24,44 @@ export function useDatabase() {
   // Sync sessions from database on user login
   useEffect(() => {
     if (user) {
+      console.log('User authenticated, loading sessions for:', user.email);
       loadSessions();
       loadCurrentSessionMessages();
     } else {
-      // Clear local data when user logs out
+      console.log('User not authenticated, clearing local data');
       setSessions([]);
       setMessages([]);
     }
-  }, [user]);
+  }, [user?.id]); // Use user.id instead of user to avoid unnecessary re-renders
 
-  // Save new messages to database
+  // Auto-save messages when they change
   useEffect(() => {
     if (user && messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
-      // Only save if it has an ID (not a temporary message)
-      if (lastMessage.id) {
+      if (lastMessage.id && !lastMessage.id.startsWith('temp-')) {
+        console.log('Auto-saving message:', lastMessage.id);
         saveMessage(lastMessage);
         updateUsageTracking(lastMessage);
       }
     }
-  }, [messages, user]);
+  }, [messages.length, user?.id]);
 
-  // Save sessions when they change
+  // Auto-save session title changes
   useEffect(() => {
-    if (user && sessions.length > 0) {
+    if (user && currentSessionId) {
       const currentSession = sessions.find(s => s.id === currentSessionId);
-      if (currentSession) {
+      if (currentSession && currentSession.title !== 'New Chat') {
+        console.log('Auto-saving session:', currentSession.id, currentSession.title);
         saveSession(currentSession.id, currentSession.title);
       }
     }
-  }, [sessions, currentSessionId, user]);
+  }, [sessions, currentSessionId, user?.id]);
 
   const loadSessions = async () => {
     if (!user) return;
 
     try {
+      console.log('Loading sessions for user:', user.id);
       const { data, error } = await supabase
         .from('chat_sessions')
         .select('*')
@@ -76,27 +79,32 @@ export function useDatabase() {
       }
 
       if (data && data.length > 0) {
-        // Convert database sessions to store format
+        console.log(`Loaded ${data.length} sessions from database`);
         const loadedSessions = data.map(session => ({
           id: session.id,
           title: session.title,
           createdAt: new Date(session.created_at),
           updatedAt: new Date(session.updated_at),
-          messages: [] // Messages will be loaded separately
+          messages: []
         }));
 
         setSessions(loadedSessions);
         
-        // Switch to the most recent session if we don't have a current one
-        if (!sessions.find(s => s.id === currentSessionId)) {
+        // Switch to the most recent session if no current session
+        if (!currentSessionId || !loadedSessions.find(s => s.id === currentSessionId)) {
           switchSession(loadedSessions[0].id);
         }
+      } else {
+        console.log('No sessions found, creating first session');
+        // Create initial session for new users
+        const firstSessionId = createSession('Welcome Chat');
+        saveSession(firstSessionId, 'Welcome Chat');
       }
     } catch (error) {
       console.error('Error loading sessions:', error);
       toast({
         title: "Database Error",
-        description: "Failed to connect to the database.",
+        description: "Failed to connect to the database. Using local storage.",
         variant: "destructive",
       });
     }
@@ -106,6 +114,7 @@ export function useDatabase() {
     if (!user || !currentSessionId) return;
 
     try {
+      console.log('Loading messages for session:', currentSessionId);
       const { data, error } = await supabase
         .from('messages')
         .select('*')
@@ -119,7 +128,7 @@ export function useDatabase() {
       }
 
       if (data && data.length > 0) {
-        // Convert database messages to store format
+        console.log(`Loaded ${data.length} messages for session`);
         const loadedMessages = data.map(msg => ({
           id: msg.id,
           text: msg.content,
@@ -140,6 +149,7 @@ export function useDatabase() {
     if (!user) return;
 
     try {
+      console.log('Saving session:', sessionId, title);
       const { error } = await supabase
         .from('chat_sessions')
         .upsert({
@@ -163,9 +173,10 @@ export function useDatabase() {
   };
 
   const saveMessage = async (message: any) => {
-    if (!user || !message.id) return;
+    if (!user || !message.id || !currentSessionId) return;
 
     try {
+      console.log('Saving message:', message.id);
       const { error } = await supabase
         .from('messages')
         .upsert({
@@ -214,6 +225,7 @@ export function useDatabase() {
     if (!user) return;
 
     try {
+      console.log('Deleting session from database:', sessionId);
       // Delete messages first
       await supabase
         .from('messages')
