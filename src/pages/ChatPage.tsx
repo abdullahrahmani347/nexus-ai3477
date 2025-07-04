@@ -5,6 +5,7 @@ import { useDatabase } from '@/hooks/useDatabase';
 import { MobileOptimizedChat } from '@/components/MobileOptimizedChat';
 import ChatInterface from '@/components/ChatInterface';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { WelcomeScreen } from '@/components/WelcomeScreen';
 
 const ChatPage = () => {
   const { user, loading } = useAuth();
@@ -24,6 +25,11 @@ const ChatPage = () => {
 
   if (loading) {
     return <LoadingSpinner fullScreen text="Loading your chat..." />;
+  }
+
+  // Show welcome screen if user is not authenticated
+  if (!user) {
+    return <WelcomeScreen />;
   }
 
   // Show mobile-optimized version on smaller screens

@@ -177,9 +177,16 @@ export const ChatManager: React.FC = () => {
   if (!isConnected) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Configure API Key</h3>
-          <p className="text-gray-500">Please configure your Together AI API key in settings to start chatting.</p>
+        <div className="text-center space-y-4">
+          <div className="nexus-brand-logo w-16 h-16 mx-auto">
+            <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Configure API Key</h3>
+            <p className="text-muted-foreground">Please configure your Together AI API key in settings to start chatting.</p>
+          </div>
         </div>
       </div>
     );
