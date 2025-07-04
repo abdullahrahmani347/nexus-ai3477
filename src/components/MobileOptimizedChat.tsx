@@ -78,7 +78,13 @@ export function MobileOptimizedChat() {
                 </p>
               </div>
             ) : (
-              <MessageDisplay />
+              messages.map((message, index) => (
+                <MessageDisplay 
+                  key={message.id}
+                  message={message}
+                  isLast={index === messages.length - 1}
+                />
+              ))
             )}
           </div>
         </ScrollArea>
