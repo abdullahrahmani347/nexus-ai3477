@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Send, Square, Loader2 } from 'lucide-react';
+import { Send, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useChatStore } from '@/store/chatStore';
@@ -25,8 +25,6 @@ export const ChatManager: React.FC = () => {
     updateMessage,
     apiKey,
     model,
-    temperature,
-    maxTokens,
     systemPrompt,
     currentSessionId,
     isStreaming,
@@ -68,7 +66,6 @@ export const ChatManager: React.FC = () => {
       { role: 'user', content: userMessage }
     ];
 
-    // Create abort controller for this request
     abortControllerRef.current = new AbortController();
     
     setIsStreaming(true);
@@ -91,7 +88,6 @@ export const ChatManager: React.FC = () => {
               timestamp: new Date()
             });
             
-            // Auto-speak if enabled
             if (voiceEnabled && autoSpeak && voiceService.isSpeechSynthesisSupported()) {
               voiceService.speak(response).catch(console.error);
             }
@@ -130,14 +126,12 @@ export const ChatManager: React.FC = () => {
     const userMessageId = Date.now().toString();
     const botMessageId = (Date.now() + 1).toString();
     
-    // Prepare message content
     let messageContent = input.trim();
     if (attachedFiles.length > 0) {
       const fileDescriptions = attachedFiles.map(file => `[File: ${file.name}]`).join(' ');
       messageContent = `${messageContent} ${fileDescriptions}`.trim();
     }
 
-    // Add user message
     addMessage({
       id: userMessageId,
       text: messageContent,
@@ -145,7 +139,6 @@ export const ChatManager: React.FC = () => {
       timestamp: new Date()
     });
 
-    // Add bot message placeholder
     addMessage({
       id: botMessageId,
       text: '',
@@ -153,12 +146,10 @@ export const ChatManager: React.FC = () => {
       timestamp: new Date()
     });
 
-    // Clear input and files
     setInput('');
     clearFiles();
     setIsGenerating(true);
 
-    // Generate response
     await generateResponse(messageContent, botMessageId);
   }, [input, attachedFiles, isGenerating, isConnected, addMessage, clearFiles, generateResponse]);
 
@@ -196,7 +187,6 @@ export const ChatManager: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Messages Area */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
         <div className="space-y-4 max-w-4xl mx-auto">
           {messages.map((message, index) => (
@@ -211,9 +201,10 @@ export const ChatManager: React.FC = () => {
         </div>
       </ScrollArea>
 
-      {/* Input Area */}
       <div className="border-t bg-background p-4 space-y-4">
-        <VoiceControl onVoiceInput={handleVoiceInput} />
+        {voiceEnabled && (
+          <VoiceControl onVoiceInput={handleVoiceInput} />
+        )}
         
         <FileAttachment
           files={attachedFiles}

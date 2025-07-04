@@ -1,28 +1,38 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthGuard } from '@/components/AuthGuard';
+import { BrowserRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/hooks/useAuth';
 import { useErrorLogging } from '@/hooks/useErrorLogging';
 import ChatPage from '@/pages/ChatPage';
-import { Toaster } from '@/components/ui/sonner';
-import './App.css';
+
+const queryClient = new QueryClient();
+
+function AppContent() {
+  useErrorLogging();
+  
+  return (
+    <BrowserRouter>
+      <div className="min-h-screen">
+        <ChatPage />
+      </div>
+      <Toaster />
+    </BrowserRouter>
+  );
+}
 
 function App() {
-  // Initialize error logging
-  useErrorLogging();
-
   return (
     <ErrorBoundary>
-      <Router>
-        <AuthGuard>
-          <Routes>
-            <Route path="/" element={<ChatPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-          </Routes>
-        </AuthGuard>
-        <Toaster position="top-right" />
-      </Router>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="dark" storageKey="nexus-ui-theme">
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }
