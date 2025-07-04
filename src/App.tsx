@@ -27,7 +27,7 @@ function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="dark" storageKey="nexus-ui-theme">
+        <ThemeProvider>
           <AuthProvider>
             <AppContent />
           </AuthProvider>
