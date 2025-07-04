@@ -303,14 +303,6 @@ const ChatInterface = () => {
               />
             </div>
 
-            {voiceEnabled && (
-              <VoiceControl
-                onVoiceInput={handleVoiceInput}
-                onSpeakResponse={handleSpeakResponse}
-                disabled={isStreaming}
-              />
-            )}
-
             <Button
               variant="ghost"
               size="sm"
