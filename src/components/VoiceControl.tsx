@@ -8,10 +8,16 @@ import { voiceService } from '@/services/voiceService';
 import { useChatStore } from '@/store/chatStore';
 
 interface VoiceControlProps {
-  onTranscript?: (text: string) => void;
+  onVoiceInput?: (text: string) => void;
+  onSpeakResponse?: (speakFn: (text: string) => void) => void;
+  disabled?: boolean;
 }
 
-export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
+export const VoiceControl: React.FC<VoiceControlProps> = ({ 
+  onVoiceInput, 
+  onSpeakResponse,
+  disabled = false 
+}) => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [speechRate, setSpeechRate] = useState(1);
@@ -19,7 +25,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
   const { voiceEnabled, setVoiceEnabled, autoSpeak, setAutoSpeak } = useChatStore();
 
   const handleStartListening = async () => {
-    if (!voiceService.isSpeechRecognitionSupported()) {
+    if (!voiceService.isSpeechRecognitionSupported() || disabled) {
       alert('Speech recognition is not supported in your browser');
       return;
     }
@@ -28,7 +34,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
     try {
       await voiceService.startListening({
         onResult: (text) => {
-          onTranscript?.(text);
+          onVoiceInput?.(text);
         },
         onEnd: () => {
           setIsListening(false);
@@ -70,6 +76,13 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
     setIsSpeaking(false);
   };
 
+  // Provide speak function to parent
+  useEffect(() => {
+    if (onSpeakResponse) {
+      onSpeakResponse(handleSpeak);
+    }
+  }, [onSpeakResponse, speechRate, volume]);
+
   if (!voiceService.isSupported()) {
     return null;
   }
@@ -83,6 +96,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
           size="sm"
           onClick={() => setVoiceEnabled(!voiceEnabled)}
           className={voiceEnabled ? 'text-green-600' : 'text-gray-400'}
+          disabled={disabled}
         >
           {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </Button>
@@ -95,7 +109,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
               variant={isListening ? "destructive" : "outline"}
               size="sm"
               onClick={isListening ? handleStopListening : handleStartListening}
-              disabled={!voiceService.isSpeechRecognitionSupported()}
+              disabled={!voiceService.isSpeechRecognitionSupported() || disabled}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
               {isListening ? 'Stop' : 'Listen'}
@@ -106,6 +120,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
                 variant="outline"
                 size="sm"
                 onClick={handleStopSpeaking}
+                disabled={disabled}
               >
                 Stop Speaking
               </Button>
@@ -122,6 +137,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
                 max={2}
                 step={0.1}
                 className="w-full"
+                disabled={disabled}
               />
             </div>
 
@@ -134,6 +150,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
                 max={1}
                 step={0.1}
                 className="w-full"
+                disabled={disabled}
               />
             </div>
 
@@ -144,6 +161,7 @@ export const VoiceControl: React.FC<VoiceControlProps> = ({ onTranscript }) => {
                 checked={autoSpeak}
                 onChange={(e) => setAutoSpeak(e.target.checked)}
                 className="rounded"
+                disabled={disabled}
               />
               <label htmlFor="autoSpeak" className="text-xs text-gray-600">
                 Auto-speak AI responses

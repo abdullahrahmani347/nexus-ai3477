@@ -210,11 +210,6 @@ const ChatInterface = () => {
     inputRef.current?.focus();
   };
 
-  const handleSpeakResponse = (speakFn: (text: string) => void) => {
-    // This callback receives the speak function from VoiceControl
-    // It's used to set up the speaking capability
-  };
-
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -411,7 +406,7 @@ const ChatInterface = () => {
               <MessageBubble key={message.id} message={message} />
             ))}
             
-            {isStreaming && <TypingIndicator />}
+            <TypingIndicator isVisible={isStreaming} />
           </div>
         </ScrollArea>
 
@@ -425,6 +420,13 @@ const ChatInterface = () => {
               onFileRemove={removeFile}
               disabled={isStreaming}
             />
+
+            {voiceEnabled && (
+              <VoiceControl
+                onVoiceInput={handleVoiceInput}
+                disabled={isStreaming}
+              />
+            )}
 
             {/* Premium Input */}
             <div className="flex items-end space-x-4">
