@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ChatManager } from '@/components/ChatManager';
 import { SettingsButton } from '@/components/SettingsButton';
-import { FeaturesSidebar } from '@/components/navigation/FeaturesSidebar';
+import { IntegratedSidebar } from '@/components/navigation/IntegratedSidebar';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, User, Bot, Menu, X } from 'lucide-react';
@@ -23,8 +23,8 @@ const ChatInterface = () => {
 
   return (
     <div className="h-screen flex bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      {/* Enhanced Sidebar */}
-      <FeaturesSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {/* Enhanced Integrated Sidebar */}
+      <IntegratedSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
