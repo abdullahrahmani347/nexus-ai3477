@@ -74,6 +74,8 @@ export class TogetherService {
     },
     signal?: AbortSignal
   ) {
+    let fullResponse = '';
+
     try {
       const response = await fetch('https://api.together.xyz/v1/chat/completions', {
         method: 'POST',
@@ -100,10 +102,8 @@ export class TogetherService {
         throw new Error('No response body');
       }
 
-      let fullResponse = '';
-
       while (true) {
-        const { done, value } = awaitReader.read();
+        const { done, value } = await reader.read();
         if (done) break;
 
         const chunk = new TextDecoder().decode(value);
