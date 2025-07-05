@@ -16,7 +16,9 @@ import {
   Search,
   Cloud,
   Activity,
-  Heart
+  Heart,
+  Bot,
+  ArrowRight
 } from 'lucide-react';
 
 interface FeatureCardProps {
@@ -28,49 +30,58 @@ interface FeatureCardProps {
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, features, status }) => {
-  const getStatusColor = () => {
+  const getStatusConfig = () => {
     switch (status) {
-      case 'active': return 'bg-green-500/10 text-green-400 border-green-500/20';
-      case 'premium': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
-      case 'coming-soon': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-      default: return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+      case 'active': return { 
+        color: 'from-green-500/20 to-emerald-500/20 border-green-500/30 text-green-400',
+        text: 'Active',
+        bg: 'bg-black/20'
+      };
+      case 'premium': return { 
+        color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30 text-purple-400',
+        text: 'Premium',
+        bg: 'bg-gradient-to-br from-purple-500/10 to-pink-500/10'
+      };
+      case 'coming-soon': return { 
+        color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30 text-blue-400',
+        text: 'Coming Soon',
+        bg: 'bg-black/20'
+      };
+      default: return { 
+        color: 'from-gray-500/20 to-gray-400/20 border-gray-500/30 text-gray-400',
+        text: 'Unknown',
+        bg: 'bg-black/20'
+      };
     }
   };
 
-  const getStatusText = () => {
-    switch (status) {
-      case 'active': return 'Active';
-      case 'premium': return 'Premium';
-      case 'coming-soon': return 'Coming Soon';
-      default: return 'Unknown';
-    }
-  };
+  const config = getStatusConfig();
 
   return (
-    <Card className="nexus-feature-card">
+    <Card className={`${config.bg} backdrop-blur-xl border border-white/10 hover:border-white/20 transition-all duration-300 group hover:scale-105`}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
+            <div className="p-2 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20">
               {icon}
             </div>
             <div>
-              <CardTitle className="text-lg">{title}</CardTitle>
+              <CardTitle className="text-lg text-white">{title}</CardTitle>
             </div>
           </div>
-          <Badge className={getStatusColor()}>
-            {getStatusText()}
+          <Badge className={`bg-gradient-to-r ${config.color} border-0`}>
+            {config.text}
           </Badge>
         </div>
-        <CardDescription className="text-sm text-muted-foreground">
+        <CardDescription className="text-sm text-gray-300">
           {description}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="space-y-2">
           {features.map((feature, index) => (
-            <li key={index} className="flex items-center gap-2 text-sm">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
+            <li key={index} className="flex items-center gap-2 text-sm text-gray-400">
+              <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex-shrink-0" />
               {feature}
             </li>
           ))}
@@ -245,46 +256,54 @@ export const FeatureShowcase: React.FC = () => {
   const comingSoonFeatures = features.filter(f => f.status === 'coming-soon').length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 text-white">
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex justify-center">
-          <div className="nexus-brand-logo w-16 h-16">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/30">
             <Zap className="w-8 h-8 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold nexus-text-gradient">
-          Platform Features
+        <h1 className="text-4xl font-bold">
+          <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            Platform Features
+          </span>
         </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Discover all the powerful features and capabilities built into Nexus Chat
+        <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+          Discover all the powerful features and capabilities built into Nexus AI
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-        <Card className="nexus-card text-center">
+        <Card className="bg-black/20 backdrop-blur-xl border border-white/10 text-center">
           <CardHeader className="pb-2">
-            <CardTitle className="text-3xl nexus-text-gradient">{activeFeatures}</CardTitle>
+            <CardTitle className="text-3xl bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {features.filter(f => f.status === 'active').length}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Active Features</p>
+            <p className="text-sm text-gray-400">Active Features</p>
           </CardContent>
         </Card>
-        <Card className="nexus-card text-center">
+        <Card className="bg-black/20 backdrop-blur-xl border border-white/10 text-center">
           <CardHeader className="pb-2">
-            <CardTitle className="text-3xl text-purple-400">{premiumFeatures}</CardTitle>
+            <CardTitle className="text-3xl text-purple-400">
+              {features.filter(f => f.status === 'premium').length}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Premium Features</p>
+            <p className="text-sm text-gray-400">Premium Features</p>
           </CardContent>
         </Card>
-        <Card className="nexus-card text-center">
+        <Card className="bg-black/20 backdrop-blur-xl border border-white/10 text-center">
           <CardHeader className="pb-2">
-            <CardTitle className="text-3xl text-blue-400">{comingSoonFeatures}</CardTitle>
+            <CardTitle className="text-3xl text-blue-400">
+              {features.filter(f => f.status === 'coming-soon').length}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Coming Soon</p>
+            <p className="text-sm text-gray-400">Coming Soon</p>
           </CardContent>
         </Card>
       </div>
@@ -298,17 +317,17 @@ export const FeatureShowcase: React.FC = () => {
 
       {/* Footer */}
       <div className="text-center space-y-6 pt-8">
-        <div className="p-6 nexus-card max-w-2xl mx-auto">
+        <div className="p-6 bg-black/20 backdrop-blur-xl border border-white/10 rounded-2xl max-w-2xl mx-auto">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Heart className="w-5 h-5 text-red-400" />
-            <h3 className="text-lg font-semibold">Built with Love</h3>
+            <h3 className="text-lg font-semibold text-white">Built with Love</h3>
           </div>
-          <p className="text-muted-foreground">
-            Nexus Chat is continuously evolving with new features and improvements. 
+          <p className="text-gray-300">
+            Nexus AI is continuously evolving with new features and improvements. 
             Your feedback helps shape the future of this platform.
           </p>
         </div>
-        <Button className="nexus-button">
+        <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-2xl font-semibold shadow-2xl shadow-purple-500/30 hover:shadow-purple-500/50 transition-all duration-300 transform hover:scale-105">
           Start Chatting Now
         </Button>
       </div>

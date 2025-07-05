@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Mail, Lock, User, Chrome } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Chrome, Bot } from 'lucide-react';
 
 interface AuthModalProps {
   open: boolean;
@@ -105,33 +106,45 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] nexus-card border-0">
-        <DialogHeader className="text-center space-y-3">
+      <DialogContent className="sm:max-w-[450px] bg-gray-900/95 backdrop-blur-xl border border-white/20 text-white">
+        <DialogHeader className="text-center space-y-4">
           <div className="mx-auto">
-            <div className="nexus-brand-logo w-16 h-16">
-              <Mail className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/30">
+              <Bot className="w-8 h-8 text-white" />
             </div>
           </div>
-          <DialogTitle className="text-2xl nexus-text-gradient">
-            Welcome to Nexus Chat
+          <DialogTitle className="text-2xl font-bold">
+            <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Welcome to Nexus AI
+            </span>
           </DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-base text-gray-300">
             Your intelligent AI companion for seamless conversations
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'signin' | 'signup')} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
-            <TabsTrigger value="signup">Sign Up</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 mb-6 bg-black/20 p-1 rounded-2xl">
+            <TabsTrigger 
+              value="signin"
+              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500"
+            >
+              Sign In
+            </TabsTrigger>
+            <TabsTrigger 
+              value="signup"
+              className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-500"
+            >
+              Sign Up
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin" className="space-y-4">
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="signin-email">Email</Label>
+                <Label htmlFor="signin-email" className="text-white">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signin-email"
                     name="email"
@@ -139,16 +152,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className="pl-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signin-password">Password</Label>
+                <Label htmlFor="signin-password" className="text-white">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signin-password"
                     name="password"
@@ -156,7 +169,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                   <Button
@@ -167,15 +180,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4 text-gray-400" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4 text-gray-400" />
                     )}
                   </Button>
                 </div>
               </div>
 
-              <Button type="submit" className="w-full nexus-button" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl py-3 font-semibold shadow-lg shadow-purple-500/30 transition-all duration-300" 
+                disabled={loading}
+              >
                 {loading ? 'Signing In...' : 'Sign In'}
               </Button>
             </form>
@@ -184,9 +201,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
           <TabsContent value="signup" className="space-y-4">
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="signup-name">Full Name</Label>
+                <Label htmlFor="signup-name" className="text-white">Full Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signup-name"
                     name="fullName"
@@ -194,16 +211,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Enter your full name"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className="pl-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signup-email">Email</Label>
+                <Label htmlFor="signup-email" className="text-white">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signup-email"
                     name="email"
@@ -211,16 +228,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className="pl-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signup-password">Password</Label>
+                <Label htmlFor="signup-password" className="text-white">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signup-password"
                     name="password"
@@ -228,7 +245,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Create a password (min. 6 characters)"
                     value={formData.password}
                     onChange={handleInputChange}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                   <Button
@@ -239,18 +256,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4 text-gray-400" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4 text-gray-400" />
                     )}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signup-confirm">Confirm Password</Label>
+                <Label htmlFor="signup-confirm" className="text-white">Confirm Password</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
                     id="signup-confirm"
                     name="confirmPassword"
@@ -258,13 +275,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
                     placeholder="Confirm your password"
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
-                    className="pl-10"
+                    className="pl-10 bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-xl"
                     required
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="w-full nexus-button" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-xl py-3 font-semibold shadow-lg shadow-purple-500/30 transition-all duration-300" 
+                disabled={loading}
+              >
                 {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
@@ -273,10 +294,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border/50" />
+            <span className="w-full border-t border-white/20" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            <span className="bg-gray-900 px-2 text-gray-400">Or continue with</span>
           </div>
         </div>
 
@@ -284,7 +305,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ open, onOpenChange }) => {
           variant="outline"
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full nexus-transition"
+          className="w-full border-white/20 text-white hover:bg-white/10 rounded-xl py-3 transition-all duration-300"
         >
           <Chrome className="mr-2 h-4 w-4" />
           Google

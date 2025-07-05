@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Send, Square } from 'lucide-react';
+import { Send, Square, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useChatStore } from '@/store/chatStore';
@@ -176,16 +176,27 @@ export const ChatManager: React.FC = () => {
 
   if (!isConnected) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center space-y-4">
-          <div className="nexus-brand-logo w-16 h-16 mx-auto">
-            <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-            </svg>
+      <div className="flex items-center justify-center h-full p-8">
+        <div className="text-center space-y-6 max-w-md">
+          <div className="relative mx-auto">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/30 mx-auto">
+              <Bot className="w-10 h-10 text-white" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-400 to-red-500 rounded-full border-2 border-gray-900 flex items-center justify-center">
+              <div className="w-2 h-2 bg-white rounded-full"></div>
+            </div>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Configure API Key</h3>
-            <p className="text-muted-foreground">Please configure your Together AI API key in settings to start chatting.</p>
+          <div className="space-y-3">
+            <h3 className="text-xl font-bold text-white">Configure API Key</h3>
+            <p className="text-gray-300 text-sm leading-relaxed">
+              Please configure your Together AI API key in settings to start chatting with your AI companion.
+            </p>
+            <Button 
+              onClick={() => {/* Open settings */}} 
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-105"
+            >
+              Open Settings
+            </Button>
           </div>
         </div>
       </div>
@@ -193,9 +204,21 @@ export const ChatManager: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4 max-w-4xl mx-auto">
+        <div className="space-y-6 max-w-4xl mx-auto">
+          {messages.length === 0 && (
+            <div className="text-center py-12 space-y-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-purple-500/30 mx-auto">
+                <Bot className="w-8 h-8 text-white" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-xl font-bold text-white">Start a conversation</h3>
+                <p className="text-gray-400 text-sm">Ask me anything! I'm here to help with your questions and tasks.</p>
+              </div>
+            </div>
+          )}
+          
           {messages.map((message, index) => (
             <MessageDisplay
               key={message.id}
@@ -208,7 +231,7 @@ export const ChatManager: React.FC = () => {
         </div>
       </ScrollArea>
 
-      <div className="border-t bg-background p-4 space-y-4">
+      <div className="bg-black/20 backdrop-blur-xl border-t border-white/10 p-4 space-y-4">
         {voiceEnabled && (
           <VoiceControl onVoiceInput={handleVoiceInput} />
         )}
@@ -226,20 +249,25 @@ export const ChatManager: React.FC = () => {
           disabled={isGenerating}
         />
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="Type your message..."
             disabled={isGenerating}
-            className="min-h-[60px] resize-none"
+            className="min-h-[60px] resize-none bg-black/20 border-white/20 text-white placeholder:text-gray-400 focus:border-purple-500 rounded-2xl"
             rows={2}
           />
           
           <div className="flex flex-col gap-2">
             {isGenerating ? (
-              <Button onClick={handleStop} variant="destructive" size="lg">
+              <Button 
+                onClick={handleStop} 
+                variant="destructive" 
+                size="lg"
+                className="bg-red-500 hover:bg-red-600 rounded-2xl px-6"
+              >
                 <Square className="w-4 h-4" />
               </Button>
             ) : (
@@ -247,6 +275,7 @@ export const ChatManager: React.FC = () => {
                 onClick={handleSend} 
                 disabled={(!input.trim() && attachedFiles.length === 0) || !isConnected}
                 size="lg"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-2xl px-6 shadow-lg shadow-purple-500/30 transition-all duration-300 transform hover:scale-105"
               >
                 <Send className="w-4 h-4" />
               </Button>
