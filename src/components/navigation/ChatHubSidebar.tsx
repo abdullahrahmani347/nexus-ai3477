@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -29,12 +28,11 @@ import {
   Globe,
   ChevronDown,
   ChevronRight,
-  Mic,
   FileText,
   Share2,
   Bookmark,
   History,
-  Menu
+  Palette
 } from 'lucide-react';
 import { useChatStore } from '@/store/chatStore';
 import { format } from 'date-fns';
@@ -122,7 +120,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
       icon: BarChart3,
       items: [
         { 
-          name: 'Analytics', 
+          name: 'Analytics Dashboard', 
           path: '/analytics', 
           icon: BarChart3, 
           description: 'Usage analytics & insights',
@@ -161,11 +159,34 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
           premium: true 
         },
         { 
-          name: 'Custom Integrations', 
-          path: '/integrations', 
+          name: 'Advanced Features', 
+          path: '/advanced', 
           icon: Sparkles, 
-          description: 'Third-party integrations',
+          description: 'Advanced AI capabilities',
           badge: 'New',
+          premium: true 
+        },
+        { 
+          name: 'Performance Monitor', 
+          path: '/performance', 
+          icon: Zap, 
+          description: 'System performance',
+          badge: null,
+          premium: true 
+        }
+      ]
+    },
+    {
+      id: 'customization',
+      label: 'Customization',
+      icon: Palette,
+      items: [
+        { 
+          name: 'White Label', 
+          path: '/whitelabel', 
+          icon: Palette, 
+          description: 'Brand customization',
+          badge: 'Enterprise',
           premium: true 
         }
       ]
@@ -247,7 +268,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm lg:hidden" onClick={onClose} />
         
         {/* Sidebar Container */}
-        <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200 dark:border-gray-700 lg:relative lg:w-full lg:max-w-none shadow-custom-large">
+        <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200 dark:border-gray-700 lg:relative lg:w-full lg:max-w-none shadow-xl">
           
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
@@ -270,7 +291,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
 
           {/* Content */}
           <ScrollArea className="flex-1 px-4 py-4 h-[calc(100vh-140px)]">
-            <div className="space-y-8">
+            <div className="space-y-6">
               
               {/* Quick Actions */}
               <div className="space-y-3">
@@ -331,7 +352,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                         <div
                           key={session.id}
                           className={cn(
-                            'group p-3 rounded-xl border cursor-pointer transition-all duration-200 hover:shadow-small',
+                            'group p-3 rounded-xl border cursor-pointer transition-all duration-200 hover:shadow-sm',
                             session.id === currentSessionId
                               ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200 dark:border-indigo-800'
                               : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-gray-200 dark:border-gray-700'
@@ -464,9 +485,10 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                       'text-xs px-1.5 py-0.5',
                                       item.badge === 'Pro' && 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20',
                                       item.badge === 'New' && 'bg-gradient-to-r from-green-500/10 to-emerald-500/10 text-green-600 dark:text-green-400 border-green-500/20',
-                                      item.badge === 'Admin' && 'bg-gradient-to-r from-red-500/10 to-pink-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+                                      item.badge === 'Admin' && 'bg-gradient-to-r from-red-500/10 to-pink-500/10 text-red-600 dark:text-red-400 border-red-500/20',
+                                      item.badge === 'Enterprise' && 'bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20'
                                     )}>
-                                      {item.badge === 'Pro' && <Crown className="w-2.5 h-2.5 mr-0.5" />}
+                                      {(item.badge === 'Pro' || item.badge === 'Enterprise') && <Crown className="w-2.5 h-2.5 mr-0.5" />}
                                       {item.badge}
                                     </Badge>
                                   )}
@@ -499,7 +521,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                   <Zap className="w-4 h-4 text-pink-500" />
                 </div>
                 <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  ChatHub Pro
+                  Nexus AI Pro
                 </span>
               </div>
               <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed mb-3">

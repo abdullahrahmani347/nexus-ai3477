@@ -24,7 +24,7 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="h-screen flex bg-white dark:bg-gray-900">
+    <div className="h-screen flex bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Enhanced Sidebar */}
       <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
@@ -54,7 +54,7 @@ const ChatInterface = () => {
 
               {/* Desktop Title */}
               <div className="hidden lg:block">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 heading-font">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 font-heading">
                   Intelligent Conversations
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">

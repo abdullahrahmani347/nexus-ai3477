@@ -72,23 +72,26 @@
   }
   
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
     background: linear-gradient(135deg, rgb(99 102 241 / 0.02) 0%, rgb(139 92 246 / 0.02) 100%);
     min-height: 100vh;
-    min-height: 100dvh;
   }
 
   /* Typography System */
   .text-h1 {
-    @apply text-5xl font-bold heading-font tracking-tight;
+    @apply text-5xl font-bold tracking-tight;
+    font-family: var(--font-heading);
   }
   
   .text-h2 {
-    @apply text-4xl font-semibold heading-font tracking-tight;
+    @apply text-4xl font-semibold tracking-tight;
+    font-family: var(--font-heading);
   }
   
   .text-h3 {
-    @apply text-2xl font-semibold heading-font tracking-tight;
+    @apply text-2xl font-semibold tracking-tight;
+    font-family: var(--font-heading);
   }
   
   .text-body-lg {
@@ -107,44 +110,6 @@
     @apply text-xs font-medium;
   }
 
-  /* Brand Colors */
-  .bg-brand-primary {
-    background-color: rgb(var(--color-primary));
-  }
-  
-  .bg-brand-secondary {
-    background-color: rgb(var(--color-secondary));
-  }
-  
-  .text-brand-primary {
-    color: rgb(var(--color-primary));
-  }
-  
-  .text-brand-secondary {
-    color: rgb(var(--color-secondary));
-  }
-
-  /* Shadow System */
-  .shadow-subtle {
-    box-shadow: var(--shadow-subtle);
-  }
-  
-  .shadow-small {
-    box-shadow: var(--shadow-small);
-  }
-  
-  .shadow-custom-medium {
-    box-shadow: var(--shadow-medium);
-  }
-  
-  .shadow-custom-large {
-    box-shadow: var(--shadow-large);
-  }
-  
-  .shadow-custom-xl {
-    box-shadow: var(--shadow-xl);
-  }
-
   /* Component Styles */
   .glass-effect {
     @apply backdrop-blur-md bg-white/80 dark:bg-gray-900/80;
@@ -153,12 +118,12 @@
   
   .card-elevated {
     @apply bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700;
-    box-shadow: var(--shadow-small);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.2s ease-in-out;
   }
   
   .card-elevated:hover {
-    box-shadow: var(--shadow-medium);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     transform: translateY(-1px);
   }
   
@@ -177,11 +142,11 @@
   /* Interactive Elements */
   .btn-primary {
     @apply bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 ease-in-out;
-    box-shadow: var(--shadow-small);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
   
   .btn-primary:hover {
-    box-shadow: var(--shadow-medium);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     transform: translateY(-1px) scale(1.02);
   }
   
@@ -277,17 +242,6 @@
   /* Focus styles */
   .focus-ring {
     @apply focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900;
-  }
-  
-  /* High contrast mode support */
-  @media (prefers-contrast: high) {
-    .card-elevated {
-      @apply border-2 border-gray-400 dark:border-gray-300;
-    }
-    
-    .btn-primary {
-      @apply border-2 border-white;
-    }
   }
 }
 
