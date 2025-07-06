@@ -123,33 +123,28 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
     <>
       {/* Mobile Overlay */}
       <div className="fixed inset-0 z-50 lg:relative lg:inset-auto lg:z-auto">
-        <div className="absolute inset-0 bg-black/50 lg:hidden" onClick={onClose} />
+        <div className="absolute inset-0 bg-background/50 backdrop-blur-sm lg:hidden" onClick={onClose} />
         
         {/* Enhanced Nexus Sidebar */}
-        <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-slate-900 via-indigo-900 to-slate-900 backdrop-blur-xl border-r border-white/10 lg:relative lg:w-full lg:max-w-none shadow-2xl">
-          {/* Animated Background Effects */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-cyan-500/10" />
-          <div className="absolute top-0 left-0 w-full h-40 bg-gradient-to-b from-blue-500/20 via-purple-500/10 to-transparent" />
-          <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-purple-500/20 to-transparent" />
-          
+        <div className="fixed left-0 top-0 h-full w-80 max-w-[85vw] bg-gradient-to-b from-background via-primary/5 to-accent/5 dark:from-background dark:via-primary/10 dark:to-accent/10 backdrop-blur-xl border-r border-border lg:relative lg:w-full lg:max-w-none shadow-2xl">
           {/* Header with Enhanced Branding */}
-          <div className="relative z-10 flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center justify-between p-6 border-b border-border">
             <NexusLogo size="md" />
             <div className="flex items-center gap-2">
               <NexusStatusBadge variant="premium" />
-              <Button variant="ghost" size="sm" onClick={onClose} className="lg:hidden text-white/60 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" size="sm" onClick={onClose} className="lg:hidden hover:bg-accent">
                 <X className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
           {/* Content */}
-          <ScrollArea className="flex-1 p-4 relative z-10 h-[calc(100vh-200px)]">
+          <ScrollArea className="flex-1 p-4 h-[calc(100vh-200px)]">
             <div className="space-y-8">
               {/* Enhanced Chat Sessions */}
               <div>
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
                     <MessageSquare className="w-4 h-4" />
                     AI Conversations
                   </h3>
@@ -157,7 +152,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                     variant="ghost"
                     size="sm"
                     onClick={handleCreateSession}
-                    className="h-8 w-8 p-0 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/20 rounded-xl"
+                    className="h-8 w-8 p-0 text-primary hover:text-primary hover:bg-primary/20 rounded-xl"
                     title="New Conversation"
                   >
                     <Plus className="w-4 h-4" />
@@ -167,11 +162,11 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                 <div className="space-y-3 mb-8">
                   {sortedSessions.length === 0 ? (
                     <div className="nexus-card text-center py-6">
-                      <MessageSquare className="w-8 h-8 mx-auto mb-3 text-white/30" />
-                      <p className="text-sm text-white/60">Start your first AI conversation</p>
+                      <MessageSquare className="w-8 h-8 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Start your first AI conversation</p>
                       <Button 
                         onClick={handleCreateSession}
-                        className="mt-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                        className="mt-3 bg-nexus-primary text-white"
                         size="sm"
                       >
                         <Plus className="w-4 h-4 mr-2" />
@@ -184,8 +179,8 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                         key={session.id}
                         className={`group nexus-card p-4 cursor-pointer nexus-transition ${
                           session.id === currentSessionId
-                            ? 'bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 border-blue-400/40 nexus-glow'
-                            : 'hover:bg-white/10 border-white/20 hover:border-white/30'
+                            ? 'bg-primary/10 border-primary/20 nexus-glow'
+                            : 'hover:bg-accent/50 border-border hover:border-border'
                         }`}
                         onClick={() => !editingId && switchSession(session.id)}
                       >
@@ -198,14 +193,14 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                 if (e.key === 'Enter') handleEditSave();
                                 if (e.key === 'Escape') handleEditCancel();
                               }}
-                              className="text-sm bg-white/10 border-white/30 text-white placeholder-white/50"
+                              className="text-sm bg-background border-border text-foreground placeholder-muted-foreground"
                               autoFocus
                             />
                             <div className="flex space-x-2">
-                              <Button size="sm" onClick={handleEditSave} className="h-7 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+                              <Button size="sm" onClick={handleEditSave} className="h-7 bg-green-600 hover:bg-green-700">
                                 <Check className="w-3 h-3" />
                               </Button>
-                              <Button size="sm" variant="outline" onClick={handleEditCancel} className="h-7 border-white/30 text-white hover:bg-white/10">
+                              <Button size="sm" variant="outline" onClick={handleEditCancel} className="h-7">
                                 <X className="w-3 h-3" />
                               </Button>
                             </div>
@@ -213,14 +208,14 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                         ) : (
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-semibold text-white truncate mb-1">
+                              <h4 className="text-sm font-semibold text-foreground truncate mb-1">
                                 {session.title}
                               </h4>
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge className="bg-white/10 text-white/70 text-xs border-white/20">
+                                <Badge variant="secondary" className="text-xs">
                                   {session.messages.length} msgs
                                 </Badge>
-                                <span className="text-xs text-white/50">
+                                <span className="text-xs text-muted-foreground">
                                   {format(new Date(session.updatedAt), 'MMM d, HH:mm')}
                                 </span>
                               </div>
@@ -234,7 +229,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                   e.stopPropagation();
                                   handleEditStart(session.id, session.title);
                                 }}
-                                className="w-6 h-6 p-0 text-white/60 hover:text-white hover:bg-white/20 rounded-lg"
+                                className="w-6 h-6 p-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg"
                               >
                                 <Edit2 className="w-3 h-3" />
                               </Button>
@@ -247,7 +242,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                     deleteSession(session.id);
                                   }
                                 }}
-                                className="w-6 h-6 p-0 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg"
+                                className="w-6 h-6 p-0 text-destructive hover:text-destructive hover:bg-destructive/20 rounded-lg"
                               >
                                 <Trash2 className="w-3 h-3" />
                               </Button>
@@ -259,17 +254,17 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                   )}
                 </div>
                 
-                <Separator className="bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <Separator className="bg-border" />
               </div>
 
               {/* Enhanced Feature Categories */}
               {features.map((category) => (
                 <div key={category.category}>
                   <div className="flex items-center gap-3 mb-4">
-                    <h3 className="text-sm font-bold text-white/90 uppercase tracking-wider">
+                    <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
                       {category.category}
                     </h3>
-                    <div className="flex-1 h-px bg-gradient-to-r from-white/30 via-white/10 to-transparent" />
+                    <div className="flex-1 h-px bg-border" />
                   </div>
                   <div className="space-y-2">
                     {category.items.map((item) => {
@@ -279,38 +274,38 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                           <div
                             className={`group nexus-card p-4 nexus-transition ${
                               isActive 
-                                ? 'bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-cyan-500/30 border-blue-400/50 nexus-glow' 
-                                : 'hover:bg-white/10 border-white/10 hover:border-white/30'
+                                ? 'bg-primary/10 border-primary/20 nexus-glow' 
+                                : 'hover:bg-accent/50 border-border hover:border-border'
                             }`}
                           >
                             <div className="flex items-center gap-4">
                               <div className={`p-2.5 rounded-xl nexus-transition ${
                                 isActive 
-                                  ? 'bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 shadow-lg' 
-                                  : 'bg-white/10 group-hover:bg-white/20'
+                                  ? 'bg-nexus-primary shadow-lg' 
+                                  : 'bg-muted group-hover:bg-accent'
                               }`}>
-                                <item.icon className="w-5 h-5 text-white" />
+                                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-foreground'}`} />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
                                   <span className={`font-semibold truncate ${
-                                    isActive ? 'text-white' : 'text-white/90'
+                                    isActive ? 'text-foreground' : 'text-foreground'
                                   }`}>
                                     {item.name}
                                   </span>
                                   {item.premium && (
-                                    <Badge className="bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 text-xs border-amber-500/30 px-1.5 py-0.5">
+                                    <Badge variant="secondary" className="text-xs">
                                       <Crown className="w-2.5 h-2.5 mr-0.5" />
                                       Pro
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-white/60 truncate">
+                                <p className="text-xs text-muted-foreground truncate">
                                   {item.description}
                                 </p>
                               </div>
                               {isActive && (
-                                <div className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full animate-pulse" />
+                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                               )}
                             </div>
                           </div>
@@ -324,27 +319,27 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
           </ScrollArea>
 
           {/* Enhanced Footer */}
-          <div className="relative z-10 p-4 border-t border-white/10">
-            <div className="nexus-card p-4 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 border-blue-500/30">
+          <div className="p-4 border-t border-border">
+            <div className="nexus-card p-4 bg-primary/5 border-primary/20">
               <div className="flex items-center gap-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-cyan-400" />
-                  <Shield className="w-4 h-4 text-blue-400" />
-                  <Brain className="w-4 h-4 text-purple-400" />
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <Shield className="w-4 h-4 text-accent" />
+                  <Brain className="w-4 h-4 text-secondary" />
                 </div>
-                <span className="text-sm font-bold text-white">Nexus AI Platform</span>
+                <span className="text-sm font-bold text-foreground">Nexus AI Platform</span>
               </div>
-              <p className="text-xs text-white/70 leading-relaxed mb-3">
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                 Advanced artificial intelligence with enterprise-grade security and unlimited possibilities.
               </p>
-              <div className="flex items-center gap-2 pt-3 border-t border-white/20">
+              <div className="flex items-center gap-2 pt-3 border-t border-border">
                 <div className="flex-1">
-                  <Badge className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 text-xs border-green-500/30">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-1 animate-pulse" />
+                  <Badge variant="secondary" className="text-xs">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse" />
                     Online & Ready
                   </Badge>
                 </div>
-                <Badge className="bg-white/10 text-white/70 text-xs border-white/20">
+                <Badge variant="outline" className="text-xs">
                   v2.1
                 </Badge>
               </div>

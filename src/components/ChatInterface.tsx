@@ -24,14 +24,14 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-indigo-900">
+    <div className="h-screen flex bg-gradient-to-br from-background to-primary/5 dark:from-background dark:to-primary/10">
       {/* Enhanced Nexus Sidebar */}
       <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Premium Nexus Header */}
-        <header className="nexus-card border-b border-white/20 px-6 py-4 flex-shrink-0 sticky top-0 z-40 bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-900/90 dark:to-indigo-900/90 backdrop-blur-xl">
+        <header className="glass-effect border-b border-border px-6 py-4 flex-shrink-0 sticky top-0 z-40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Mobile Menu Button */}
@@ -39,7 +39,7 @@ const ChatInterface = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden hover:bg-blue-100 dark:hover:bg-blue-900/20 h-10 w-10 p-0 rounded-xl"
+                className="lg:hidden hover:bg-accent h-10 w-10 p-0 rounded-xl"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -54,10 +54,10 @@ const ChatInterface = () => {
 
               {/* Desktop Title */}
               <div className="hidden lg:block">
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent heading-font">
+                <h1 className="text-xl font-bold text-nexus-gradient font-heading">
                   Advanced AI Intelligence
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Powered by next-generation artificial intelligence
                 </p>
               </div>
@@ -69,11 +69,11 @@ const ChatInterface = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900/20 px-3 rounded-xl"
+                className="hidden md:flex items-center gap-2 text-muted-foreground hover:bg-accent px-3 rounded-xl"
               >
                 <Search className="w-4 h-4" />
                 <span className="text-sm">Search</span>
-                <kbd className="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border">
+                <kbd className="text-xs bg-muted px-1.5 py-0.5 rounded border">
                   ⌘K
                 </kbd>
               </Button>
@@ -82,22 +82,22 @@ const ChatInterface = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="hover:bg-blue-100 dark:hover:bg-blue-900/20 h-10 w-10 p-0 relative rounded-xl"
+                className="hover:bg-accent h-10 w-10 p-0 relative rounded-xl"
               >
                 <Bell className="w-4 h-4" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-pulse"></span>
               </Button>
 
               {/* User Profile */}
-              <div className="hidden md:flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl px-3 py-2 border border-blue-200/50 dark:border-blue-800/50">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg">
+              <div className="hidden md:flex items-center gap-2 glass-effect rounded-xl px-3 py-2 border">
+                <div className="w-8 h-8 bg-nexus-primary rounded-lg flex items-center justify-center shadow-lg">
                   <User className="w-4 h-4 text-white" />
                 </div>
                 <div className="text-sm">
-                  <p className="font-semibold text-gray-900 dark:text-gray-100 truncate max-w-32">
+                  <p className="font-semibold text-foreground truncate max-w-32">
                     {user?.email?.split('@')[0] || 'User'}
                   </p>
-                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                  <p className="text-xs text-primary font-medium">
                     Nexus Pro
                   </p>
                 </div>
@@ -111,7 +111,7 @@ const ChatInterface = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleSignOut}
-                className="hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors h-10 rounded-xl border-gray-300 dark:border-gray-600"
+                className="hover:bg-destructive/10 hover:border-destructive/20 hover:text-destructive transition-colors h-10 rounded-xl"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline ml-2">Sign Out</span>
@@ -121,7 +121,7 @@ const ChatInterface = () => {
         </header>
 
         {/* Enhanced Chat Area */}
-        <main className="flex-1 overflow-hidden bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-slate-900 dark:via-indigo-900/30 dark:to-purple-900/30">
+        <main className="flex-1 overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/5 dark:from-background dark:via-primary/10 dark:to-accent/10">
           <ChatManager />
         </main>
       </div>
