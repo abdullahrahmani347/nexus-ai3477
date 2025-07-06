@@ -21,14 +21,14 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <div className="nexus-page-layout h-screen flex">
       {/* Sidebar */}
       <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="glass-effect border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0 sticky top-0 z-40">
+        <header className="nexus-page-header px-6 py-4 flex-shrink-0 sticky top-0 z-40">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Mobile Menu Button */}
@@ -36,7 +36,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 p-0"
+                className="lg:hidden nexus-btn-ghost h-10 w-10 p-0"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -44,11 +44,11 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               {/* Page Title */}
               {title && (
                 <div className="flex flex-col">
-                  <h1 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-gray-100 font-heading">
+                  <h1 className="nexus-heading-lg">
                     {title}
                   </h1>
                   {subtitle && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="nexus-text-subtle">
                       {subtitle}
                     </p>
                   )}
@@ -60,10 +60,12 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 
         {/* Page Content */}
         <main className={cn(
-          "flex-1 overflow-auto bg-gradient-to-br from-gray-50/50 to-white dark:from-gray-900 dark:to-gray-800",
+          "nexus-page-content",
           className
         )}>
-          {children}
+          <div className="nexus-container py-8 nexus-fade-in">
+            {children}
+          </div>
         </main>
       </div>
     </div>
