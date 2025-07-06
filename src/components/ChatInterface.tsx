@@ -2,11 +2,13 @@
 import React, { useState } from 'react';
 import { ChatManager } from '@/components/ChatManager';
 import { SettingsButton } from '@/components/SettingsButton';
-import { IntegratedSidebar } from '@/components/navigation/IntegratedSidebar';
+import { ChatHubSidebar } from '@/components/navigation/ChatHubSidebar';
+import { BrandLogo } from '@/components/ui/brand-logo';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, User, Bot, Menu, X } from 'lucide-react';
+import { LogOut, User, Menu, X, Search, Settings, Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const ChatInterface = () => {
   const { user, signOut } = useAuth();
@@ -22,64 +24,106 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="h-screen flex bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-      {/* Enhanced Integrated Sidebar */}
-      <IntegratedSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <div className="h-screen flex bg-white dark:bg-gray-900">
+      {/* Enhanced Sidebar */}
+      <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Modern Header */}
-        <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 px-4 py-3 flex-shrink-0">
-          <div className="flex items-center justify-between max-w-7xl mx-auto">
-            <div className="flex items-center space-x-3">
+        {/* Premium Header */}
+        <header className="glass-effect border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex-shrink-0 sticky top-0 z-40">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden text-white/70 hover:text-white hover:bg-white/10"
+                className="lg:hidden hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 p-0"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
 
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-blue-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border border-gray-900 flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                </div>
+              {/* Brand Logo - Hidden on mobile when sidebar is closed */}
+              <div className={cn(
+                "lg:hidden transition-opacity duration-200",
+                sidebarOpen ? "opacity-0" : "opacity-100"
+              )}>
+                <BrandLogo size="sm" variant="premium" />
               </div>
-              <div>
-                <h1 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  Nexus AI
+
+              {/* Desktop Title */}
+              <div className="hidden lg:block">
+                <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 heading-font">
+                  Intelligent Conversations
                 </h1>
-                <p className="text-xs text-gray-400">Your AI Companion</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Powered by advanced AI models
+                </p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3">
-              <div className="hidden md:flex items-center space-x-2 text-sm text-gray-300 bg-black/20 rounded-xl px-3 py-2">
-                <User className="w-4 h-4" />
-                <span>{user?.email}</span>
+            {/* Header Actions */}
+            <div className="flex items-center gap-2">
+              {/* Search Button - Desktop */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="hidden md:flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 px-3"
+              >
+                <Search className="w-4 h-4" />
+                <span className="text-sm">Search</span>
+                <kbd className="text-xs bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded border">
+                  ⌘K
+                </kbd>
+              </Button>
+
+              {/* Notifications */}
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="hover:bg-gray-100 dark:hover:bg-gray-800 h-10 w-10 p-0 relative"
+              >
+                <Bell className="w-4 h-4" />
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              </Button>
+
+              {/* User Profile */}
+              <div className="hidden md:flex items-center gap-2 bg-gray-50 dark:bg-gray-800 rounded-xl px-3 py-2">
+                <div className="w-8 h-8 bg-brand-gradient rounded-lg flex items-center justify-center">
+                  <User className="w-4 h-4 text-white" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-32">
+                    {user?.email?.split('@')[0] || 'User'}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Pro Member
+                  </p>
+                </div>
               </div>
+
+              {/* Settings */}
               <SettingsButton />
+
+              {/* Sign Out */}
               <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={handleSignOut}
-                className="border-white/20 text-gray-300 hover:bg-white/10 hover:text-white transition-all duration-300"
+                className="hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors h-10"
               >
                 <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline ml-2">Sign Out</span>
               </Button>
             </div>
           </div>
-        </div>
+        </header>
 
         {/* Chat Area */}
-        <div className="flex-1 overflow-hidden">
+        <main className="flex-1 overflow-hidden bg-gradient-to-br from-gray-50/50 to-white dark:from-gray-900 dark:to-gray-800">
           <ChatManager />
-        </div>
+        </main>
       </div>
     </div>
   );

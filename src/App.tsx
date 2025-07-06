@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
@@ -16,6 +15,7 @@ import { MemoryPage } from '@/components/pages/MemoryPage';
 import { AnalyticsPage } from '@/components/pages/AnalyticsPage';
 import { ProfilePage } from '@/components/pages/ProfilePage';
 import WhiteLabelPage from '@/pages/WhiteLabelPage';
+import { ChatHubSidebar } from '@/components/navigation/ChatHubSidebar';
 
 const queryClient = new QueryClient();
 
