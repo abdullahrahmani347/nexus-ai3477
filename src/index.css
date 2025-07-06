@@ -1,5 +1,3 @@
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -68,6 +66,108 @@
 }
 
 @layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    background: linear-gradient(135deg, rgb(99 102 241 / 0.02) 0%, rgb(139 92 246 / 0.02) 100%);
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Typography System */
+  .text-h1 {
+    @apply text-5xl font-bold tracking-tight;
+    font-family: var(--font-heading);
+  }
+  
+  .text-h2 {
+    @apply text-4xl font-semibold tracking-tight;
+    font-family: var(--font-heading);
+  }
+  
+  .text-h3 {
+    @apply text-2xl font-semibold tracking-tight;
+    font-family: var(--font-heading);
+  }
+  
+  .text-body-lg {
+    @apply text-lg font-medium;
+  }
+  
+  .text-body {
+    @apply text-base font-normal;
+  }
+  
+  .text-body-sm {
+    @apply text-sm font-normal;
+  }
+  
+  .text-caption {
+    @apply text-xs font-medium;
+  }
+
+  /* Nexus AI Brand Colors */
+  .bg-nexus-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3730a3 50%, #581c87 100%);
+  }
+  
+  .bg-nexus-secondary {
+    background: linear-gradient(135deg, #0891b2 0%, #0284c7 50%, #0369a1 100%);
+  }
+  
+  .text-nexus-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nexus-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.2);
+  }
+
+  /* Enhanced Nexus-specific utilities */
+  .nexus-card {
+    @apply bg-white/5 backdrop-blur-md border border-white/20 rounded-2xl shadow-lg;
+    background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  }
+
+  .nexus-interactive {
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+  }
+
+  .nexus-brand-logo {
+    @apply flex items-center justify-center rounded-2xl shadow-lg transition-all duration-300 hover:scale-110;
+  }
+
+  .nexus-brand-text {
+    @apply font-bold text-white leading-none;
+    background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .nexus-subtitle {
+    @apply text-white/60 font-medium;
+  }
+
+  .nexus-status-indicator {
+    @apply absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-slate-900 animate-pulse;
+  }
+
+  .nexus-shadow {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  .nexus-transition {
+    @apply transition-all duration-300 ease-out;
+  }
+
   * {
     @apply border-border;
   }
@@ -354,4 +454,3 @@
     @apply border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300;
   }
 }
-
