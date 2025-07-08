@@ -18,26 +18,26 @@
     --pure-white: 0 0% 100%;            /* #FFFFFF - Cards, overlays */
     
     /* Semantic Color Mapping */
-    --background: 210 40% 98%;
-    --foreground: 210 22% 22%;
-    --card: 0 0% 100%;
+    --background: 262 83% 58%;
+    --foreground: 0 0% 100%;
+    --card: 255 100% 100%;
     --card-foreground: 210 22% 22%;
-    --popover: 0 0% 100%;
+    --popover: 255 100% 100%;
     --popover-foreground: 210 22% 22%;
     --primary: 218 100% 50%;
     --primary-foreground: 0 0% 100%;
     --secondary: 262 83% 58%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 25% 27%;
+    --muted: 262 50% 96%;
+    --muted-foreground: 215 25% 40%;
     --accent: 188 95% 43%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
+    --border: 262 30% 90%;
+    --input: 262 30% 95%;
     --ring: 218 100% 50%;
-    --radius: 0.5rem;
+    --radius: 8px;
     
     /* Nexus AI Design System Tokens */
     --nexus-gradient-start: 218 100% 50%;

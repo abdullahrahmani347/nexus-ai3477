@@ -30,7 +30,7 @@ const ChatInterface = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Premium Header */}
+        {/* Nexus AI Header */}
         <header className="nexus-page-header px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center nexus-space-md">
@@ -39,7 +39,7 @@ const ChatInterface = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden nexus-btn-tertiary h-10 w-10 p-0"
+                className="lg:hidden h-10 w-10 p-0"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -54,11 +54,11 @@ const ChatInterface = () => {
 
               {/* Desktop Title */}
               <div className="hidden lg:block">
-                <h1 className="nexus-h4">
-                  AI Conversation Hub
+                <h1 className="nexus-h4 nexus-gradient-text font-bold">
+                  Nexus AI Hub
                 </h1>
-                <p className="nexus-small">
-                  Intelligent conversations powered by advanced AI
+                <p className="nexus-small text-muted-foreground">
+                  Where Intelligence Connects
                 </p>
               </div>
             </div>
@@ -69,11 +69,11 @@ const ChatInterface = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="hidden md:flex items-center nexus-space-sm nexus-btn-tertiary px-3"
+                className="hidden md:flex items-center nexus-space-sm px-3"
               >
                 <Search className="w-4 h-4" />
                 <span className="nexus-small">Search</span>
-                <kbd className="nexus-caption bg-muted px-1.5 py-0.5 rounded border">
+                <kbd className="nexus-caption bg-muted px-1.5 py-0.5 rounded border text-muted-foreground">
                   ⌘K
                 </kbd>
               </Button>
@@ -82,10 +82,10 @@ const ChatInterface = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="nexus-btn-tertiary h-10 w-10 p-0 relative"
+                className="h-10 w-10 p-0 relative"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-error-red rounded-full animate-pulse"></span>
               </Button>
 
               {/* User Profile */}
@@ -97,7 +97,7 @@ const ChatInterface = () => {
                   <p className="font-medium text-foreground truncate max-w-32">
                     {user?.email?.split('@')[0] || 'User'}
                   </p>
-                  <p className="nexus-caption">
+                  <p className="nexus-caption text-muted-foreground">
                     Pro Member
                   </p>
                 </div>
@@ -111,7 +111,7 @@ const ChatInterface = () => {
                 variant="outline" 
                 size="sm" 
                 onClick={handleSignOut}
-                className="nexus-btn-secondary hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors h-10"
+                className="h-10 hover:bg-red-50 hover:border-red-200 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:border-red-800 dark:hover:text-red-400 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span className="hidden sm:inline ml-2">Sign Out</span>

@@ -23,7 +23,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900">
+    <div className="min-h-screen flex nexus-gradient-bg">
       {/* Sidebar */}
       {showSidebar && (
         <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -41,7 +41,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden nexus-btn-tertiary h-10 w-10 p-0"
+                  className="lg:hidden h-10 w-10 p-0"
                 >
                   {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                 </Button>
@@ -50,7 +50,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               {/* Page Title */}
               {title && (
                 <div className="nexus-stack-sm">
-                  <h1 className="nexus-h2 text-primary font-bold tracking-tight">
+                  <h1 className="nexus-h2 font-bold tracking-tight nexus-gradient-text">
                     {title}
                   </h1>
                   {subtitle && (
