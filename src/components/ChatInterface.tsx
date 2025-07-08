@@ -85,7 +85,8 @@ const ChatInterface = () => {
                 className="h-10 w-10 p-0 relative"
               >
                 <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-error-red rounded-full animate-pulse"></span>
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full animate-pulse"
+                      style={{ backgroundColor: 'hsl(var(--error-red))' }}></span>
               </Button>
 
               {/* User Profile */}

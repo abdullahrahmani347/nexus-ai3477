@@ -102,7 +102,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
       {attachedFiles.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {attachedFiles.map((file) => (
-            <Badge key={file.id} variant="secondary" className="flex items-center gap-1">
+            <Badge key={file.id} variant="secondary" className="flex items-center gap-1 nexus-badge-neutral">
               {file.name}
               <Button
                 variant="ghost"
@@ -125,7 +125,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
             onKeyPress={handleKeyPress}
             placeholder={placeholder}
             disabled={disabled}
-            className="min-h-[60px] resize-none pr-20"
+            className="nexus-textarea min-h-[60px] resize-none pr-20"
             rows={1}
           />
           
@@ -145,7 +145,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
               variant="ghost"
               size="sm"
               onClick={() => fileInputRef.current?.click()}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 nexus-btn-tertiary"
               disabled={disabled}
             >
               <Paperclip className="h-4 w-4" />
@@ -157,7 +157,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
                 variant="ghost"
                 size="sm"
                 onClick={handleVoiceToggle}
-                className={`h-8 w-8 p-0 ${isListening ? 'bg-red-100 text-red-600' : ''}`}
+                className={`h-8 w-8 p-0 nexus-btn-tertiary ${isListening ? 'bg-red-100 text-red-600' : ''}`}
                 disabled={disabled}
               >
                 {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
@@ -179,7 +179,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
           <Button 
             type="submit" 
             disabled={disabled || (!input.trim() && attachedFiles.length === 0)}
-            className="h-[60px] px-6"
+            className="h-[60px] px-6 nexus-btn-primary"
           >
             <Send className="h-4 w-4" />
           </Button>

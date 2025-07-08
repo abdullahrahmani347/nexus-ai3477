@@ -13,36 +13,36 @@
     --warning-amber: 38 92% 50%;        /* #F59E0B - Alerts, attention */
     --error-red: 0 72% 51%;             /* #EF4444 - Errors, critical */
     --deep-charcoal: 210 22% 22%;       /* #1F2937 - Primary text */
-    --slate-gray: 215 25% 27%;          /* #64748B - Secondary text */
+    --slate-gray: 215 25% 40%;          /* #64748B - Secondary text */
     --cool-gray: 210 40% 98%;           /* #F8FAFC - Background surfaces */
     --pure-white: 0 0% 100%;            /* #FFFFFF - Cards, overlays */
     
     /* Semantic Color Mapping */
-    --background: 262 83% 58%;
-    --foreground: 0 0% 100%;
-    --card: 255 100% 100%;
-    --card-foreground: 210 22% 22%;
-    --popover: 255 100% 100%;
-    --popover-foreground: 210 22% 22%;
-    --primary: 218 100% 50%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 262 83% 58%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 262 50% 96%;
-    --muted-foreground: 215 25% 40%;
-    --accent: 188 95% 43%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --background: hsl(var(--cool-gray));
+    --foreground: hsl(var(--deep-charcoal));
+    --card: hsl(var(--pure-white));
+    --card-foreground: hsl(var(--deep-charcoal));
+    --popover: hsl(var(--pure-white));
+    --popover-foreground: hsl(var(--deep-charcoal));
+    --primary: hsl(var(--nexus-blue));
+    --primary-foreground: hsl(var(--pure-white));
+    --secondary: hsl(var(--neural-purple));
+    --secondary-foreground: hsl(var(--pure-white));
+    --muted: hsl(var(--cool-gray));
+    --muted-foreground: hsl(var(--slate-gray));
+    --accent: hsl(var(--connection-cyan));
+    --accent-foreground: hsl(var(--pure-white));
+    --destructive: hsl(var(--error-red));
+    --destructive-foreground: hsl(var(--pure-white));
     --border: 262 30% 90%;
     --input: 262 30% 95%;
-    --ring: 218 100% 50%;
+    --ring: hsl(var(--nexus-blue));
     --radius: 8px;
     
     /* Nexus AI Design System Tokens */
-    --nexus-gradient-start: 218 100% 50%;
-    --nexus-gradient-middle: 262 83% 58%;
-    --nexus-gradient-end: 188 95% 43%;
+    --nexus-gradient-start: var(--nexus-blue);
+    --nexus-gradient-middle: var(--neural-purple);
+    --nexus-gradient-end: var(--connection-cyan);
     
     /* Shadows */
     --nexus-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -89,23 +89,19 @@
     --card-foreground: 0 0% 98%;
     --popover: 215 28% 15%;
     --popover-foreground: 0 0% 98%;
-    --primary: 218 100% 60%;
+    --primary: hsl(var(--nexus-blue));
     --primary-foreground: 215 28% 12%;
-    --secondary: 255 70% 60%;
+    --secondary: hsl(var(--neural-purple));
     --secondary-foreground: 215 28% 12%;
     --muted: 215 28% 20%;
     --muted-foreground: 215 16% 65%;
-    --accent: 193 95% 50%;
+    --accent: hsl(var(--connection-cyan));
     --accent-foreground: 215 28% 12%;
-    --destructive: 0 84% 60%;
+    --destructive: hsl(var(--error-red));
     --destructive-foreground: 0 0% 98%;
     --border: 215 28% 25%;
     --input: 215 28% 25%;
-    --ring: 218 100% 60%;
-    
-    --nexus-gradient-start: 218 100% 60%;
-    --nexus-gradient-middle: 255 70% 60%;
-    --nexus-gradient-end: 193 95% 50%;
+    --ring: hsl(var(--nexus-blue));
   }
 }
 
@@ -128,51 +124,52 @@
 @layer components {
   /* Nexus AI Typography System */
   .nexus-h1 {
-    @apply text-5xl font-bold leading-tight text-primary;
-    font-size: 48px;
-    line-height: 56px;
+    @apply text-5xl font-bold leading-tight;
+    font-size: var(--font-size-h1);
+    line-height: var(--line-height-h1);
+    color: hsl(var(--nexus-blue));
   }
   
   .nexus-h2 {
     @apply text-4xl font-semibold leading-tight text-foreground;
-    font-size: 36px;
-    line-height: 44px;
+    font-size: var(--font-size-h2);
+    line-height: var(--line-height-h2);
   }
   
   .nexus-h3 {
     @apply text-2xl font-semibold leading-tight text-foreground;
-    font-size: 24px;
-    line-height: 32px;
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-h3);
   }
   
   .nexus-h4 {
     @apply text-xl font-medium leading-tight text-foreground;
-    font-size: 20px;
-    line-height: 28px;
+    font-size: var(--font-size-h4);
+    line-height: var(--line-height-h4);
   }
   
   .nexus-body-large {
     @apply text-lg font-normal leading-relaxed text-foreground;
-    font-size: 18px;
-    line-height: 28px;
+    font-size: var(--font-size-body-large);
+    line-height: var(--line-height-body-large);
   }
   
   .nexus-body {
     @apply text-base font-normal leading-relaxed text-foreground;
-    font-size: 16px;
-    line-height: 24px;
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
   }
   
   .nexus-small {
     @apply text-sm font-normal leading-relaxed text-muted-foreground;
-    font-size: 14px;
-    line-height: 20px;
+    font-size: var(--font-size-small);
+    line-height: var(--line-height-small);
   }
   
   .nexus-caption {
     @apply text-xs font-normal leading-relaxed text-muted-foreground;
-    font-size: 12px;
-    line-height: 16px;
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-caption);
   }
 
   /* Nexus AI Button System */
@@ -180,7 +177,7 @@
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-all duration-200;
     @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-2 focus:ring-primary focus:ring-offset-2;
     @apply disabled:opacity-50 disabled:pointer-events-none;
-    height: 40px;
+    height: var(--height-md);
     box-shadow: var(--nexus-shadow-sm);
   }
   
@@ -193,7 +190,7 @@
     @apply inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium transition-all duration-200;
     @apply bg-transparent border border-primary text-primary hover:bg-primary/5 focus:ring-2 focus:ring-primary focus:ring-offset-2;
     @apply disabled:opacity-50 disabled:pointer-events-none;
-    height: 40px;
+    height: var(--height-md);
   }
   
   .nexus-btn-tertiary {
@@ -204,12 +201,12 @@
   }
   
   .nexus-btn-small {
-    height: 32px;
+    height: var(--height-sm);
     @apply px-4 py-1.5 text-xs;
   }
   
   .nexus-btn-large {
-    height: 48px;
+    height: var(--height-lg);
     @apply px-8 py-4 text-base;
   }
 
@@ -241,7 +238,7 @@
     @apply w-full rounded-lg border border-input bg-background px-4 py-3 text-sm transition-all duration-200;
     @apply placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0;
     @apply disabled:cursor-not-allowed disabled:opacity-50;
-    height: 40px;
+    height: var(--height-md);
   }
   
   .nexus-textarea {
@@ -249,13 +246,6 @@
     @apply placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:ring-offset-0;
     @apply disabled:cursor-not-allowed disabled:opacity-50 resize-none;
     min-height: 80px;
-  }
-  
-  .nexus-select {
-    @apply nexus-input cursor-pointer;
-    @apply appearance-none bg-no-repeat bg-right bg-[length:16px];
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-    padding-right: 2.5rem;
   }
 
   /* Nexus AI Navigation */
@@ -305,19 +295,31 @@
   }
   
   .nexus-badge-success {
-    @apply nexus-badge bg-green-500/10 text-green-600 border border-green-500/20;
+    @apply nexus-badge;
+    background-color: hsl(var(--success-green) / 0.1);
+    color: hsl(var(--success-green));
+    border: 1px solid hsl(var(--success-green) / 0.2);
   }
   
   .nexus-badge-warning {
-    @apply nexus-badge bg-amber-500/10 text-amber-600 border border-amber-500/20;
+    @apply nexus-badge;
+    background-color: hsl(var(--warning-amber) / 0.1);
+    color: hsl(var(--warning-amber));
+    border: 1px solid hsl(var(--warning-amber) / 0.2);
   }
   
   .nexus-badge-error {
-    @apply nexus-badge bg-red-500/10 text-red-600 border border-red-500/20;
+    @apply nexus-badge;
+    background-color: hsl(var(--error-red) / 0.1);
+    color: hsl(var(--error-red));
+    border: 1px solid hsl(var(--error-red) / 0.2);
   }
   
   .nexus-badge-info {
-    @apply nexus-badge bg-primary/10 text-primary border border-primary/20;
+    @apply nexus-badge;
+    background-color: hsl(var(--nexus-blue) / 0.1);
+    color: hsl(var(--nexus-blue));
+    border: 1px solid hsl(var(--nexus-blue) / 0.2);
   }
   
   .nexus-badge-neutral {
@@ -342,7 +344,8 @@
   }
   
   .nexus-processing-dot {
-    @apply w-2 h-2 bg-primary rounded-full;
+    @apply w-2 h-2 rounded-full;
+    background-color: hsl(var(--nexus-blue));
     animation: nexus-pulse 1.5s ease-in-out infinite;
   }
   
@@ -385,14 +388,6 @@
     background: linear-gradient(135deg, 
       rgba(255, 255, 255, 0.1) 0%, 
       rgba(255, 255, 255, 0.05) 100%);
-  }
-  
-  .nexus-page-title {
-    @apply nexus-h2 mb-2;
-  }
-  
-  .nexus-page-subtitle {
-    @apply nexus-small;
   }
 
   /* Utility Classes */

@@ -57,11 +57,8 @@ export const MessageDisplay: React.FC<MessageDisplayProps> = ({
   return (
     <div className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} mb-4 group`}>
       <div className={`
-        max-w-[80%] rounded-lg px-4 py-3 relative
-        ${message.sender === 'user' 
-          ? 'bg-primary text-primary-foreground' 
-          : 'bg-muted border'
-        }
+        nexus-chat-bubble
+        ${message.sender === 'user' ? 'user' : 'ai'}
       `}>
         {/* Message Content */}
         <div className="whitespace-pre-wrap break-words">
