@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { BrandLogo } from '@/components/ui/brand-logo';
+import { NexusLogo, NexusStatusIndicator } from '@/components/ui/nexus-logo';
 import { 
   MessageSquare, 
   Users, 
@@ -15,7 +16,6 @@ import {
   Code, 
   User,
   Database,
-  Sparkles,
   Settings,
   Plus,
   Trash2,
@@ -32,7 +32,12 @@ import {
   Share2,
   Bookmark,
   History,
-  Palette
+  Palette,
+  Home,
+  Layers,
+  Cpu,
+  Lock,
+  Activity
 } from 'lucide-react';
 import { useChatStore } from '@/store/chatStore';
 import { format } from 'date-fns';
@@ -62,53 +67,76 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
   const navigationGroups = [
     {
       id: 'core',
-      label: 'Core Features',
-      icon: Zap,
+      label: 'Core Platform',
+      icon: Layers,
       items: [
         { 
-          name: 'AI Chat', 
+          name: 'AI Chat Hub', 
           path: '/', 
           icon: MessageSquare, 
-          description: 'Main chat interface',
+          description: 'Main AI conversation interface',
           badge: null,
           premium: false 
         },
         { 
-          name: 'Search & Discovery', 
+          name: 'Dashboard', 
+          path: '/dashboard', 
+          icon: Home, 
+          description: 'Overview and quick actions',
+          badge: null,
+          premium: false 
+        }
+      ]
+    },
+    {
+      id: 'intelligence',
+      label: 'AI Intelligence',
+      icon: Brain,
+      items: [
+        { 
+          name: 'Semantic Search', 
           path: '/search', 
           icon: Search, 
-          description: 'Smart content search',
-          badge: 'New',
+          description: 'Advanced AI-powered search',
+          badge: 'Enhanced',
           premium: true 
         },
         { 
           name: 'Memory System', 
           path: '/memory', 
           icon: Brain, 
-          description: 'Persistent AI memory',
+          description: 'Persistent AI memory & learning',
           badge: 'Pro',
+          premium: true 
+        },
+        { 
+          name: 'Advanced Features', 
+          path: '/advanced', 
+          icon: Cpu, 
+          description: 'Cutting-edge AI capabilities',
+          badge: 'Beta',
           premium: true 
         }
       ]
     },
     {
       id: 'collaboration',
-      label: 'Collaboration',
+      label: 'Team & Collaboration',
       icon: Users,
       items: [
         { 
           name: 'Team Workspaces', 
           path: '/teams', 
           icon: Users, 
-          description: 'Collaborative spaces',
+          description: 'Collaborative AI workspaces',
           badge: 'Pro',
           premium: true 
         },
         { 
-          name: 'Analytics Dashboard', 
+          name: 'Analytics Hub', 
           path: '/analytics', 
           icon: BarChart3, 
-          description: 'Usage analytics & insights',
+          description: 'Usage insights & performance',
           badge: null,
           premium: false 
         }
@@ -120,12 +148,20 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
       icon: Code,
       items: [
         { 
-          name: 'API Hub', 
+          name: 'API Center', 
           path: '/api', 
           icon: Code, 
-          description: 'Developer tools & API',
+          description: 'Developer APIs & integrations',
           badge: 'Pro',
           premium: true 
+        },
+        { 
+          name: 'Features Gallery', 
+          path: '/features', 
+          icon: Palette, 
+          description: 'Explore all platform features',
+          badge: null,
+          premium: false 
         }
       ]
     },
@@ -135,19 +171,27 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
       icon: Settings,
       items: [
         { 
-          name: 'Profile Settings', 
+          name: 'Profile Center', 
           path: '/profile', 
           icon: User, 
-          description: 'Account preferences',
+          description: 'Personal settings & preferences',
           badge: null,
           premium: false 
         },
         { 
-          name: 'Admin Panel', 
+          name: 'Admin Dashboard', 
           path: '/admin', 
           icon: Database, 
-          description: 'System administration',
+          description: 'System administration panel',
           badge: 'Admin',
+          premium: true 
+        },
+        { 
+          name: 'White Label', 
+          path: '/white-label', 
+          icon: Shield, 
+          description: 'Custom branding & themes',
+          badge: 'Enterprise',
           premium: true 
         }
       ]
@@ -157,7 +201,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
   const handleCreateSession = () => {
     const newSessionId = createSession();
     setEditingId(newSessionId);
-    setEditTitle('New Chat');
+    setEditTitle('New AI Chat');
   };
 
   const handleEditStart = (sessionId: string, currentTitle: string) => {
@@ -203,85 +247,91 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
     <>
       {/* Mobile Overlay */}
       <div className="fixed inset-0 z-50 lg:relative lg:inset-auto lg:z-auto">
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm lg:hidden" onClick={onClose} />
+        <div 
+          className="absolute inset-0 bg-black/20 nexus-blur lg:hidden" 
+          onClick={onClose} 
+        />
         
         {/* Sidebar Container */}
-        <div className="nexus-sidebar fixed left-0 top-0 h-full w-80 max-w-[85vw] lg:relative lg:w-full lg:max-w-none shadow-2xl">
+        <div className="nexus-sidebar fixed left-0 top-0 h-full w-80 max-w-[85vw] lg:relative lg:w-full lg:max-w-none">
           
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/20 dark:border-gray-800/50">
-            <BrandLogo size="md" variant="premium" />
-            <div className="flex items-center gap-2">
-              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30 text-xs font-medium">
-                <Crown className="w-3 h-3 mr-1" />
-                Pro
-              </Badge>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={onClose} 
-                className="lg:hidden nexus-btn-ghost h-8 w-8 p-0"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+          <div className="nexus-sidebar-header">
+            <div className="flex items-center justify-between">
+              <NexusLogo size="md" />
+              <div className="flex items-center nexus-space-sm">
+                <NexusStatusIndicator status="online" size="sm" />
+                <Badge className="nexus-badge-info">
+                  <Crown className="w-3 h-3 mr-1" />
+                  Pro
+                </Badge>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onClose} 
+                  className="lg:hidden nexus-btn-tertiary h-8 w-8 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
           {/* Content */}
           <ScrollArea className="flex-1 px-4 py-4 h-[calc(100vh-140px)]">
-            <div className="space-y-6">
+            <div className="nexus-stack-lg">
               
               {/* Quick Actions */}
-              <div className="space-y-3">
+              <div className="nexus-stack-sm">
                 <Button 
                   onClick={handleCreateSession}
-                  className="w-full nexus-btn-primary justify-start gap-3 h-11"
+                  className="w-full nexus-btn-primary justify-start nexus-space-sm h-11"
                 >
                   <Plus className="w-4 h-4" />
-                  New Conversation
+                  New AI Conversation
                 </Button>
                 
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     placeholder="Search conversations..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 nexus-input h-10"
+                    className="pl-10 nexus-input"
                   />
                 </div>
               </div>
 
               {/* Chat Sessions */}
-              <div className="space-y-3">
+              <div className="nexus-sidebar-group">
                 <div 
-                  className="flex items-center justify-between cursor-pointer group"
+                  className="flex items-center justify-between cursor-pointer group mb-3"
                   onClick={() => toggleGroup('chat-sessions')}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center nexus-space-sm">
                     {expandedGroups.has('chat-sessions') ? (
-                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-gray-500" />
+                      <ChevronRight className="w-4 h-4 text-muted-foreground" />
                     )}
-                    <h3 className="text-sm font-semibold nexus-text-gradient uppercase tracking-wider">
-                      Recent Chats
+                    <h3 className="nexus-sidebar-group-label">
+                      Recent Conversations
                     </h3>
                   </div>
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="nexus-badge-neutral">
                     {filteredSessions.length}
                   </Badge>
                 </div>
                 
                 {expandedGroups.has('chat-sessions') && (
-                  <div className="space-y-2 ml-2">
+                  <div className="nexus-stack-sm ml-2">
                     {filteredSessions.length === 0 ? (
-                      <div className="text-center py-8 text-gray-500">
+                      <div className="text-center py-8 text-muted-foreground">
                         <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                        <p className="text-sm">
+                        <p className="nexus-small">
                           {searchQuery ? 'No matching conversations' : 'No conversations yet'}
                         </p>
-                        <p className="text-xs mt-1 nexus-text-subtle">
+                        <p className="nexus-caption mt-1">
                           {searchQuery ? 'Try a different search term' : 'Start a new chat to begin'}
                         </p>
                       </div>
@@ -290,13 +340,13 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                         <div
                           key={session.id}
                           className={cn(
-                            'nexus-card group p-3 cursor-pointer',
-                            session.id === currentSessionId && 'nexus-card-elevated ring-2 ring-purple-500/30'
+                            'nexus-card group p-4 cursor-pointer transition-all duration-200',
+                            session.id === currentSessionId && 'nexus-card-prominent'
                           )}
                           onClick={() => !editingId && switchSession(session.id)}
                         >
                           {editingId === session.id ? (
-                            <div className="space-y-3">
+                            <div className="nexus-stack-sm">
                               <Input
                                 value={editTitle}
                                 onChange={(e) => setEditTitle(e.target.value)}
@@ -304,10 +354,10 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                   if (e.key === 'Enter') handleEditSave();
                                   if (e.key === 'Escape') handleEditCancel();
                                 }}
-                                className="nexus-input text-sm h-8"
+                                className="nexus-input h-8"
                                 autoFocus
                               />
-                              <div className="flex gap-2">
+                              <div className="flex nexus-space-sm">
                                 <Button 
                                   size="sm" 
                                   onClick={handleEditSave}
@@ -327,23 +377,23 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                             </div>
                           ) : (
                             <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0 space-y-1">
-                                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                              <div className="flex-1 min-w-0 nexus-stack-sm">
+                                <h4 className="nexus-body font-medium text-foreground truncate">
                                   {session.title}
                                 </h4>
-                                <div className="flex items-center gap-2 text-xs nexus-text-subtle">
+                                <div className="flex items-center nexus-space-sm nexus-caption">
                                   <span>{session.messages.length} messages</span>
                                   <span>•</span>
                                   <span>{format(new Date(session.updatedAt), 'MMM d, HH:mm')}</span>
                                 </div>
                                 {session.messages.length > 0 && (
-                                  <p className="text-xs nexus-text-subtle truncate">
+                                  <p className="nexus-caption truncate">
                                     {session.messages[session.messages.length - 1].text.slice(0, 50)}...
                                   </p>
                                 )}
                               </div>
                               
-                              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex nexus-space-sm opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -351,7 +401,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                     e.stopPropagation();
                                     handleEditStart(session.id, session.title);
                                   }}
-                                  className="nexus-btn-ghost w-6 h-6 p-0"
+                                  className="nexus-btn-tertiary w-6 h-6 p-0"
                                 >
                                   <Edit2 className="w-3 h-3" />
                                 </Button>
@@ -364,7 +414,7 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                                       deleteSession(session.id);
                                     }
                                   }}
-                                  className="nexus-btn-ghost w-6 h-6 p-0 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20"
+                                  className="nexus-btn-tertiary w-6 h-6 p-0 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20"
                                 >
                                   <Trash2 className="w-3 h-3" />
                                 </Button>
@@ -378,30 +428,30 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                 )}
               </div>
 
-              <Separator className="bg-white/20 dark:bg-gray-800/50" />
+              <Separator className="bg-border" />
 
               {/* Navigation Groups */}
               {navigationGroups.map((group) => (
-                <div key={group.id} className="space-y-3">
+                <div key={group.id} className="nexus-sidebar-group">
                   <div 
-                    className="flex items-center justify-between cursor-pointer group"
+                    className="flex items-center justify-between cursor-pointer group mb-3"
                     onClick={() => toggleGroup(group.id)}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center nexus-space-sm">
                       {expandedGroups.has(group.id) ? (
-                        <ChevronDown className="w-4 h-4 text-gray-500" />
+                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-gray-500" />
+                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
                       )}
-                      <group.icon className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                      <h3 className="text-sm font-semibold nexus-text-gradient uppercase tracking-wider">
+                      <group.icon className="w-4 h-4 text-primary" />
+                      <h3 className="nexus-sidebar-group-label">
                         {group.label}
                       </h3>
                     </div>
                   </div>
                   
                   {expandedGroups.has(group.id) && (
-                    <div className="space-y-1 ml-6">
+                    <div className="nexus-stack-sm ml-6">
                       {group.items.map((item) => {
                         const isActive = location.pathname === item.path;
                         return (
@@ -412,28 +462,32 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
                             )}>
                               <item.icon className="nexus-nav-icon" />
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center nexus-space-sm">
                                   <span className="font-medium truncate">
                                     {item.name}
                                   </span>
                                   {item.badge && (
                                     <Badge className={cn(
-                                      'text-xs px-1.5 py-0.5',
-                                      item.badge === 'Pro' && 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 border-purple-500/30',
-                                      item.badge === 'New' && 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-600 dark:text-green-400 border-green-500/30',
-                                      item.badge === 'Admin' && 'bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-600 dark:text-red-400 border-red-500/30'
+                                      'px-1.5 py-0.5',
+                                      item.badge === 'Pro' && 'nexus-badge-info',
+                                      item.badge === 'Enhanced' && 'nexus-badge-success',
+                                      item.badge === 'Beta' && 'nexus-badge-warning',
+                                      item.badge === 'Admin' && 'nexus-badge-error',
+                                      item.badge === 'Enterprise' && 'nexus-badge-neutral'
                                     )}>
                                       {item.badge === 'Pro' && <Crown className="w-2.5 h-2.5 mr-0.5" />}
+                                      {item.badge === 'Enhanced' && <Zap className="w-2.5 h-2.5 mr-0.5" />}
+                                      {item.badge === 'Enterprise' && <Shield className="w-2.5 h-2.5 mr-0.5" />}
                                       {item.badge}
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs nexus-text-subtle truncate">
+                                <p className="nexus-caption truncate">
                                   {item.description}
                                 </p>
                               </div>
                               {isActive && (
-                                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+                                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                               )}
                             </div>
                           </Link>
@@ -447,29 +501,29 @@ export const ChatHubSidebar: React.FC<ChatHubSidebarProps> = ({ isOpen, onClose 
           </ScrollArea>
 
           {/* Footer */}
-          <div className="p-4 border-t border-white/20 dark:border-gray-800/50">
-            <div className="nexus-card p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-500/20">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="flex gap-1">
-                  <Sparkles className="w-4 h-4 text-purple-500" />
-                  <Shield className="w-4 h-4 text-pink-500" />
-                  <Zap className="w-4 h-4 text-indigo-500" />
+          <div className="p-4 border-t border-border">
+            <div className="nexus-card p-4 nexus-gradient-bg text-white">
+              <div className="flex items-center nexus-space-sm mb-2">
+                <div className="flex nexus-space-sm">
+                  <Zap className="w-4 h-4" />
+                  <Shield className="w-4 h-4" />
+                  <Activity className="w-4 h-4" />
                 </div>
-                <span className="text-sm font-semibold nexus-text-gradient">
-                  Nexus AI Pro
+                <span className="nexus-small font-semibold">
+                  Nexus AI Platform
                 </span>
               </div>
-              <p className="text-xs nexus-text-subtle leading-relaxed mb-3">
-                Advanced AI platform with intelligent conversations, team collaboration, and enterprise features.
+              <p className="nexus-caption opacity-90 leading-relaxed mb-3">
+                Where Intelligence Connects - Advanced AI platform with enterprise-grade capabilities.
               </p>
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-3 h-3 text-green-500" />
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    Online & Ready
+                <div className="flex items-center nexus-space-sm">
+                  <Globe className="w-3 h-3 text-green-400" />
+                  <span className="nexus-caption text-green-300 font-medium">
+                    System Online
                   </span>
                 </div>
-                <Badge className="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 text-xs border-green-200 dark:border-green-800">
+                <Badge className="bg-white/20 text-white nexus-caption border-white/30">
                   v2.1.0
                 </Badge>
               </div>

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { ChatManager } from '@/components/ChatManager';
 import { SettingsButton } from '@/components/SettingsButton';
 import { ChatHubSidebar } from '@/components/navigation/ChatHubSidebar';
-import { BrandLogo } from '@/components/ui/brand-logo';
+import { NexusLogo } from '@/components/ui/nexus-logo';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { LogOut, User, Menu, X, Search, Settings, Bell } from 'lucide-react';
@@ -24,22 +24,22 @@ const ChatInterface = () => {
   };
 
   return (
-    <div className="nexus-page-layout h-screen flex">
+    <div className="min-h-screen flex nexus-gradient-bg">
       {/* Enhanced Sidebar */}
       <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Premium Header */}
-        <header className="nexus-page-header px-6 py-4 flex-shrink-0 sticky top-0 z-40">
+        <header className="nexus-page-header px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center nexus-space-md">
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="lg:hidden nexus-btn-ghost h-10 w-10 p-0"
+                className="lg:hidden nexus-btn-tertiary h-10 w-10 p-0"
               >
                 {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
@@ -49,31 +49,31 @@ const ChatInterface = () => {
                 "lg:hidden transition-opacity duration-200",
                 sidebarOpen ? "opacity-0" : "opacity-100"
               )}>
-                <BrandLogo size="sm" variant="premium" />
+                <NexusLogo size="sm" variant="minimal" />
               </div>
 
               {/* Desktop Title */}
               <div className="hidden lg:block">
-                <h1 className="nexus-heading-md">
-                  Intelligent Conversations
+                <h1 className="nexus-h4">
+                  AI Conversation Hub
                 </h1>
-                <p className="nexus-text-subtle">
-                  Powered by advanced AI models
+                <p className="nexus-small">
+                  Intelligent conversations powered by advanced AI
                 </p>
               </div>
             </div>
             
             {/* Header Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center nexus-space-sm">
               {/* Search Button - Desktop */}
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="hidden md:flex items-center gap-2 nexus-btn-ghost px-3"
+                className="hidden md:flex items-center nexus-space-sm nexus-btn-tertiary px-3"
               >
                 <Search className="w-4 h-4" />
-                <span className="text-sm">Search</span>
-                <kbd className="text-xs bg-white/20 dark:bg-gray-800/40 px-1.5 py-0.5 rounded border border-white/30 dark:border-gray-700/50">
+                <span className="nexus-small">Search</span>
+                <kbd className="nexus-caption bg-muted px-1.5 py-0.5 rounded border">
                   ⌘K
                 </kbd>
               </Button>
@@ -82,22 +82,22 @@ const ChatInterface = () => {
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="nexus-btn-ghost h-10 w-10 p-0 relative"
+                className="nexus-btn-tertiary h-10 w-10 p-0 relative"
               >
                 <Bell className="w-4 h-4" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               </Button>
 
               {/* User Profile */}
-              <div className="hidden md:flex items-center gap-2 nexus-card px-3 py-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <div className="hidden md:flex items-center nexus-space-sm nexus-card px-3 py-2">
+                <div className="w-8 h-8 nexus-gradient-bg rounded-lg flex items-center justify-center">
                   <User className="w-4 h-4 text-white" />
                 </div>
-                <div className="text-sm">
-                  <p className="font-medium text-gray-900 dark:text-gray-100 truncate max-w-32">
+                <div className="nexus-small">
+                  <p className="font-medium text-foreground truncate max-w-32">
                     {user?.email?.split('@')[0] || 'User'}
                   </p>
-                  <p className="text-xs nexus-text-subtle">
+                  <p className="nexus-caption">
                     Pro Member
                   </p>
                 </div>
