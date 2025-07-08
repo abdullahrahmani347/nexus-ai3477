@@ -5,48 +5,81 @@
 
 @layer base {
   :root {
-    /* Nexus AI Brand Colors */
-    --nexus-blue: 218 100% 50%;
-    --nexus-purple: 255 70% 52%;
-    --connection-cyan: 193 95% 43%;
-    --success-green: 158 82% 38%;
-    --warning-amber: 38 92% 50%;
-    --error-red: 0 84% 60%;
-    --deep-charcoal: 215 28% 17%;
-    --slate-gray: 215 16% 47%;
-    --cool-gray: 210 40% 98%;
-    --pure-white: 0 0% 100%;
+    /* Nexus AI Brand Colors - Production Design System */
+    --nexus-blue: 218 100% 50%;        /* #0066FF - Primary brand color */
+    --neural-purple: 262 83% 58%;       /* #6B46C1 - Secondary innovation */
+    --connection-cyan: 188 95% 43%;     /* #06B6D4 - Accent connectivity */
+    --success-green: 158 64% 52%;       /* #10B981 - Positive actions */
+    --warning-amber: 38 92% 50%;        /* #F59E0B - Alerts, attention */
+    --error-red: 0 72% 51%;             /* #EF4444 - Errors, critical */
+    --deep-charcoal: 210 22% 22%;       /* #1F2937 - Primary text */
+    --slate-gray: 215 25% 27%;          /* #64748B - Secondary text */
+    --cool-gray: 210 40% 98%;           /* #F8FAFC - Background surfaces */
+    --pure-white: 0 0% 100%;            /* #FFFFFF - Cards, overlays */
     
     /* Semantic Color Mapping */
     --background: 210 40% 98%;
-    --foreground: 215 28% 17%;
+    --foreground: 210 22% 22%;
     --card: 0 0% 100%;
-    --card-foreground: 215 28% 17%;
+    --card-foreground: 210 22% 22%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
+    --popover-foreground: 210 22% 22%;
     --primary: 218 100% 50%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 255 70% 52%;
+    --secondary: 262 83% 58%;
     --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 193 95% 43%;
+    --muted-foreground: 215 25% 27%;
+    --accent: 188 95% 43%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 218 100% 50%;
     --radius: 0.5rem;
     
-    /* Nexus AI Specific Tokens */
+    /* Nexus AI Design System Tokens */
     --nexus-gradient-start: 218 100% 50%;
-    --nexus-gradient-middle: 255 70% 52%;
-    --nexus-gradient-end: 193 95% 43%;
+    --nexus-gradient-middle: 262 83% 58%;
+    --nexus-gradient-end: 188 95% 43%;
+    
+    /* Shadows */
     --nexus-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --nexus-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --nexus-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --nexus-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    
+    /* Typography Scale */
+    --font-size-h1: 48px;
+    --line-height-h1: 56px;
+    --font-size-h2: 36px;
+    --line-height-h2: 44px;
+    --font-size-h3: 24px;
+    --line-height-h3: 32px;
+    --font-size-h4: 20px;
+    --line-height-h4: 28px;
+    --font-size-body-large: 18px;
+    --line-height-body-large: 28px;
+    --font-size-body: 16px;
+    --line-height-body: 24px;
+    --font-size-small: 14px;
+    --line-height-small: 20px;
+    --font-size-caption: 12px;
+    --line-height-caption: 16px;
+    
+    /* Spacing Scale */
+    --space-1: 4px;   /* Micro spacing */
+    --space-2: 8px;   /* Small spacing */
+    --space-4: 16px;  /* Medium spacing */
+    --space-6: 24px;  /* Large spacing */
+    --space-8: 32px;  /* XL spacing */
+    --space-12: 48px; /* XXL spacing */
+    
+    /* Component Heights */
+    --height-sm: 32px;
+    --height-md: 40px;
+    --height-lg: 48px;
   }
 
   .dark {

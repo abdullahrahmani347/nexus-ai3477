@@ -23,7 +23,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen flex nexus-gradient-bg">
+    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-blue-900 dark:to-purple-900">
       {/* Sidebar */}
       {showSidebar && (
         <ChatHubSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -50,11 +50,11 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
               {/* Page Title */}
               {title && (
                 <div className="nexus-stack-sm">
-                  <h1 className="nexus-page-title">
+                  <h1 className="nexus-h2 text-primary font-bold tracking-tight">
                     {title}
                   </h1>
                   {subtitle && (
-                    <p className="nexus-page-subtitle">
+                    <p className="nexus-small text-muted-foreground">
                       {subtitle}
                     </p>
                   )}
@@ -66,7 +66,7 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
 
         {/* Page Content */}
         <main className={cn(
-          "nexus-page-content",
+          "nexus-page-content flex-1",
           className
         )}>
           <div className="nexus-container py-8 nexus-animate-fade-in">
